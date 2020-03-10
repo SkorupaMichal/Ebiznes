@@ -1,5 +1,7 @@
 FROM ubuntu:18.04
 
+RUN useradd -ms /bin/bash michal_skorupa
+
 RUN apt-get update -y && \
     apt-get install -y software-properties-common gnupg2 apt-transport-https apt-utils
 
@@ -21,7 +23,9 @@ RUN curl -sLO https://downloads.lightbend.com/scala/2.12.8/scala-2.12.8.deb && \
 
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - && \
     apt-get install -y nodejs
+
 RUN npm install -g npm@6.8
+USER michal_skorupa
 RUN mkdir -p /home/michal_skorupa/projekt
 WORKDIR /home/michal_skorupa/projekt
 EXPOSE 8000
