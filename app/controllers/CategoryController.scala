@@ -4,6 +4,9 @@ import play.api.mvc._
 
 @Singleton
 class CategoryController @Inject()(cc:ControllerComponents) extends AbstractController(cc) {
+
+  /*Category controller*/
+
   def getCategories = Action{
     Ok("Categories")
   }

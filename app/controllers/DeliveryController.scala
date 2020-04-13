@@ -4,6 +4,7 @@ import play.api.mvc._
 
 @Singleton
 class DeliveryController @Inject()(cc:ControllerComponents) extends AbstractController(cc){
+  /*Delivery controller*/
 
   def getDelivery = Action{
     Ok("Delivery" )

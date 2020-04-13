@@ -4,6 +4,7 @@ import play.api.mvc._
 
 @Singleton
 class ImageController @Inject()(cc:ControllerComponents) extends AbstractController(cc){
+  /*Product Image controller*/
 
   def getImages = Action{
     Ok("Comments" )

@@ -4,7 +4,7 @@ import play.api.mvc._
 
 @Singleton
 class CommentController @Inject() (cc:ControllerComponents) extends AbstractController(cc) {
-
+  /*Comment to product controller*/
   def getComments(productId: Int) = Action{
     Ok("Comments" + productId)
   }

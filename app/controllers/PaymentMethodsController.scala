@@ -3,6 +3,7 @@ import javax.inject._
 import play.api.mvc._
 
 class PaymentMethodsController @Inject() (cc:ControllerComponents) extends AbstractController(cc){
+  /*Payment methods controller*/
 
   def getPaymentMethods = Action{
     Ok("PaymentMethods" )

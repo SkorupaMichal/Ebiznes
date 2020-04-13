@@ -11,70 +11,60 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 # koszyk
-GET     /baskets                     controllers.BasketController.getCurrentBasket
+GET     /baskets                            controllers.BasketController.getCurrentBasket
 GET     /createbasket                       controllers.BasketController.createBasket
-GET     /basket/:id                         controllers.BasketController.addToBasket(id:Int)
+GET     /updatebasket/:id                   controllers.BasketController.addToBasket(id:Int)
 GET     /deletebasket/:id                   controllers.BasketController.deleteBasket(id:Int)
-
 # Produkty
 GET     /products                           controllers.ProductController.getProducts
 GET     /product                            controllers.ProductController.createProduct
-GET     /product/:productId                 controllers.ProductController.updateProduct(productId:Int)
+GET     /updateproduct/:productId           controllers.ProductController.updateProduct(productId:Int)
 GET     /product/:productId                 controllers.ProductController.deleteProduct(productId:Int)
-
 # Kategorie
 GET     /categories                         controllers.CategoryController.getCategories
 GET     /category                           controllers.CategoryController.createCategories
-GET     /category/:categoryId               controllers.CategoryController.updateCategory(categoryId:Int)
-GET     /category/:categoryId               controllers.CategoryController.deleteCategory(categoryId:Int)
-
+GET     /updatecategory/:categoryId         controllers.CategoryController.updateCategory(categoryId:Int)
+GET     /deletecategory/:categoryId         controllers.CategoryController.deleteCategory(categoryId:Int)
 # Komentarze do produktow
 GET     /comments/:productId                controllers.CommentController.getComments(productId :Int)
 GET     /comment/:productId                 controllers.CommentController.createComment(productId :Int)
-GET     /comment/:productId                 controllers.CommentController.updateComment(productId:Int)
-GET     /comment/:productId                 controllers.CommentController.deleteComment(productId:Int)
-
+GET     /updatecomment/:productId           controllers.CommentController.updateComment(productId:Int)
+GET     /deletecomment/:productId           controllers.CommentController.deleteComment(productId:Int)
 # Zdjecia prodotkow
 GET     /images                             controllers.ImageController.getImages
 GET     /image                              controllers.ImageController.createImage
-GET     /image/:imageId                     controllers.ImageController.updateImage(imageId:Int)
-GET     /image/:imageId                     controllers.ImageController.deleteImage(imageId:Int)
-
+GET     /updateimage/:imageId               controllers.ImageController.updateImage(imageId:Int)
+GET     /deleteimage/:imageId               controllers.ImageController.deleteImage(imageId:Int)
 # Zamowienia
 GET     /orders                             controllers.OrderController.getOrders
 GET     /order                              controllers.OrderController.createOrder
-GET     /order/:orderId                     controllers.OrderController.updateOrder(orderId:Int)
+GET     /updateorder/:orderId               controllers.OrderController.updateOrder(orderId:Int)
 GET     /order/:orderId                     controllers.OrderController.deleteOrder(orderId:Int)
-
 # Dostawy
 GET     /delivers                           controllers.DeliveryController.getDelivery
 GET     /deliver                            controllers.DeliveryController.createDelivery
-GET     /deliver/:deliverId                 controllers.DeliveryController.updateDelivery(deliverId:Int)
-GET     /deliver/:deliverId                 controllers.DeliveryController.deleteDelivery(deliverId:Int)
-
+GET     /updatedeliver/:deliverId           controllers.DeliveryController.updateDelivery(deliverId:Int)
+GET     /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
 # Statystyki
-GET     /statistics                         controllers.StatisticsController.getStatistics
-GET     /statistic                          controllers.StatisticsController.createStatistic
-GET     /statistic/:statisticId             controllers.StatisticsController.updateStatistic(statisticId:Int)
-GET     /statistic/:statisticId             controllers.StatisticsController.deleteStatistic(statisticId:Int)
-
+#GET     /statistics                         controllers.StatisticsController.getStatistics
+#GET     /statistic                          controllers.StatisticsController.createStatistic
+#GET     /updatestatistic/:statisticId       controllers.StatisticsController.updateStatistic(statisticId:Int)
+#GET     /deletestatistic/:statisticId       controllers.StatisticsController.deleteStatistic(statisticId:Int)
 #Zestawy produktów
 GET     /productsSets                       controllers.ProductSetController.getProductSets
 GET     /productsSet                        controllers.ProductSetController.createProductSet
-GET     /productsSet/:ProductSetId          controllers.ProductSetController.updateProductSet(ProductSetId:Int)
-GET     /productsSet/:ProductSetId          controllers.ProductSetController.deleteProductSet(ProductSetId:Int)
-
+GET     /updateproductsSet/:ProductSetId    controllers.ProductSetController.updateProductSet(ProductSetId:Int)
+GET     /deleteproductsSet/:ProductSetId    controllers.ProductSetController.deleteProductSet(ProductSetId:Int)
 #Rodzaje platnosci
-GET     /paymentmethods                     controllers.PaymentMethodsController.getPaymentMethods
-GET     /paymentmethod                      controllers.PaymentMethodsController.createPaymentMethod
-GET     /paymentmethod/:paymentMethodId     controllers.PaymentMethodsController.updatePaymentMethod(paymentMethodId:Int)
-GET     /paymentmethod/:paymentMethodId     controllers.PaymentMethodsController.deletePaymentMethod(paymentMethodId:Int)
-
+GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
+GET     /paymentmethod                          controllers.PaymentMethodsController.createPaymentMethod
+GET     /updatepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.updatePaymentMethod(paymentMethodId:Int)
+GET     /deletepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.deletePaymentMethod(paymentMethodId:Int)
 #Podkateggorie
 GET 	/subcategories						controllers.SubCategoryController.getSubCategories
 GET 	/subcategory 						controllers.SubCategoryController.getSubcategory
-GET 	/subcategory/:categoryId 			controllers.SubCategoryController.addSubCategory(categoryId:Int)
-GET 	/subcategory/:categoryId 			controllers.SubCategoryController.removeSubCategory(categoryId:Int)
+GET 	/updatesubcategory/:categoryId 		controllers.SubCategoryController.addSubCategory(categoryId:Int)
+GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.removeSubCategory(categoryId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

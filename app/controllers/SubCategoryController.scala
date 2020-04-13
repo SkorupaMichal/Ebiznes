@@ -4,8 +4,8 @@ import javax.inject._
 import play.api.mvc._
 
 @Singleton
-class SubCategoryController @Inject()(cc:ControllerComponents) extends AbstractController(cc){ 
-    
+class SubCategoryController @Inject()(cc:ControllerComponents) extends AbstractController(cc){
+    /*Sub category controller*/
     def getSubCategories = Action{
         Ok("Subcategories")
     }
