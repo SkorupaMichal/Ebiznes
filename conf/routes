@@ -70,7 +70,11 @@ GET     /paymentmethod                      controllers.PaymentMethodsController
 GET     /paymentmethod/:paymentMethodId     controllers.PaymentMethodsController.updatePaymentMethod(paymentMethodId:Int)
 GET     /paymentmethod/:paymentMethodId     controllers.PaymentMethodsController.deletePaymentMethod(paymentMethodId:Int)
 
-
+#Podkateggorie
+GET 	/subcategories						controllers.SubCategoryController.getSubCategories
+GET 	/subcategory 						controllers.SubCategoryController.getSubcategory
+GET 	/subcategory/:categoryId 			controllers.SubCategoryController.addSubCategory(categoryId:Int)
+GET 	/subcategory/:categoryId 			controllers.SubCategoryController.removeSubCategory(categoryId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
