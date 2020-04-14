@@ -25,4 +25,4 @@ project/target/
 target/
 .scala_dependencies
 .worksheet
-/app/controllers/StatisticsController.scala
+app/controllers/StatisticsController.scala
