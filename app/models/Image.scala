@@ -2,11 +2,15 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.Json
+
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
 case class Image(id:Int,url:String,description:String,product_id:Int)
-
+object Image{
+  implicit val imageForm = Json.format[Image]
+}
 class ImageRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protected val pR:ProductRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._

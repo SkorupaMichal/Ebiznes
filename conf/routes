@@ -11,7 +11,7 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 # koszyk
-GET     /baskets                            controllers.BasketController.getCurrentBasket(id:Int)
+GET     /baskets/:id                            controllers.BasketController.getBasketByID(id:Int)
 POST    /createbasket                       controllers.BasketController.createBasket
 POST    /updatebasket/:id                   controllers.BasketController.addToBasket(id:Int)
 DELETE  /deletebasket/:id                   controllers.BasketController.deleteBasket(id:Int)

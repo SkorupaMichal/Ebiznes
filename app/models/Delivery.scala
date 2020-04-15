@@ -2,11 +2,15 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.Json
+
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
 case class Delivery(id:Int,name:String,description: String)
-
+object Delivery{
+  implicit val deliveryForm = Json.format[Delivery]
+}
 @Singleton
 class DeliveryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]

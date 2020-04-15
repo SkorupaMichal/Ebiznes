@@ -14,8 +14,9 @@ class CategoryController @Inject()(cc:ControllerComponents,repo:CategoryReposito
 
   /*Category controller*/
   val categoryForm: Form[CreateCategoryForm] = Form{
+    mapping(
     "name" -> nonEmptyText,
-    "description" ->nonEmptyText
+    "description" ->nonEmptyText)(CreateCategoryForm.apply)(CreateCategoryForm.unapply)
   }
   def getCategories = Action.async{ implicit request=>
     repo.list().map(

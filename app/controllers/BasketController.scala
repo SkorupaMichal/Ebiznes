@@ -6,7 +6,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
-
 case class CreateBasketForm(description:String)
 @Singleton
 class BasketController @Inject() (cc:ControllerComponents,repo:BasketRepository)(implicit ec:ExecutionContext) extends AbstractController(cc){
@@ -23,8 +22,11 @@ class BasketController @Inject() (cc:ControllerComponents,repo:BasketRepository)
     }
   }
   def getBasketByID(basketid:Int) = Action.async { implicit  request=>
-      repo.getById(basketid).map{
-        cart=>Ok(Json.toJson(cart))
+      repo.getById(basketid).map {
+        cart => cart match {
+          case Some(i) => Ok(Json.toJson(i))
+          case None => Ok("Non object")
+          }
       }
   }
   def getCurrentBasket = Action{

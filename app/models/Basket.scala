@@ -2,10 +2,14 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json._
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
 case class Basket(id:Int,description:String)
+object Basket{
+  implicit val basketForm = Json.format[Basket]
+}
 @Singleton
 class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
@@ -23,8 +27,8 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
   def list(): Future[Seq[Basket]] = db.run{
     baskets.result
   }
-  def getById(id:Int): Future[Basket] = db.run{
-    baskets.filter(_.id ===id).result.head
+  def getById(id:Int): Future[Option[Basket]] = db.run{
+    baskets.filter(_.id ===id).result.headOption
   }
   def create(description:String):Future[Basket] = db.run{
     (baskets.map(c => (c.description))

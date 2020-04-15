@@ -2,11 +2,15 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.Json
+
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
 case class Category(id:Int,name:String,description:String)
-
+object Category{
+  implicit val categoryForm = Json.format[Category]
+}
 @Singleton
 class CategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]

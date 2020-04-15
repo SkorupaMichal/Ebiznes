@@ -2,12 +2,15 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.libs.json.Json
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
 case class Comment(id:Int,title:String,content:String,product_id:Int)
-
+object Comment{
+  implicit val commentForm = Json.format[Comment]
+}
 @Singleton
 class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, protected  val pR:ProductRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
@@ -31,6 +34,9 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   }
   def getById(id:Int):Future[Comment] = db.run{
     comments.filter(_.id===id).result.head
+  }
+  def getByProduct(productID:Int):Future[Seq[Comment]] = db.run{
+    comments.filter(_.product_id === productID).result
   }
   def create(title:String,content:String,product_id:Int):Future[Comment] = db.run{
     (comments.map(c=>(c.title,c.content,c.product_id))
