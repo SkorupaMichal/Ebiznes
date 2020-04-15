@@ -12,7 +12,7 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(impli
 
   import dbConfig._
   import profile.api._
-  class BasketTableDef(tag: Tag) extends Table[Basket](tag,"basket"){
+  class BasketTableDef(tag: Tag) extends Table[Basket](tag,"Basket"){
 
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def description = column[String]("description",O.Default(""))
