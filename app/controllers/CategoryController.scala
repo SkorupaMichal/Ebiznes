@@ -1,16 +1,33 @@
 package controllers
+import models._
 import javax.inject._
 import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.Json
+import scala.concurrent.{ExecutionContext, Future}
+
+case class CreateCategoryForm(name:String,description:String)
 
 @Singleton
-class CategoryController @Inject()(cc:ControllerComponents) extends AbstractController(cc) {
+class CategoryController @Inject()(cc:ControllerComponents,repo:CategoryRepository)(implicit ex:ExecutionContext) extends AbstractController(cc) {
 
   /*Category controller*/
-
-  def getCategories = Action{
-    Ok("Categories")
+  val categoryForm: Form[CreateCategoryForm] = Form{
+    "name" -> nonEmptyText,
+    "description" ->nonEmptyText
   }
-
+  def getCategories = Action.async{ implicit request=>
+    repo.list().map(
+      category=>Ok(Json.toJson(category))
+    )
+    //Ok("Categories")
+  }
+  def getCategorisByID(categoryId:Int) = Action.async{ implicit request=>
+    repo.getById(categoryId).map(
+      category=>Ok(Json.toJson(category))
+    )
+  }
   def createCategories = Action{
     Ok("Create categoriess")
   }
