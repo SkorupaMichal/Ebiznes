@@ -17,7 +17,7 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implici
   import dbConfig._
   import profile.api._
 
-  class OrderTableDef(tag:Tag) extends Table[Order](tag,"category"){
+  class OrderTableDef(tag:Tag) extends Table[Order](tag,"order"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.Default(""))
     def * = (id,name)<>((Order.apply _).tupled,Order.unapply)
@@ -27,8 +27,8 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implici
   def list(): Future[Seq[Order]] = db.run{
     orders.result
   }
-  def getById(id:Int):Future[Order] = db.run{
-    orders.filter(_.id===id).result.head
+  def getById(id:Int):Future[Option[Order]] = db.run{
+    orders.filter(_.id===id).result.headOption
   }
   def create(name:String):Future[Order] = db.run{
     (orders.map(c=>(c.name))

@@ -24,9 +24,13 @@ class CategoryController @Inject()(cc:ControllerComponents,repo:CategoryReposito
     )
     //Ok("Categories")
   }
-  def getCategorisByID(categoryId:Int) = Action.async{ implicit request=>
+  def getCategoriesByID(categoryId:Int) = Action.async{ implicit request=>
     repo.getById(categoryId).map(
-      category=>Ok(Json.toJson(category))
+      category=>
+        category match{
+          case Some(i) => Ok(Json.toJson(i))
+          case None => Ok("Brak kaegori o podanym id")
+        }
     )
   }
   def createCategories = Action{

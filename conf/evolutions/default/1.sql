@@ -79,6 +79,7 @@ CREATE TABLE Subcategory(
     category_id INTEGER NOT NULL ,
     FOREIGN KEY (category_id) REFERENCES Category(id)
 );
+
 -- !Downs
 
 DROP TABLE Category;

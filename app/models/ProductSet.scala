@@ -17,7 +17,7 @@ class ProductSetRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(im
   import dbConfig._
   import profile.api._
 
-  class ProductSetTableDef(tag:Tag) extends Table[ProductSet](tag,"category"){
+  class ProductSetTableDef(tag:Tag) extends Table[ProductSet](tag,"productSet"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.Unique)
     def description = column[String]("description")
@@ -28,8 +28,8 @@ class ProductSetRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(im
   def list(): Future[Seq[ProductSet]] = db.run{
     productsets.result
   }
-  def getById(id:Int):Future[ProductSet] = db.run{
-    productsets.filter(_.id===id).result.head
+  def getById(id:Int):Future[Option[ProductSet]] = db.run{
+    productsets.filter(_.id===id).result.headOption
   }
   def create(name:String,description:String):Future[ProductSet] = db.run{
     (productsets.map(c=>(c.name,c.description))

@@ -17,7 +17,7 @@ class PaymentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impli
   import dbConfig._
   import profile.api._
 
-  class PaymentTableDef(tag:Tag) extends Table[Payment](tag,"category"){
+  class PaymentTableDef(tag:Tag) extends Table[Payment](tag,"payment"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.Unique)
     def description = column[String]("description")
@@ -28,8 +28,8 @@ class PaymentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impli
   def list(): Future[Seq[Payment]] = db.run{
     payments.result
   }
-  def getById(id:Int):Future[Payment] = db.run{
-    payments.filter(_.id===id).result.head
+  def getById(id:Int):Future[Option[Payment]] = db.run{
+    payments.filter(_.id===id).result.headOption
   }
   def create(name:String,description:String):Future[Payment] = db.run{
     (payments.map(c=>(c.name,c.description))

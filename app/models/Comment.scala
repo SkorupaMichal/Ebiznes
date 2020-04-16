@@ -17,7 +17,7 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   import dbConfig._
   import profile.api._
 
-  class CommentTableDef(tag:Tag) extends Table[Comment](tag,"category"){
+  class CommentTableDef(tag:Tag) extends Table[Comment](tag,"comment"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def title = column[String]("description")
     def content = column[String]("content")
@@ -32,8 +32,8 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   def list(): Future[Seq[Comment]] = db.run{
     comments.result
   }
-  def getById(id:Int):Future[Comment] = db.run{
-    comments.filter(_.id===id).result.head
+  def getById(id:Int):Future[Option[Comment]] = db.run{
+    comments.filter(_.id===id).result.headOption
   }
   def getByProduct(productID:Int):Future[Seq[Comment]] = db.run{
     comments.filter(_.product_id === productID).result

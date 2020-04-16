@@ -30,8 +30,8 @@ class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,prote
   def list(): Future[Seq[Product]] = db.run{
     products.result
   }
-  def getById(id:Int): Future[Product] = db.run{
-    products.filter(_.id === id).result.head;
+  def getById(id:Int): Future[Option[Product]] = db.run{
+    products.filter(_.id === id).result.headOption;
   }
   def create(name:String,category_id:Int): Future[Product] = db.run{
     (products.map(c=>(c.name,c.category_id))

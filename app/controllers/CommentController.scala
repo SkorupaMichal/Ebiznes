@@ -18,12 +18,25 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   }
   /*Comment to product controller*/
 
-  def getComments(productId: Int) = Action.async{ implicit request =>
+  def getComments = Action.async{ implicit request =>
+    commentRepo.list().map(
+      comment => Ok(Json.toJson(comment))
+    )
+  }
+  def getCommentsByProductID(productId: Int) = Action.async{ implicit request =>
     /*Return comment by product*/
     commentRepo.getByProduct(productId).map(
       comments => Ok(Json.toJson(comments))
     )
     // Ok("Comments" + productId)
+  }
+  def getCommentByID(commentId: Int) = Action.async{ implicit  request=>
+    commentRepo.getById(commentId).map(
+      comment=> comment match{
+        case Some(i) => Ok(Json.toJson(i))
+        case None => Ok("Brak komentarza o podanym id")
+      }
+    )
   }
   def getAllComents = Action.async{ implicit request =>
     /*Get all comments in database*/

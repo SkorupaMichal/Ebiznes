@@ -28,8 +28,8 @@ class CategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
   def list(): Future[Seq[Category]] = db.run{
     categories.result
   }
-  def getById(id:Int):Future[Category] = db.run{
-    categories.filter(_.id===id).result.head
+  def getById(id:Int):Future[Option[Category]] = db.run{
+    categories.filter(_.id===id).result.headOption
   }
   def create(name:String,description:String):Future[Category] = db.run{
     (categories.map(c=>(c.name,c.description))

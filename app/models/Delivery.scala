@@ -27,8 +27,8 @@ class DeliveryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
   def list():Future[Seq[Delivery]] = db.run{
     delivers.result
   }
-  def getById(deliverId:Int):Future[Delivery] = db.run{
-    delivers.filter(_.id ===deliverId).result.head
+  def getById(deliverId:Int):Future[Option[Delivery]] = db.run{
+    delivers.filter(_.id ===deliverId).result.headOption
   }
   def create(name:String,description:String):Future[Delivery] = db.run{
     (delivers.map(c=>(c.name,c.description))

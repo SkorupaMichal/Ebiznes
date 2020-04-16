@@ -11,7 +11,7 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 # koszyk
-GET     /baskets/:id                            controllers.BasketController.getBasketByID(id:Int)
+GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)
 POST    /createbasket                       controllers.BasketController.createBasket
 POST    /updatebasket/:id                   controllers.BasketController.addToBasket(id:Int)
 DELETE  /deletebasket/:id                   controllers.BasketController.deleteBasket(id:Int)
@@ -26,7 +26,7 @@ POST    /createcategory                     controllers.CategoryController.creat
 POST    /updatecategory/:categoryId         controllers.CategoryController.updateCategory(categoryId:Int)
 DELETE  /deletecategory/:categoryId         controllers.CategoryController.deleteCategory(categoryId:Int)
 # Komentarze do produktow
-GET     /comments/:productId                controllers.CommentController.getComments(productId :Int)
+GET     /comments                           controllers.CommentController.getComments
 POST    /createcomment/:productId           controllers.CommentController.createComment(productId :Int)
 POST    /updatecomment/:productId           controllers.CommentController.updateComment(productId:Int)
 DELETE  /deletecomment/:productId           controllers.CommentController.deleteComment(productId:Int)

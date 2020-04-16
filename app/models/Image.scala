@@ -27,11 +27,12 @@ class ImageRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
   import pR.ProductTableDef
   val images = TableQuery[ImageTableDef]
   val products = TableQuery[ProductTableDef]
+
   def list(): Future[Seq[Image]] = db.run{
     images.result
   }
-  def getById(id:Int):Future[Image] = db.run{
-    images.filter(_.id === id).result.head
+  def getById(id:Int):Future[Option[Image]] = db.run{
+    images.filter(_.id === id).result.headOption
   }
   def create(url:String,description:String,product_id:Int):Future[Image] = db.run{
     (images.map(c=>(c.url,c.description,c.product_id))
