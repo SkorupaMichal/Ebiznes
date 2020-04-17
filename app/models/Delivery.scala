@@ -16,10 +16,10 @@ class DeliveryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._
   import profile.api._
-  class DeliveryTableDef(tag:Tag) extends Table[Delivery](tag,"delivery"){
+  class DeliveryTableDef(tag:Tag) extends Table[Delivery](tag,"deliver"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
-    def name = column[String]("id",O.Unique)
-    def description = column[String]("id")
+    def name = column[String]("name",O.Unique)
+    def description = column[String]("description")
     def * = (id,name,description)<>((Delivery.apply _ ).tupled,Delivery.unapply)
   }
   val delivers = TableQuery[DeliveryTableDef]

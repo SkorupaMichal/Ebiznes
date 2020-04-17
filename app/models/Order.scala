@@ -17,7 +17,7 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implici
   import dbConfig._
   import profile.api._
 
-  class OrderTableDef(tag:Tag) extends Table[Order](tag,"order"){
+  class OrderTableDef(tag:Tag) extends Table[Order](tag,"orders"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.Default(""))
     def * = (id,name)<>((Order.apply _).tupled,Order.unapply)
