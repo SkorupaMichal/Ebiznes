@@ -7,33 +7,51 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
-case class Order(id:Int,name:String)
+case class Order(id:Int,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int)
 object Order{
   implicit val orderForm = Json.format[Order]
 }
 @Singleton
-class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit executionContext: ExecutionContext){
+class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protected val uR: UserRepository,
+                                protected  val dR: DeliveryRepository,protected val pR:PaymentRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._
   import profile.api._
 
   class OrderTableDef(tag:Tag) extends Table[Order](tag,"orders"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
-    def name = column[String]("name",O.Default(""))
-    def * = (id,name)<>((Order.apply _).tupled,Order.unapply)
-  }
+    def date = column[String]("date")
+    def cost = column[Int]("cost")
+    def deliver_id = column[Int]("deliver_id")
+    def deliver_fk = foreignKey("deliver_fk",deliver_id,
+      delivers)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def user_id = column[Int]("user_id")
+    def user_fk = foreignKey("user_fk",user_id,
+      users)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def payment_id = column[Int]("payment_id")
+    def payment_fk = foreignKey("payment_fk",deliver_id,
+      payments)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
 
+    def * = (id,date,cost,deliver_id,user_id,payment_id)<>((Order.apply _).tupled,Order.unapply)
+  }
+  import uR.UserTableDef
+  import dR.DeliveryTableDef
+  import pR.PaymentTableDef
   val orders = TableQuery[OrderTableDef]
+  val users  = TableQuery[UserTableDef]
+  val delivers = TableQuery[DeliveryTableDef]
+  val payments = TableQuery[PaymentTableDef]
   def list(): Future[Seq[Order]] = db.run{
     orders.result
   }
   def getById(id:Int):Future[Option[Order]] = db.run{
     orders.filter(_.id===id).result.headOption
   }
-  def create(name:String):Future[Order] = db.run{
-    (orders.map(c=>(c.name))
+  def create(date:String,cost:Int,deliver_id:Int,user_id:Int,
+             payment_id:Int):Future[Order] = db.run{
+    (orders.map(c=>(c.date,c.cost,c.deliver_id,c.user_id,c.payment_id))
       returning orders.map(_.id)
-      into{case((name),id)=>Order(id,name)})+=(name)
+      into{case((date,cost,deliver_id,user_id,payment_id),id)=>Order(id,date,cost,deliver_id,user_id,payment_id)})+=(date,cost,deliver_id,user_id,payment_id)
   }
   def delete(orderId: Int):Future[Unit]= db.run{
     orders.filter(_.id===orderId).delete.map(_=>())

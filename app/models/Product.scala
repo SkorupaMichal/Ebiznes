@@ -7,11 +7,12 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
-case class Product(id:Int,name:String,category_id:Int)
+case class Product(id:Int,name:String,count:Int,producer:String,subcategory_id:Int)
 object Product{
   implicit val productForm = Json.format[Product]
 }
-class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,protected val cR: CategoryRepository)(implicit executionContext: ExecutionContext){
+class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
+                                  protected val cR: SubCategoryRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._
   import profile.api._
@@ -19,24 +20,26 @@ class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,prote
 
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.SqlType("not null"))
-    def category_id = column[Int]("category_id",O.SqlType("not null"))
-    def category_fk = foreignKey("category_fk",category_id,
-      categoryTable)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,name,category_id) <>((Product.apply _).tupled, Product.unapply)
+    def count = column[Int]("count")
+    def producer = column[String]("producer")
+    def subcategory_id = column[Int]("subcategory_id",O.SqlType("not null"))
+    def subcategory_fk = foreignKey("subcategory_fk",subcategory_id,
+      subcategoryTable)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def * = (id,name,count,producer,subcategory_id) <>((Product.apply _).tupled, Product.unapply)
   }
-  import cR.CategoryTableDef
+  import cR.SubCategoryTableDef
   val products = TableQuery[ProductTableDef]
-  val categoryTable = TableQuery[CategoryTableDef ]
+  val subcategoryTable = TableQuery[SubCategoryTableDef ]
   def list(): Future[Seq[Product]] = db.run{
     products.result
   }
   def getById(id:Int): Future[Option[Product]] = db.run{
     products.filter(_.id === id).result.headOption;
   }
-  def create(name:String,category_id:Int): Future[Product] = db.run{
-    (products.map(c=>(c.name,c.category_id))
+  def create(name:String,count:Int,producer:String,subcategory_id:Int): Future[Product] = db.run{
+    (products.map(c=>(c.name,c.count,c.producer,c.subcategory_id))
       returning products.map(_.id)
-      into{ case((name,category_id),id)=>Product(id,name,category_id)}) += (name,category_id)
+      into{ case((name,count,producer,subcategory_id),id)=>Product(id,name,count,producer,subcategory_id)}) += (name,count,producer,subcategory_id)
   }
   def delete(productID:Int): Future[Unit] = {
     db.run(products.filter(_.id === productID).delete).map(_=>())

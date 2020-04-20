@@ -52,17 +52,12 @@ GET     /delivers/:id                       controllers.DeliveryController.getDe
 POST    /createdeliver                      controllers.DeliveryController.createDelivery
 POST    /updatedeliver/:deliverId           controllers.DeliveryController.updateDelivery(deliverId:Int)
 DELETE  /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
-# Statystyki
-#GET     /statistics                         controllers.StatisticsController.getStatistics
-#GET     /statistic                          controllers.StatisticsController.createStatistic
-#GET     /updatestatistic/:statisticId       controllers.StatisticsController.updateStatistic(statisticId:Int)
-#GET     /deletestatistic/:statisticId       controllers.StatisticsController.deleteStatistic(statisticId:Int)
 #Zestawy produktów
-GET     /productsSets                       controllers.ProductSetController.getProductSets
-GET     /productsSets/:id                   controllers.ProductSetController.getProductSetById(id:Int)
-POST    /createproductsSet                  controllers.ProductSetController.createProductSet
-POST    /updateproductsSet/:ProductSetId    controllers.ProductSetController.updateProductSet(ProductSetId:Int)
-DELETE  /deleteproductsSet/:ProductSetId    controllers.ProductSetController.deleteProductSet(ProductSetId:Int)
+GET     /users                              controllers.UserController.getUsers
+GET     /user/:id                           controllers.UserController.getUserById(id:Int)
+POST    /createproductsUser                 controllers.UserController.createUser
+POST    /updateproductsUser/:UserId         controllers.UserController.updateUser(UserId:Int)
+DELETE  /deleteproductsUser/:UserId         controllers.UserController.deleteUser(UserId:Int)
 #Rodzaje platnosci
 GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
 GET     /paymentmethods/:id                     controllers.PaymentMethodsController.getPaymentMethodByID(id:Int)
