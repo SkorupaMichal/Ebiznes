@@ -1,0 +1,16 @@
+@(basket: Form[CreateBasketForm])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.BasketController.get_AllBaskets()">Powrót</a>
+
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.BasketController.createBasket()){
+    @helper.CSRF.formField
+    @inputText(basket("description"))
+
+    <div class="buttons">
+        <input type="submit" value="Add basket"/>
+    </div>
+}

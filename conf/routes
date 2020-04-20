@@ -13,9 +13,11 @@ GET     /message                    controllers.AsyncController.message
 # koszyk
 GET     /baskets                            controllers.BasketController.get_AllBaskets
 GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)
+GET     /createbasket                       controllers.BasketController.index
 POST    /createbasket                       controllers.BasketController.createBasket
-POST    /updatebasket/:id                   controllers.BasketController.addToBasket(id:Int)
-DELETE  /deletebasket/:id                   controllers.BasketController.deleteBasket(id:Int)
+GET     /updatebasket/:id                   controllers.BasketController.updateBasket(id:Int)
+POST    /updatebaskethandle                 controllers.BasketController.updateBasketHandle
+GET     /deletebasket/:id                   controllers.BasketController.deleteBasket(id:Int)
 # Produkty
 GET     /products                           controllers.ProductController.getProducts
 GET     /products/:id                       controllers.ProductController.getPRoductByID(id:Int)
@@ -25,9 +27,11 @@ DELETE  /product/:productId                 controllers.ProductController.delete
 # Kategorie
 GET     /categories                         controllers.CategoryController.getCategories
 GET     /categories/:id                     controllers.CategoryController.getCategoriesByID(id:Int)
+GET     /createcategory                     controllers.CategoryController.index
 POST    /createcategory                     controllers.CategoryController.createCategories
-POST    /updatecategory/:categoryId         controllers.CategoryController.updateCategory(categoryId:Int)
-DELETE  /deletecategory/:categoryId         controllers.CategoryController.deleteCategory(categoryId:Int)
+GET     /updatecategory/:categoryId         controllers.CategoryController.updateCategory(categoryId:Int)
+POST    /updatecategoryhandle               controllers.CategoryController.updateCategoryHandle
+GET     /deletecategory/:categoryId         controllers.CategoryController.deleteCategory(categoryId:Int)
 # Komentarze do produktow
 GET     /comments                           controllers.CommentController.getComments
 GET     /comments/:id                       controllers.CommentController.getCommentByID(id:Int)
@@ -72,9 +76,11 @@ DELETE  /deletepaymentmethod/:paymentMethodId   controllers.PaymentMethodsContro
 #Podkateggorie
 GET 	/subcategories						controllers.SubCategoryController.getSubCategories
 GET 	/subcategories/:id					controllers.SubCategoryController.getSubCategorieByID(id:Int)
-POST 	/createsubcategory 				    controllers.SubCategoryController.getSubcategory
-POST 	/updatesubcategory/:categoryId 		controllers.SubCategoryController.addSubCategory(categoryId:Int)
-DELETE 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.removeSubCategory(categoryId:Int)
+GET     /createsubcategory                  controllers.SubCategoryController.addSubCategory
+POST    /addSubCategoryHandle               controllers.SubCategoryController.addSubCategoryHandle
+GET 	/updatesubcategory/:id              controllers.SubCategoryController.updateSubCategory(id:Int)
+POST    /updatsubcategoryhandle             controllers.SubCategoryController.updateSubCategoryHandle
+GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.deleteSubCategory(categoryId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

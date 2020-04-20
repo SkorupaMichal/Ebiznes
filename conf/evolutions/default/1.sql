@@ -2,7 +2,8 @@
 
 create table Category(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    description TEXT NOT NULL
 );
 
 create table Product(

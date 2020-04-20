@@ -1,6 +1,6 @@
 -- !Ups
 
-INSERT INTO Category (name) values ("Samochody"),("AGD"),("RTV");
+INSERT INTO Category (name,description) values ("Samochody","Szybkie"),("AGD","Dobre"),("RTV","OK");
 INSERT INTO Product (name,category_id) values ("BMW",1),("Porshe",1),("Remington",2),("Samsung Galaxy S10",3);
 INSERT INTO Basket ("description") values ("1"),("2"),("3");
 INSERT INTO Comment (title,content,product_id) values ("Dobre auto","Samochod spelnia moje oczekiwania",1),

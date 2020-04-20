@@ -1,0 +1,16 @@
+@(category: Form[CreateCategoryForm])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.CategoryController.getCategories()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.CategoryController.createCategories()){
+    @helper.CSRF.formField
+    @inputText(category("name"))
+    @inputText(category("description"))
+
+    <div class="buttons">
+        <input type="submit" value="Add category"/>
+    </div>
+}

@@ -1,0 +1,24 @@
+@(category: Form[UpdateCategoryForm])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.CategoryController.getCategories()">Powrót</a>
+@form(routes.CategoryController.updateCategoryHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@category("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(category("name"),'_label->"Category desctription")
+    <div class="margin__"/>
+    @inputText(category("description"),'_label->"Category desctription")
+    <div class="buttons">
+        <input type="submit" value="Update basket"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

@@ -1,0 +1,23 @@
+@(basket: Form[UpdateBasketForm])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.BasketController.get_AllBaskets()">Powrót</a>
+@form(routes.BasketController.updateBasketHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@basket("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(basket("description"),'_label->"Basket desctription")
+    <div class="margin__"/>
+    <div class="buttons">
+        <input type="submit" value="Update basket"/>
+    </div>
+}
+    <style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+    </style>
