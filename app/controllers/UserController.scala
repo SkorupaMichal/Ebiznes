@@ -1,17 +1,38 @@
 package controllers
-import models.{UserRepository}
+import models._
 import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
+case class CreateUserForm(login:String,email:String,password:String)
+case class UpdateUserForm(id:Int,login:String,email:String,password:String)
+
 @Singleton
-class UserController @Inject() (cc:ControllerComponents,userRepo:UserRepository)(implicit ex:ExecutionContext) extends AbstractController(cc){
+class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,userRepo:UserRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
   /*Product set controller, client can make easier set of products*/
+  val userForm: Form[CreateUserForm] = Form{
+    mapping(
+      "login" -> nonEmptyText,
+      "email" -> nonEmptyText,
+      "password" -> nonEmptyText
+    )(CreateUserForm.apply)(CreateUserForm.unapply)
+  }
+  val updateUserForm: Form[UpdateUserForm] = Form{
+    mapping(
+      "id" -> number,
+      "login" -> nonEmptyText,
+      "email" -> nonEmptyText,
+      "password" -> nonEmptyText
+    )(UpdateUserForm.apply)(UpdateUserForm.unapply)
+  }
+
+
+
   def getUsers = Action.async{ implicit request=>
     userRepo.list().map(
-      ps => Ok(Json.toJson(ps))
+      ps => Ok(views.html.users(ps))
     )
     //Ok("ProductSets" )
   }
@@ -25,8 +46,17 @@ class UserController @Inject() (cc:ControllerComponents,userRepo:UserRepository)
 
   }
 
-  def createUser = Action{
-    Ok("Create User" )
+  def createUser = Action.async{implicit request =>
+    userForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(Ok(views.html.useradd(errorForm)))
+      },
+      user =>{
+        userRepo.create(user.login,user.email,user.password).map(_=>
+          Redirect(routes.UserController.getUsers()).flashing("success"->"basket.created")
+        )
+      }
+    )
   }
 
   def updateUser(ProductSetId: Int) = Action{

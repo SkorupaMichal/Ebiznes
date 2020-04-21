@@ -1,24 +1,22 @@
-@(categories: Seq[Category])
+@(users: Seq[User])
 
-@for(category <- categories){
+@for(user <- users){
     <div class="oneall">
         <div class="forbaskets">
             <div>
-                @category.name
+            @user.login
             </div>
             <div>
-                @category.description
+            @user.email
             </div>
         </div>
         <div class="buttons">
-            <a class="first" href="@controllers.routes.CategoryController.updateCategory(category.id)">Edytuj</a>
-            <a class="second" href="@controllers.routes.CategoryController.deleteCategory(category.id)">Usuń</a>
         </div>
     </div>
 }
-    <div class="onebutton">
-        <a class="add" href="@controllers.routes.UserController.createUser">Dodaj kategorie</a>
-    </div>
+<div class="onebutton">
+    <a class="add" href="@controllers.routes.UserController.createUser()">Dodaj uzytkownika</a>
+</div>
 <style>
         .oneall{
             margin-top: 3rem;
