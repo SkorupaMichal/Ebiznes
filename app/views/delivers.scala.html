@@ -7,13 +7,15 @@
             @deliver.name
             </div>
             <div>
-            @deliver.cost
+            Koszt : @deliver.cost
             </div>
             <div>
             @deliver.description
             </div>
         </div>
         <div class="buttons">
+            <a class="first" href="@controllers.routes.DeliveryController.updateDelivery(deliver.id)">Edytuj</a>
+            <a class="second" href="@controllers.routes.DeliveryController.deleteDelivery(deliver.id)">Usuń</a>
          </div>
     </div>
 }

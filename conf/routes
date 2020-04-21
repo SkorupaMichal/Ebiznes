@@ -41,9 +41,11 @@ DELETE  /deletecomment/:productId           controllers.CommentController.delete
 # Zdjecia prodotkow
 GET     /images                             controllers.ImageController.getImages
 GET     /images/:id                         controllers.ImageController.getImagesById(id:Int)
-POST    /createimage                        controllers.ImageController.createImage
-POST    /updateimage/:imageId               controllers.ImageController.updateImage(imageId:Int)
-DELETE  /deleteimage/:imageId               controllers.ImageController.deleteImage(imageId:Int)
+GET     /createimage                        controllers.ImageController.createImage
+POST    /createimagehandle                  controllers.ImageController.createImageHandle
+GET     /updateimage/:imageId               controllers.ImageController.updateImage(imageId:Int)
+POST    /updateimagehandle                  controllers.ImageController.updateImageHandle
+GET     /deleteimage/:imageId               controllers.ImageController.deleteImage(imageId:Int)
 # Zamowienia
 GET     /orders                             controllers.OrderController.getOrders
 GET     /orders/:id                         controllers.OrderController.getOrderByID(id:Int)
@@ -54,8 +56,9 @@ DELETE  /order/:orderId                     controllers.OrderController.deleteOr
 GET     /delivers                           controllers.DeliveryController.getDelivery
 GET     /delivers/:id                       controllers.DeliveryController.getDeliverById(id:Int)
 GET     /createdeliver                      controllers.DeliveryController.createDelivery
-POST    /updatedeliver/:deliverId           controllers.DeliveryController.updateDelivery(deliverId:Int)
-DELETE  /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
+GET     /updatedeliver/:deliverId           controllers.DeliveryController.updateDelivery(deliverId:Int)
+POST    /updatedeliverhandle                controllers.DeliveryController.updateDeliverHandle
+GET     /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
 #Zestawy urzytkownikow
 GET     /users                                  controllers.UserController.getUsers
 GET     /user/:id                               controllers.UserController.getUserById(id:Int)

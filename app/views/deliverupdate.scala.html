@@ -1,0 +1,26 @@
+@(deliver: Form[UpdateDeliverForm])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.DeliveryController.getDelivery()">Powrót</a>
+@form(routes.DeliveryController.updateDeliverHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@deliver("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(deliver("name"),'_label->"Deliver name")
+    <div class="margin__"/>
+    @inputText(deliver("cost"),'_label->"Deliver cost")
+    <div class="margin__"/>
+    @inputText(deliver("description"),'_label->"Deliver desctription")
+    <div class="buttons">
+        <input type="submit" value="Update deliver"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

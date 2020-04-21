@@ -1,24 +1,24 @@
-@(categories: Seq[Category])
+@(images: Seq[Image])
 
-@for(category <- categories){
+@for(image <- images){
     <div class="oneall">
         <div class="forbaskets">
             <div>
-                @category.name
+            @image.url
             </div>
             <div>
-                @category.description
+            @image.description
             </div>
         </div>
         <div class="buttons">
-            <a class="first" href="@controllers.routes.CategoryController.updateCategory(category.id)">Edytuj</a>
-            <a class="second" href="@controllers.routes.CategoryController.deleteCategory(category.id)">Usuń</a>
+            <a class="first" href="@controllers.routes.ImageController.updateImage(image.id)">Edytuj</a>
+            <a class="second" href="@controllers.routes.ImageController.deleteImage(image.id)">Usuń</a>
         </div>
     </div>
 }
-    <div class="onebutton">
-        <a class="add" href="@controllers.routes.CategoryController.createCategories()">Dodaj kategorie</a>
-    </div>
+<div class="onebutton">
+    <a class="add" href="@controllers.routes.ImageController.createImage">Dodaj Obraz</a>
+</div>
 <style>
         .oneall{
             margin-top: 3rem;

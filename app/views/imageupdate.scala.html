@@ -1,0 +1,34 @@
+@(image: Form[UpdateImageForm],products: Seq[Product])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.CategoryController.getCategories()">Powrót</a>
+@form(routes.ImageController.updateImageHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@image("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(image("url"),'_label->"Image url")
+    <div class="margin__"/>
+    @inputText(image("description"),'_label->"Image desctription")
+    <select name="category" id="category">
+    @for(prod <- products){
+        @if(prod.id.toString==image("product_id").value.getOrElse(0)) {
+            <option value="@prod.id" selected>@prod.name</option>
+        }else{
+            <option value="@prod.id">@prod.name</option>
+        }
+
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Update basket"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

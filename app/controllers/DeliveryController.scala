@@ -55,11 +55,30 @@ class DeliveryController @Inject()(cc:ControllerComponents,dd:MessagesController
     )
   }
 
-  def updateDelivery(orderId: Int) = Action{
-    Ok("Update Delivery")
+  def updateDelivery(deliverId: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
+    val deliver = deliverRepo.getById(deliverId)
+    deliver.map(b=>{
+      val bForm = updateDeliverForm.fill(UpdateDeliverForm(b.head.id,b.head.name,b.head.cost,b.head.description))
+      Ok(views.html.deliverupdate(bForm))
+    })
+  }
+  def updateDeliverHandle = Action.async{implicit request=>
+    updateDeliverForm.bindFromRequest.fold(
+      errorForm =>{
+        Future.successful(
+          BadRequest(views.html.deliverupdate(errorForm))
+        )
+      },
+      deliver =>{
+        deliverRepo.update(deliver.id,Delivery(deliver.id,deliver.name,deliver.cost,deliver.description)).map{
+          _ => Redirect(routes.DeliveryController.updateDelivery(deliver.id)).flashing("success"->"basket update")
+        }
+      }
+    )
   }
 
-  def deleteDelivery(orderId: Int) = Action{
-    Ok("Delete Delivery")
+  def deleteDelivery(userId: Int) = Action{
+    deliverRepo.delete(userId)
+    Redirect("/delivers")
   }
 }

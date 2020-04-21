@@ -1,0 +1,20 @@
+@(image: Form[CreateImageForm],products: Seq[Product])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.ImageController.getImages()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.ImageController.createImageHandle){
+    @helper.CSRF.formField
+    @inputText(image("url"))
+    @inputText(image("description"))
+    <select name="product_id" id="product_id">
+    @for(prod <- products){
+        <option value="@prod.id">@prod.name</option>
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Add image"/>
+    </div>
+}
