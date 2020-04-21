@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
-
+@Singleton
 class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
                                   protected val cR: SubCategoryRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]

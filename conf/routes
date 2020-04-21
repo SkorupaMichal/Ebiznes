@@ -55,9 +55,9 @@ DELETE  /deletedeliver/:deliverId           controllers.DeliveryController.delet
 #Zestawy produktów
 GET     /users                              controllers.UserController.getUsers
 GET     /user/:id                           controllers.UserController.getUserById(id:Int)
-POST    /createproductsUser                 controllers.UserController.createUser
-POST    /updateproductsUser/:UserId         controllers.UserController.updateUser(UserId:Int)
-DELETE  /deleteproductsUser/:UserId         controllers.UserController.deleteUser(UserId:Int)
+POST    /createuser                         controllers.UserController.createUser
+POST    /updateuser/:UserId                 controllers.UserController.updateUser(UserId:Int)
+DELETE  /deleteuser/:UserId                 controllers.UserController.deleteUser(UserId:Int)
 #Rodzaje platnosci
 GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
 GET     /paymentmethods/:id                     controllers.PaymentMethodsController.getPaymentMethodByID(id:Int)
