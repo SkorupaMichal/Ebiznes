@@ -2,12 +2,14 @@
 
 create table Category(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    description TEXT NOT NULL
 );
 
 create table Product(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    cost INTEGER NOT NULL,
     count   INTEGER NOT NULL,
     producer TEXT NOT NULL,
     subcategory_id INTEGER NOT NULL,
@@ -47,6 +49,7 @@ CREATE TABLE Comment(
 CREATE TABLE Deliver(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    cost INTEGER NOT NULL,
     description TEXT DEFAULT ""
 );
 
@@ -65,10 +68,11 @@ CREATE TABLE Orders(
     deliver_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     payment_id INTEGER NOT NULL,
+    basket_id  INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (payment_id) REFERENCES Deliver(id),
-    FOREIGN KEY (deliver_id) REFERENCES Payment(id)
-
+    FOREIGN KEY (deliver_id) REFERENCES Payment(id),
+    FOREIGN KEY (basket_id) REFERENCES Basket(id)
 );
 
 CREATE TABLE OrderHelper(
