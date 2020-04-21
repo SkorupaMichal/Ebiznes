@@ -3,9 +3,9 @@
 INSERT INTO Category (name) values ("Samochody"),("AGD"),("RTV");
 INSERT INTO User (login,email,password) values ("czarodziej","123@wp.pl","qazwsx");
 INSERT INTO Basket ("description",user_id) values ("1",1),("2",1),("3",1);
-INSERT INTO Comment (title,content,product_id) values ("Dobre auto","Samochod spelnia moje oczekiwania",1),
-                                                      ("OK","OK",2),("SUPER","Super pralka",3),
-                                                      ("Twlewizory :D","OK",4);
+INSERT INTO Comment (title,content,product_id,user_id) values ("Dobre auto","Samochod spelnia moje oczekiwania",1,1),
+                                                      ("OK","OK",2,1),("SUPER","Super pralka",3,1),
+                                                      ("Twlewizory :D","OK",4,1);
 INSERT INTO Deliver (name,description) values ("Kurier UPS","Kurier najszybciej"),
                                               ("Kurier DPD","Troche szybciej niz UPS"),
                                               ("Poczta polska","Czas oczekiwania 2 tyg");

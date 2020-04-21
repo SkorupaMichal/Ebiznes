@@ -7,12 +7,13 @@ import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
 
-case class Comment(id:Int,title:String,content:String,product_id:Int)
+case class Comment(id:Int,title:String,content:String,product_id:Int,user_id:Int)
 object Comment{
   implicit val commentForm = Json.format[Comment]
 }
 @Singleton
-class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, protected  val pR:ProductRepository)(implicit executionContext: ExecutionContext){
+class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, protected  val pR:ProductRepository,
+                                  protected val uR: UserRepository)(implicit executionContext: ExecutionContext){
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._
   import profile.api._
@@ -24,11 +25,16 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     def product_id = column[Int]("comment_id")
     def product_fk = foreignKey("product_fk",product_id,products)(_.id,onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade)
-    def * = (id,title,content,product_id)<>((Comment.apply _).tupled,Comment.unapply)
+    def user_id = column[Int]("user_id")
+    def user_fk = foreignKey("user_fk",user_id,users)(_.id,onUpdate = ForeignKeyAction.Restrict,
+      onDelete = ForeignKeyAction.Cascade)
+    def * = (id,title,content,product_id,user_id)<>((Comment.apply _).tupled,Comment.unapply)
   }
   import pR.ProductTableDef
+  import uR.UserTableDef
   val comments = TableQuery[CommentTableDef]
   val products = TableQuery[ProductTableDef]
+  val users    = TableQuery[UserTableDef]
   def list(): Future[Seq[Comment]] = db.run{
     comments.result
   }
@@ -38,10 +44,10 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   def getByProduct(productID:Int):Future[Seq[Comment]] = db.run{
     comments.filter(_.product_id === productID).result
   }
-  def create(title:String,content:String,product_id:Int):Future[Comment] = db.run{
-    (comments.map(c=>(c.title,c.content,c.product_id))
+  def create(title:String,content:String,product_id:Int,user_id:Int):Future[Comment] = db.run{
+    (comments.map(c=>(c.title,c.content,c.product_id,c.user_id))
       returning comments.map(_.id)
-      into{case((title,content,product_id),id)=>Comment(id,title,content,product_id)})+=(title,content,product_id)
+      into{case((title,content,product_id,user_id),id)=>Comment(id,title,content,product_id,user_id)})+=(title,content,product_id,user_id)
   }
   def delete(commentId: Int):Future[Unit]= db.run{
     comments.filter(_.id===commentId).delete.map(_=>())

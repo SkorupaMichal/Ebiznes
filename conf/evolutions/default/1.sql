@@ -39,7 +39,9 @@ CREATE TABLE Comment(
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     product_id INTEGER NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Product(id)
+    user_id    INTEGER NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Product(id),
+    FOREIGN KEY (user_id)    REFERENCES User(id)
 );
 
 CREATE TABLE Deliver(
