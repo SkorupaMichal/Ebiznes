@@ -9,13 +9,23 @@ create table Category(
 create table Product(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    category_id INTEGER NOT NULL,
-    FOREIGN  KEY (category_id) REFERENCES  Category(id)
+    cost INTEGER NOT NULL,
+    count   INTEGER NOT NULL,
+    producer TEXT NOT NULL,
+    subcategory_id INTEGER NOT NULL,
+    FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id)
 );
-
+CREATE TABLE User(
+    id INTEGER  PRIMARY KEY AUTOINCREMENT,
+    login TEXT NOT NULL,
+    email TEXT NOT NULL,
+    password TEXT NOT NULL
+);
 CREATE TABLE Basket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
-    description TEXT DEFAULT ""
+    description TEXT DEFAULT "",
+    user_id     INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id)
 );
 
 CREATE TABLE BasketHelper(
@@ -31,12 +41,15 @@ CREATE TABLE Comment(
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     product_id INTEGER NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Product(id)
+    user_id    INTEGER NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Product(id),
+    FOREIGN KEY (user_id)    REFERENCES User(id)
 );
 
 CREATE TABLE Deliver(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    cost INTEGER NOT NULL,
     description TEXT DEFAULT ""
 );
 
@@ -50,7 +63,16 @@ CREATE TABLE Image(
 
 CREATE TABLE Orders(
     id INTEGER PRIMARY KEY AUTOINCREMENT ,
-    name TEXT DEFAULT ""
+    date TEXT DATE,
+    cost INTEGER NOT NULL,
+    deliver_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    payment_id INTEGER NOT NULL,
+    basket_id  INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (payment_id) REFERENCES Deliver(id),
+    FOREIGN KEY (deliver_id) REFERENCES Payment(id),
+    FOREIGN KEY (basket_id) REFERENCES Basket(id)
 );
 
 CREATE TABLE OrderHelper(
@@ -67,11 +89,7 @@ CREATE TABLE Payment(
   description TEXT
 );
 
-CREATE TABLE ProductSet(
-    id INTEGER  PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT DEFAULT ""
-);
+
 
 CREATE TABLE Subcategory(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
@@ -91,7 +109,7 @@ DROP TABLE Deliver;
 DROP TABLE Image;
 DROP TABLE Orders;
 DROP TABLE Payment;
-DROP TABLE ProductSet;
+DROP TABLE User;
 DROP TABLE Subcategory;
 DROP TABLE BasketHelper;
 DROP TABLE OrderHelper;

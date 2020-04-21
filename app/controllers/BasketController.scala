@@ -49,7 +49,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
         Future.successful(Ok(views.html.basketadd(errorForm)))
       },
       basket =>{
-        repo.create(basket.description).map(_=>
+        repo.create(basket.description,1).map(_=>
           Redirect(routes.BasketController.get_AllBaskets()).flashing("success"->"basket.created")
         )
       }
@@ -70,7 +70,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
         )
       },
       basket =>{
-      repo.update(basket.id,Basket(basket.id,basket.description)).map{
+      repo.update(basket.id,Basket(basket.id,basket.description,1)).map{
         _ => Redirect(routes.BasketController.updateBasket(basket.id)).flashing("success"->"basket update")
       }
   }
