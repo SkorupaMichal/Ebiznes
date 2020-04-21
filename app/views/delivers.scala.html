@@ -1,23 +1,24 @@
-@(users: Seq[User])
+@(delivers: Seq[Delivery])
 
-@for(user <- users){
+@for(deliver <- delivers){
     <div class="oneall">
         <div class="forbaskets">
             <div>
-            @user.login
+            @deliver.name
             </div>
             <div>
-            @user.email
+            @deliver.cost
+            </div>
+            <div>
+            @deliver.description
             </div>
         </div>
         <div class="buttons">
-            <a class="first" href="@controllers.routes.UserController.updateUser(user.id)">Edytuj</a>
-            <a class="second" href="@controllers.routes.UserController.deleteUser(user.id)">Usuń</a>
-        </div>
+         </div>
     </div>
 }
 <div class="onebutton">
-    <a class="add" href="@controllers.routes.UserController.createUser()">Dodaj uzytkownika</a>
+    <a class="add" href="@controllers.routes.DeliveryController.createDelivery()">Dodaj sposob dostarczenia</a>
 </div>
 <style>
         .oneall{

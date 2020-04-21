@@ -1,0 +1,16 @@
+@(deliver: Form[CreateDeliverForm])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.DeliveryController.getDelivery()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.DeliveryController.createDelivery()){
+    @helper.CSRF.formField
+    @inputText(deliver("name"))
+    @inputText(deliver("cost"))
+    @inputText(deliver("description"))
+    <div class="buttons">
+        <input type="submit" value="Add deliver"/>
+    </div>
+}

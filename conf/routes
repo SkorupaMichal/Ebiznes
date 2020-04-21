@@ -53,15 +53,16 @@ DELETE  /order/:orderId                     controllers.OrderController.deleteOr
 # Dostawy
 GET     /delivers                           controllers.DeliveryController.getDelivery
 GET     /delivers/:id                       controllers.DeliveryController.getDeliverById(id:Int)
-POST    /createdeliver                      controllers.DeliveryController.createDelivery
+GET     /createdeliver                      controllers.DeliveryController.createDelivery
 POST    /updatedeliver/:deliverId           controllers.DeliveryController.updateDelivery(deliverId:Int)
 DELETE  /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
 #Zestawy urzytkownikow
 GET     /users                                  controllers.UserController.getUsers
 GET     /user/:id                               controllers.UserController.getUserById(id:Int)
 GET     /createuser                             controllers.UserController.createUser
-POST    /updateuser/:UserId                     controllers.UserController.updateUser(UserId:Int)
-DELETE  /deleteuser/:UserId                     controllers.UserController.deleteUser(UserId:Int)
+GET     /updateuser/:UserId                     controllers.UserController.updateUser(UserId:Int)
+POST    /updateuserhandle                       controllers.UserController.updateUserHandle
+GET     /deleteuser/:UserId                     controllers.UserController.deleteUser(UserId:Int)
 #Rodzaje platnosci
 GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
 GET     /paymentmethods/:id                     controllers.PaymentMethodsController.getPaymentMethodByID(id:Int)

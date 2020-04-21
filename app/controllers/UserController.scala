@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+
 import scala.concurrent.{ExecutionContext, Future}
 case class CreateUserForm(login:String,email:String,password:String)
 case class UpdateUserForm(id:Int,login:String,email:String,password:String)
@@ -59,12 +60,32 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     )
   }
 
-  def updateUser(ProductSetId: Int) = Action{
-    Ok("Update User")
+  def updateUser(userId: Int) :Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
+    val user = userRepo.getById(userId)
+    user.map(b=>{
+      val bForm = updateUserForm.fill(UpdateUserForm(b.head.id,b.head.login,b.head.email
+        ,b.head.password))
+      Ok(views.html.userupdate(bForm))
+    })
+  }
+  def updateUserHandle =  Action.async{implicit request=>
+    updateUserForm.bindFromRequest.fold(
+      errorForm =>{
+        Future.successful(
+          BadRequest(views.html.userupdate(errorForm))
+        )
+      },
+      user =>{
+        userRepo.update(user.id,User(user.id,user.login,user.email,user.password)).map{
+          _ => Redirect(routes.UserController.updateUser(user.id)).flashing("success"->"basket update")
+        }
+      }
+    )
   }
 
-  def deleteUser(ProductSetId: Int) = Action{
-    Ok("Delete User")
+  def deleteUser(userId: Int) = Action{
+    userRepo.delete(userId)
+    Redirect("/users")
   }
 
 }
