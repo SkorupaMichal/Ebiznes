@@ -1,0 +1,25 @@
+@(comment: Form[CreateCommentForm],products: Seq[Product],users: Seq[User])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.CommentController.getComments()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.CommentController.createCommentHandle){
+    @helper.CSRF.formField
+    @inputText(comment("title"))
+    @inputText(comment("content"))
+    <select name="product_id" id="product_id">
+    @for(prod <- products){
+        <option value="@prod.id">@prod.name</option>
+    }
+    </select>
+    <select name="user_id" id="user_id">
+    @for(user <- users){
+        <option value="@user.id">@user.login</option>
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Add comment"/>
+    </div>
+}

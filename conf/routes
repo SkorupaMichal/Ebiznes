@@ -21,9 +21,11 @@ GET     /deletebasket/:id                   controllers.BasketController.deleteB
 # Produkty
 GET     /products                           controllers.ProductController.getProducts
 GET     /products/:id                       controllers.ProductController.getPRoductByID(id:Int)
-POST    /createproduct                      controllers.ProductController.createProduct
-POST    /updateproduct/:productId           controllers.ProductController.updateProduct(productId:Int)
-DELETE  /product/:productId                 controllers.ProductController.deleteProduct(productId:Int)
+GET     /createproduct                      controllers.ProductController.createProduct
+POST    /createproducthandle                controllers.ProductController.createProductHandle
+GET     /updateproduct/:productId           controllers.ProductController.updateProduct(productId:Int)
+POST    /updateproducthandle                controllers.ProductController.updateProductHandle
+GET     /product/:productId                 controllers.ProductController.deleteProduct(productId:Int)
 # Kategorie
 GET     /categories                         controllers.CategoryController.getCategories
 GET     /categories/:id                     controllers.CategoryController.getCategoriesByID(id:Int)
@@ -35,9 +37,11 @@ GET     /deletecategory/:categoryId         controllers.CategoryController.delet
 # Komentarze do produktow
 GET     /comments                           controllers.CommentController.getComments
 GET     /comments/:id                       controllers.CommentController.getCommentByID(id:Int)
-POST    /createcomment/:productId           controllers.CommentController.createComment(productId :Int)
-POST    /updatecomment/:productId           controllers.CommentController.updateComment(productId:Int)
-DELETE  /deletecomment/:productId           controllers.CommentController.deleteComment(productId:Int)
+GET     /createcomment                      controllers.CommentController.createComment
+POST    /createcommenthandle                controllers.CommentController.createCommentHandle
+GET     /updatecomment/:productId           controllers.CommentController.updateComment(productId:Int)
+POST    /updatecommenthandle                controllers.CommentController.updateCommentHandle
+GET     /deletecomment/:productId           controllers.CommentController.deleteComment(productId:Int)
 # Zdjecia prodotkow
 GET     /images                             controllers.ImageController.getImages
 GET     /images/:id                         controllers.ImageController.getImagesById(id:Int)
@@ -49,9 +53,11 @@ GET     /deleteimage/:imageId               controllers.ImageController.deleteIm
 # Zamowienia
 GET     /orders                             controllers.OrderController.getOrders
 GET     /orders/:id                         controllers.OrderController.getOrderByID(id:Int)
-POST    /createorder                        controllers.OrderController.createOrder
-POST    /updateorder/:orderId               controllers.OrderController.updateOrder(orderId:Int)
-DELETE  /order/:orderId                     controllers.OrderController.deleteOrder(orderId:Int)
+GET     /createorder                        controllers.OrderController.createOrder
+POST    /createorderhandle                  controllers.OrderController.createOrderHandle
+GET     /updateorder/:orderId               controllers.OrderController.updateOrder(orderId:Int)
+POST    /updateorderhandle                  controllers.OrderController.updateOrderHandle
+GET     /order/:orderId                     controllers.OrderController.deleteOrder(orderId:Int)
 # Dostawy
 GET     /delivers                           controllers.DeliveryController.getDelivery
 GET     /delivers/:id                       controllers.DeliveryController.getDeliverById(id:Int)
@@ -69,9 +75,10 @@ GET     /deleteuser/:UserId                     controllers.UserController.delet
 #Rodzaje platnosci
 GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
 GET     /paymentmethods/:id                     controllers.PaymentMethodsController.getPaymentMethodByID(id:Int)
-POST    /createpaymentmethod                    controllers.PaymentMethodsController.createPaymentMethod
-POST    /updatepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.updatePaymentMethod(paymentMethodId:Int)
-DELETE  /deletepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.deletePaymentMethod(paymentMethodId:Int)
+GET     /createpaymentmethod                    controllers.PaymentMethodsController.createPaymentMethod
+GET     /updatepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.updatePaymentMethod(paymentMethodId:Int)
+POST    /udatepaymentmethodhandle               controllers.PaymentMethodsController.updatePaymentMethodHandle
+GET     /deletepaymentmethod/:paymentMethodId   controllers.PaymentMethodsController.deletePaymentMethod(paymentMethodId:Int)
 #Podkateggorie
 GET 	/subcategories						controllers.SubCategoryController.getSubCategories
 GET 	/subcategories/:id					controllers.SubCategoryController.getSubCategorieByID(id:Int)

@@ -6,10 +6,10 @@
     @helper.CSRF.formField
     <input name="id" id="id" value="@subcategory("id").value" type="hidden">
     <div class="margin__"/>
-    @inputText(subcategory("name"),'_label->"Category desctription")
+    @inputText(subcategory("name"),'_label->"SubCategory desctription")
     <div class="margin__"/>
-    @inputText(subcategory("description"),'_label->"Category desctription")
-    <select name="category" id="category">
+    @inputText(subcategory("description"),'_label->"SubCategory desctription")
+    <select name="category_id" id="category_id">
     @for(cat <- category){
         @if(cat.id.toString==subcategory("category_id").value.getOrElse(0)) {
             <option value="@cat.id" selected>@cat.name</option>

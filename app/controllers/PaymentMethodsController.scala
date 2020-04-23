@@ -1,5 +1,5 @@
 package controllers
-import models.{PaymentRepository}
+import models._
 import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
@@ -7,12 +7,25 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import scala.concurrent.{ExecutionContext, Future}
 
-class PaymentMethodsController @Inject() (cc:ControllerComponents, paymentRepo:PaymentRepository)(implicit ex:ExecutionContext) extends AbstractController(cc){
-  /*Payment methods controller*/
+case class CreatePaymentMethodForm(name:String,description:String)
+case class UpdatePaymentMethodForm(id:Int,name:String,description:String)
 
+class PaymentMethodsController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,paymentRepo:PaymentRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
+  /*Payment methods controller*/
+  val paymentMethodForm: Form[CreatePaymentMethodForm] = Form{
+    mapping(
+      "name" -> nonEmptyText,
+      "description" ->nonEmptyText)(CreatePaymentMethodForm.apply)(CreatePaymentMethodForm.unapply)
+  }
+  val updatepaymentMethodForm: Form[UpdatePaymentMethodForm] = Form{
+    mapping(
+      "id"  -> number,
+      "name" -> nonEmptyText,
+      "description" ->nonEmptyText)(UpdatePaymentMethodForm.apply)(UpdatePaymentMethodForm.unapply)
+  }
   def getPaymentMethods = Action.async{ implicit request =>
     paymentRepo.list().map(
-      payment=> Ok(Json.toJson(payment))
+      payment=> Ok(views.html.paymentmethods(payment))
     )
     //Ok("PaymentMethods" )
   }
@@ -25,16 +38,44 @@ class PaymentMethodsController @Inject() (cc:ControllerComponents, paymentRepo:P
     )
   }
 
-  def createPaymentMethod = Action{
-    Ok("Create PaymentMethods" )
+  def createPaymentMethod = Action.async{implicit request =>
+    paymentMethodForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(Ok(views.html.paymentmethodadd(errorForm)))
+      },
+      payment =>{
+        paymentRepo.create(payment.name,payment.description).map(_=>
+          Redirect(routes.PaymentMethodsController.getPaymentMethods()).flashing("success"->"basket.created")
+        )
+      }
+    )
   }
 
-  def updatePaymentMethod(paymentMethodId: Int) = Action{
-    Ok("Update PaymentMethods")
+  def updatePaymentMethod(paymentMethodId: Int):Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
+      val payments = paymentRepo.getById(paymentMethodId)
+      payments.map(b=>{
+        val bForm = updatepaymentMethodForm.fill(UpdatePaymentMethodForm(b.head.id,b.head.name,b.head.description))
+        Ok(views.html.paymentupdate(bForm))
+    })
+  }
+  def updatePaymentMethodHandle = Action.async{implicit request=>
+    updatepaymentMethodForm.bindFromRequest.fold(
+      errorForm =>{
+        Future.successful(
+          BadRequest(views.html.paymentupdate(errorForm))
+        )
+      },
+      payment =>{
+        paymentRepo.update(payment.id,Payment(payment.id,payment.name,payment.description)).map{
+          _ => Redirect(routes.CategoryController.updateCategory(payment.id)).flashing("success"->"basket update")
+        }
+      }
+    )
   }
 
   def deletePaymentMethod(paymentMethodId: Int) = Action{
-    Ok("Delete PaymentMethods")
+    paymentRepo.delete(paymentMethodId)
+    Redirect("/paymentmethods")
   }
 
 }

@@ -1,0 +1,24 @@
+@(payment: Form[UpdatePaymentMethodForm])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.CategoryController.getCategories()">Powrót</a>
+@form(routes.PaymentMethodsController.updatePaymentMethodHandle()){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@payment("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(payment("name"),'_label->"Payment desctription")
+    <div class="margin__"/>
+    @inputText(payment("description"),'_label->"Payment desctription")
+    <div class="buttons">
+        <input type="submit" value="Update payment"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

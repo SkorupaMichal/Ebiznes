@@ -1,0 +1,22 @@
+@(product: Form[CreateProductForm],subcategories: Seq[SubCategory])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.ProductController.getProducts()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.ProductController.createProductHandle){
+    @helper.CSRF.formField
+    @inputText(product("name"))
+    @inputText(product("cost"))
+    @inputText(product("count"))
+    @inputText(product("producer"))
+    <select name="subcategory_id" id="subcategory_id">
+    @for(subcat <- subcategories){
+        <option value="@subcat.id">@subcat.name</option>
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Add category"/>
+    </div>
+}

@@ -1,0 +1,36 @@
+@(order: Form[CreateOrderForm],payments:Seq[Payment],delivers: Seq[Delivery],baskets:Seq[Basket],
+        users:Seq[User])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.OrderController.getOrders()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.OrderController.createOrderHandle){
+    @helper.CSRF.formField
+    @inputText(order("date"))
+    @inputText(order("cost"))
+    <select name="deliver_id" id="deliver_id">
+    @for(dev <- delivers){
+        <option value="@dev.id">@dev.name</option>
+    }
+    </select>
+    <select name="payment_id" id="payment_id">
+    @for(pay <- payments){
+        <option value="@pay.id">@pay.name</option>
+    }
+    </select>
+    <select name="basket_id" id="basket_id">
+    @for(bas <- baskets){
+        <option value="@bas.id">@bas.user_id</option>
+    }
+    </select>
+    <select name="user_id" id="user_id">
+    @for(user <- users){
+        <option value="@user.id">@user.login</option>
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Add order"/>
+    </div>
+}

@@ -1,0 +1,16 @@
+@(payment: Form[CreatePaymentMethodForm])(implicit request :MessagesRequestHeader,flash:Flash)
+<a href="@routes.PaymentMethodsController.getPaymentMethods()">Powrót</a>
+@import helper._
+@flash.get("success").getOrElse("")
+@request.flash.get("success").map{ key=>
+    @request.messages(key)
+}
+@form(routes.PaymentMethodsController.createPaymentMethod()){
+    @helper.CSRF.formField
+    @inputText(payment("name"))
+    @inputText(payment("description"))
+
+    <div class="buttons">
+        <input type="submit" value="Add payment"/>
+    </div>
+}

@@ -17,7 +17,7 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
 
   class CommentTableDef(tag:Tag) extends Table[Comment](tag,"comment"){
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
-    def title = column[String]("description")
+    def title = column[String]("title")
     def content = column[String]("content")
     def product_id = column[Int]("product_id")
     def product_fk = foreignKey("product_fk",product_id,products)(_.id,onUpdate = ForeignKeyAction.Restrict,

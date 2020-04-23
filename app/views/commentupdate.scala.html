@@ -1,0 +1,44 @@
+@(comment: Form[UpdateCommentForm],products: Seq[Product],users: Seq[User])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.CommentController.getComments()">Powrót</a>
+@form(routes.CommentController.updateCommentHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@comment("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(comment("title"),'_label->"Comment title")
+    <div class="margin__"/>
+    @inputText(comment("content"),'_label->"Category desctription")
+    <select name="product_id" id="product_id">
+    @for(prod <- products){
+        @if(prod.id.toString==comment("product_id").value.getOrElse(0)) {
+            <option value="@prod.id" selected>@prod.name</option>
+        }else{
+            <option value="@prod.id">@prod.name</option>
+        }
+
+    }
+    </select>
+    <select name="user_id" id="user_id">
+    @for(user <- users){
+        @if(user.id.toString==comment("user_id").value.getOrElse(0)) {
+            <option value="@user.id" selected>@user.login</option>
+        }else{
+            <option value="@user.id">@user.login</option>
+        }
+
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Update comment"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

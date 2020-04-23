@@ -48,6 +48,19 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
   def getById(id:Int):Future[Option[Order]] = db.run{
     orders.filter(_.id===id).result.headOption
   }
+  def createJoin():Future[Seq[(Int,String,Int,String,String,String)]] = db.run{
+    /// Info o kurierze platnosci uzytkowniku i cena
+    val sequence = orders join delivers join payments join users on{
+      case(((order,deliver),payment),user) =>
+        order.deliver_id === deliver.id &&
+        order.payment_id === payment.id &&
+        order.user_id === user.id
+    };
+    def query = for{
+      (((order,deliver),payment),user) <- sequence
+    }yield (order.id,order.date,order.cost,deliver.name,payment.name,user.login)
+    query.result
+  }
   def create(date:String,cost:Int,deliver_id:Int,user_id:Int,
              payment_id:Int,basket_id:Int):Future[Order] = db.run{
     (orders.map(c=>(c.date,c.cost,c.deliver_id,c.user_id,c.payment_id,c.basket_id))

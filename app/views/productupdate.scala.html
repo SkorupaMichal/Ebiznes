@@ -1,0 +1,39 @@
+@(product: Form[UpdateProductForm],subcategories: Seq[SubCategory])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.ProductController.getProducts()">Powrót</a>
+@form(routes.ProductController.updateProductHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@product("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(product("name"),'_label->"product name")
+    <div class="margin__"/>
+    @inputText(product("cost"),'_label->"product cost")
+    <div class="margin__"/>
+    @inputText(product("count"),'_label->"product count")
+    <div class="margin__"/>
+    @inputText(product("producer"),'_label->"product producer")
+
+    <select name="subcategory_id" id="subcategory_id">
+    @for(subcat <- subcategories){
+        @if(subcat.id.toString==product("subcategory_id").value.getOrElse(0)) {
+            <option value="@subcat.id" selected>@subcat.name</option>
+        }else{
+            <option value="@subcat.id">@subcat.name</option>
+        }
+
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Update basket"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

@@ -1,0 +1,65 @@
+@(order: Form[UpdateOrderForm],payments:Seq[Payment],delivers: Seq[Delivery],baskets:Seq[Basket],
+        users:Seq[User])(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+<a href="@routes.OrderController.getOrders()">Powrót</a>
+@form(routes.OrderController.updateOrderHandle){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@order("id").value" type="hidden">
+    <div class="margin__"/>
+    @inputText(order("date"),'_label->"SubCategory desctription")
+    <div class="margin__"/>
+    @inputText(order("cost"),'_label->"SubCategory desctription")
+    <select name="payment_id" id="payment_id">
+    @for(pay <- payments){
+        @if(pay.id.toString==order("payment_id").value.getOrElse(0)) {
+            <option value="@pay.id" selected>@pay.name</option>
+        }else{
+            <option value="@pay.id">@pay.name</option>
+        }
+
+    }
+    </select>
+    <select name="deliver_id" id="deliver_id">
+    @for(deliver <- delivers){
+        @if(deliver.id.toString==order("deliver_id").value.getOrElse(0)) {
+            <option value="@deliver.id" selected>@deliver.name</option>
+        }else{
+            <option value="@deliver.id">@deliver.name</option>
+        }
+
+    }
+    </select>
+    <select name="basket_id" id="basket_id">
+    @for(bask <- baskets){
+        @if(bask.id.toString==order("basket_id").value.getOrElse(0)) {
+            <option value="@bask.id" selected>@bask.id</option>
+        }else{
+            <option value="@bask.id">@bask.id</option>
+        }
+
+    }
+    </select>
+    <select name="user_id" id="user_id">
+    @for(user <- users){
+        @if(user.id.toString==order("user_id").value.getOrElse(0)) {
+            <option value="@user.id" selected>@user.login</option>
+        }else{
+            <option value="@user.id">@user.login</option>
+        }
+
+    }
+    </select>
+    <div class="buttons">
+        <input type="submit" value="Update order"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>
