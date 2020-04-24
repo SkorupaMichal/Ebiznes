@@ -10,6 +10,7 @@ GET     /count                      controllers.CountController.count
 # An example controller showing how to write asynchronous code
 GET     /message                    controllers.AsyncController.message
 
+GET     /controllerpanel                    controllers.HomeController.getModelPanel
 # koszyk
 GET     /baskets                            controllers.BasketController.get_AllBaskets
 GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)

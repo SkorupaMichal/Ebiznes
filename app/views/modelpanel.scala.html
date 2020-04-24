@@ -1,0 +1,30 @@
+@(message: String)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <a class="choice" href="@routes.BasketController.get_AllBaskets()">Koszyki</a>
+        <a class="choice" href="@routes.CategoryController.getCategories()">Kategorie</a>
+        <a class="choice" href="@routes.CommentController.getComments()">Komentarze</a>
+        <a class="choice" href="@routes.DeliveryController.getDelivery()">Dostawy</a>
+        <a class="choice" href="@routes.ImageController.getImages()">Obrazy</a>
+        <a class="choice" href="@routes.OrderController.getOrders()">Zamowienia</a>
+        <a class="choice" href="@routes.PaymentMethodsController.getPaymentMethods()">Metody platnosci</a>
+        <a class="choice" href="@routes.ProductController.getProducts()">Produkty</a>
+        <a class="choice" href="@routes.SubCategoryController.getSubCategories()">Pod kategorie</a>
+        <a class="choice" href="@routes.UserController.getUsers()">Użytkownicy</a>
+
+    </body>
+    <style>
+        .choice{
+            color: black;
+            text-decoration: none;
+            background-color: lightblue;
+            border: 1px solid red;
+            padding: .5rem;
+        }
+    </style>
+</html>

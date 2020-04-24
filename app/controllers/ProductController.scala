@@ -5,14 +5,16 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
 case class CreateProductForm(name:String,cost:Int,count:Int,producer:String,subcategory_id:Int)
 case class UpdateProductForm(id:Int,name:String,cost:Int,count:Int,producer:String,subcategory_id:Int)
 @Singleton
 class ProductController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,
-                                   subcatRepo:SubCategoryRepository,productRepo:ProductRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+                                   subcatRepo:SubCategoryRepository,productRepo:ProductRepository,
+                                   commentRepo:CommentRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
   /*Product controller*/
   val productForm: Form[CreateProductForm] = Form{
     mapping(
@@ -106,6 +108,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
 
   def deleteProduct(productId: Int) = Action{
+    Await.result(commentRepo.deleteByProductId(productId),duration.Duration.Inf)
     productRepo.delete(productId)
     Redirect("/products")
   }

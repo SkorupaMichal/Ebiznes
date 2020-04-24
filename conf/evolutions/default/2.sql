@@ -1,5 +1,4 @@
 -- !Ups
-
 INSERT INTO Category (name,description) values ("Samochody","dd"),("AGD","dd"),("RTV","dd");
 INSERT INTO User (login,email,password) values ("czarodziej","123@wp.pl","qazwsx");
 INSERT INTO Basket ("description",user_id) values ("1",1),("2",1),("3",1);
@@ -16,7 +15,7 @@ INSERT INTO Subcategory (name,description,category_id) values ("Dostawczy","Samo
                                                               ("Osobowe", "Samochody dla calej rodziny",1),
                                                               ("Ekspressy do kawy","Zrobi kazdy rodzaj kawy",2),
                                                               ("Telewizory","Telewizory dla kazdego",3);
-INSERT INTO Product (name,cost,count,producer,subcategory_id) values ("BMW",20,10,"BB",2),("Porshe",100,10,"Cayman",2),("Remington",100000,10,"E.E.E",3),("Samsung Galaxy S10",3000,10,"Samsung",4);
+INSERT INTO Product (name,cost,count,producer,category_id,subcategory_id) values ("BMW",20,10,"BB",1,2),("Porshe",100,10,"Cayman",1,2),("Remington",100000,10,"E.E.E",2,3),("Samsung Galaxy S10",3000,10,"Samsung",3,4);
 
 INSERT INTO Orders (date,cost,deliver_id,user_id,payment_id,basket_id) values ("12:05:2000",34,1,1,1,1);
 

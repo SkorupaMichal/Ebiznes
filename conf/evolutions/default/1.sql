@@ -1,5 +1,4 @@
 -- !Ups
-
 create table Category(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -12,8 +11,10 @@ create table Product(
     cost INTEGER NOT NULL,
     count   INTEGER NOT NULL,
     producer TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
     subcategory_id INTEGER NOT NULL,
-    FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id)
+    FOREIGN KEY  (category_id) REFERENCES Category(id) ON DELETE CASCADE ,
+    FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id) ON DELETE CASCADE
 );
 CREATE TABLE User(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
@@ -25,14 +26,14 @@ CREATE TABLE Basket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
     description TEXT DEFAULT "",
     user_id     INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
 CREATE TABLE BasketHelper(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
     basket_id INTEGER NOT NULL,
     product_id INTEGER not null,
-    FOREIGN KEY (basket_id) REFERENCES Basket(id),
+    FOREIGN KEY (basket_id) REFERENCES Basket(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Product(id)
 );
 
@@ -42,7 +43,7 @@ CREATE TABLE Comment(
     content TEXT NOT NULL,
     product_id INTEGER NOT NULL,
     user_id    INTEGER NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Product(id),
+    FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id)    REFERENCES User(id)
 );
 
@@ -58,7 +59,7 @@ CREATE TABLE Image(
     url TEXT NOT NULL,
     description TEXT DEFAULT "",
     product_id INTEGER NOT NULL ,
-    FOREIGN KEY (product_id) REFERENCES Product(id)
+    FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Orders(
@@ -69,17 +70,17 @@ CREATE TABLE Orders(
     user_id INTEGER NOT NULL,
     payment_id INTEGER NOT NULL,
     basket_id  INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (payment_id) REFERENCES Deliver(id),
     FOREIGN KEY (deliver_id) REFERENCES Payment(id),
-    FOREIGN KEY (basket_id) REFERENCES Basket(id)
+    FOREIGN KEY (basket_id) REFERENCES Basket(id) ON DELETE CASCADE
 );
 
 CREATE TABLE OrderHelper(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
     order_id INTEGER NOT NULL ,
     product_id INTEGER NOT NULL ,
-    FOREIGN KEY (order_id) REFERENCES Orders(id),
+    FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Product(id)
 );
 
@@ -96,7 +97,7 @@ CREATE TABLE Subcategory(
     name TEXT NOT NULL,
     description TEXT DEFAULT "",
     category_id INTEGER NOT NULL ,
-    FOREIGN KEY (category_id) REFERENCES Category(id)
+    FOREIGN KEY (category_id) REFERENCES Category(id) ON DELETE CASCADE
 );
 
 -- !Downs

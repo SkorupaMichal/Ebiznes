@@ -5,13 +5,14 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent._
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 case class CreateCategoryForm(name:String,description:String)
 case class UpdateCategoryForm(id:Int,name:String,description:String)
 
 @Singleton
-class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,repo:CategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,repo:CategoryRepository,subcatrepo:SubCategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
 
   /*Category controller*/
   val categoryForm: Form[CreateCategoryForm] = Form{
@@ -80,7 +81,9 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
   }
 
   def deleteCategory(category:Int) = Action{
-    repo.delete(category);
+    Await.result(subcatrepo.deleteByCategoryId(category),duration.Duration.Inf)
+    val catdelete = repo.delete(category);
+    Await.result(catdelete,duration.Duration.Inf)
     Redirect("/categories")
   }
 

@@ -49,6 +49,9 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   def delete(commentId: Int):Future[Unit]= db.run{
     comments.filter(_.id===commentId).delete.map(_=>())
   }
+  def deleteByProductId(productId: Int):Future[Unit] = db.run{
+    comments.filter(_.product_id === productId).delete.map(_=>())
+  }
   def update(commentId:Int,new_comment:Comment):Future[Unit] = {
     val updated_comment = new_comment.copy(commentId)
     db.run(comments.filter(_.id===commentId).update(updated_comment).map(_=>()))
