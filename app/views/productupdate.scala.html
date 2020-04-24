@@ -1,4 +1,4 @@
-@(product: Form[UpdateProductForm],subcategories: Seq[SubCategory])(implicit request: MessagesRequestHeader,flash:Flash)
+@(product: Form[UpdateProductForm],subcategories: Seq[SubCategory],categories:Seq[Category])(implicit request: MessagesRequestHeader,flash:Flash)
 @import helper._
 @flash.get("success").getOrElse("")
 <a href="@routes.ProductController.getProducts()">Powrót</a>
@@ -14,6 +14,17 @@
     <div class="margin__"/>
     @inputText(product("producer"),'_label->"product producer")
 
+    <select name="category_id" id="category_id">
+    @for(cat <- categories){
+        @if(cat.id.toString==product("category_id").value.getOrElse(0)) {
+            <option value="@cat.id" selected>@cat.name</option>
+        }else{
+            <option value="@cat.id">@cat.name</option>
+        }
+
+    }
+    </select>
+
     <select name="subcategory_id" id="subcategory_id">
     @for(subcat <- subcategories){
         @if(subcat.id.toString==product("subcategory_id").value.getOrElse(0)) {
@@ -25,7 +36,7 @@
     }
     </select>
     <div class="buttons">
-        <input type="submit" value="Update basket"/>
+        <input type="submit" value="Update product"/>
     </div>
 }
 <style>

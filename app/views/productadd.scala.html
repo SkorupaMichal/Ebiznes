@@ -1,4 +1,4 @@
-@(product: Form[CreateProductForm],subcategories: Seq[SubCategory])(implicit request :MessagesRequestHeader,flash:Flash)
+@(product: Form[CreateProductForm],subcategories: Seq[SubCategory],categories: Seq[Category])(implicit request :MessagesRequestHeader,flash:Flash)
 <a href="@routes.ProductController.getProducts()">Powrót</a>
 @import helper._
 @flash.get("success").getOrElse("")
@@ -11,6 +11,11 @@
     @inputText(product("cost"))
     @inputText(product("count"))
     @inputText(product("producer"))
+    <select name="category_id" id="category_id">
+    @for(cat <- categories){
+        <option value="@cat.id">@cat.name</option>
+    }
+    </select>
     <select name="subcategory_id" id="subcategory_id">
     @for(subcat <- subcategories){
         <option value="@subcat.id">@subcat.name</option>
