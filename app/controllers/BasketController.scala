@@ -5,26 +5,36 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import scala.util.{Failure, Success}
 import scala.concurrent.{ExecutionContext, Future}
-case class CreateBasketForm(description:String)
-case class UpdateBasketForm(id:Int,description:String)
+
+case class CreateBasketForm(description:String,user_id:Int)
+case class UpdateBasketForm(id:Int,description:String,user_id:Int)
 
 @Singleton
-class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
+class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository,
+                                 userRepo:UserRepository)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
   /*Basket controller*/
   val basketForm: Form[CreateBasketForm] = Form{
     mapping(
-      "description"->nonEmptyText
+      "description"->nonEmptyText,
+      "user_id" -> number
     )(CreateBasketForm.apply)(CreateBasketForm.unapply)
   }
   val updateBasketForm: Form[UpdateBasketForm] = Form{
     mapping(
       "id" -> number,
-      "description" -> nonEmptyText
+      "description" -> nonEmptyText,
+      "user_id" -> number
     )(UpdateBasketForm.apply)(UpdateBasketForm.unapply)
   }
   def index = Action { implicit request =>
-    Ok(views.html.basketadd(basketForm))
+    var users:Seq[User] = Seq[User]()
+    val use = userRepo.list().onComplete{
+      case Success(c) => users = c
+      case Failure(_) => print("fail")
+    }
+    Ok(views.html.basketadd(basketForm,users))
 
   }
   def get_AllBaskets:Action[AnyContent] = Action.async{implicit request=>
@@ -44,33 +54,48 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Ok("Return Basket");
   }
   def createBasket =  Action.async{ implicit request =>
+    var users:Seq[User] = Seq[User]()
+    val use = userRepo.list().onComplete{
+      case Success(c) => users = c
+      case Failure(_) => print("fail")
+    }
     basketForm.bindFromRequest.fold(
       errorForm => {
-        Future.successful(Ok(views.html.basketadd(errorForm)))
+        Future.successful(Ok(views.html.basketadd(errorForm,users)))
       },
       basket =>{
-        repo.create(basket.description,1).map(_=>
+        repo.create(basket.description,basket.user_id).map(_=>
           Redirect(routes.BasketController.get_AllBaskets()).flashing("success"->"basket.created")
         )
       }
     )
   }
   def updateBasket(id:Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
+    var users:Seq[User] = Seq[User]()
+    val use = userRepo.list().onComplete{
+      case Success(c) => users = c
+      case Failure(_) => print("fail")
+    }
     val basket = repo.getById(id)
     basket.map(b=>{
-      val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description))
-      Ok(views.html.basketupdate(bForm))
+      val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description,b.head.user_id))
+      Ok(views.html.basketupdate(bForm,users))
     })
   }
   def updateBasketHandle = Action.async{implicit request=>
+    var users:Seq[User] = Seq[User]()
+    val use = userRepo.list().onComplete{
+      case Success(c) => users = c
+      case Failure(_) => print("fail")
+    }
     updateBasketForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
-          BadRequest(views.html.basketupdate(errorForm))
+          BadRequest(views.html.basketupdate(errorForm,users))
         )
       },
       basket =>{
-      repo.update(basket.id,Basket(basket.id,basket.description,1)).map{
+      repo.update(basket.id,Basket(basket.id,basket.description,basket.user_id)).map{
         _ => Redirect(routes.BasketController.updateBasket(basket.id)).flashing("success"->"basket update")
       }
   }
