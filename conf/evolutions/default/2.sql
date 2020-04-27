@@ -16,7 +16,7 @@ INSERT INTO Subcategory (name,description,category_id) values ("Dostawczy","Samo
                                                               ("Ekspressy do kawy","Zrobi kazdy rodzaj kawy",2),
                                                               ("Telewizory","Telewizory dla kazdego",3);
 INSERT INTO Product (name,cost,count,producer,category_id,subcategory_id) values ("BMW",20,10,"BB",1,2),("Porshe",100,10,"Cayman",1,2),("Remington",100000,10,"E.E.E",2,3),("Samsung Galaxy S10",3000,10,"Samsung",3,4);
-
+INSERT INTO ProductBasket(basket_id,product_id) values (1,1),(1,2),(2,3),(3,2);
 INSERT INTO Orders (date,cost,deliver_id,user_id,payment_id,basket_id) values ("12:05:2000",34,1,1,1,1);
 
 -- !Downs
@@ -27,6 +27,7 @@ DELETE  FROM Comment;
 DELETE  FROM Deliver;
 DELETE  FROM Payment;
 DELETE  FROM Subcategory;
+DELETE  FROM ProductBasket;
 DELETE  FROM User;
 
 /*

@@ -11,10 +11,12 @@ import scala.util.{Failure, Success}
 
 case class CreateProductForm(name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int)
 case class UpdateProductForm(id:Int,name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int)
+case class AddProductToBasketForm(basket_id:Int);
 @Singleton
 class ProductController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,
                                    subcatRepo:SubCategoryRepository,productRepo:ProductRepository,
-                                   commentRepo:CommentRepository,catRepo:CategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+                                   commentRepo:CommentRepository,catRepo:CategoryRepository,
+                                   basketRepo:BasketRepository,prodbasketRepo:ProductBasketRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
   /*Product controller*/
   val productForm: Form[CreateProductForm] = Form{
     mapping(
@@ -37,6 +39,12 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
       "subcategory_id" -> number
     )(UpdateProductForm.apply)(UpdateProductForm.unapply)
   }
+  val addProductForm: Form[AddProductToBasketForm] = Form{
+    mapping(
+      "basket_id" -> number,
+    )(AddProductToBasketForm.apply)(AddProductToBasketForm.unapply)
+  }
+
   def getProducts = Action.async{ implicit request =>
     productRepo.list().map(
       products=>Ok(views.html.products(products))
@@ -51,6 +59,34 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
       }
     )
 
+  }
+  def addProductToBasket(productId:Int) = Action.async { implicit request: MessagesRequest[AnyContent] =>
+    var basket:Seq[Basket] =  Seq[Basket]();
+    val subcategories = basketRepo.list().onComplete {
+      case Success(c) => basket = c
+      case Failure(_) => print("fail")
+    }
+    productRepo.getById(productId).map(b=>Ok(views.html.addproducttobasket(addProductForm,basket,productId)))
+
+  }
+  def addProductBasketHandle(productId:Int) = Action.async{ implicit request =>
+    var basket:Seq[Basket] =  Seq[Basket]();
+    val subcategories = basketRepo.list().onComplete {
+      case Success(c) => basket = c
+      case Failure(_) => print("fail")
+    }
+    addProductForm.bindFromRequest.fold(
+      errorForm => {
+        Future.successful(
+          BadRequest(views.html.addproducttobasket(errorForm,basket,productId))
+        )
+      },
+      prod => {
+        prodbasketRepo.create(prod.basket_id,productId).map { _ =>
+          Redirect(routes.ProductController.getProducts()).flashing("success" -> "product.created")
+        }
+      }
+    )
   }
   def createProduct:Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     val subcat = subcatRepo.list()

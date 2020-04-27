@@ -1,0 +1,28 @@
+@(addproductbasket: Form[AddProductToBasketForm],baskets: Seq[Basket],productId:Int)(implicit request: MessagesRequestHeader,flash:Flash)
+@import helper._
+@flash.get("success").getOrElse("")
+
+@form(routes.ProductController.addProductBasketHandle(productId)){
+    @helper.CSRF.formField
+    <input name="id" id="id" value="@productId" type="hidden">
+    <select id="basket_id" name="basket_id">
+    @for(b <- baskets){
+
+        <option value="@b.id" >@b.id</option>
+
+    }
+    </select>
+    <div class="margin__"/>
+    <div class="buttons">
+        <input type="submit" value="Update basket"/>
+    </div>
+}
+<style>
+        .margin__{
+            margin-top: 1.2rem;
+        }
+        .inputcss {
+            border: 1px solid lightcoral;
+            padding: 1rem;
+        }
+</style>

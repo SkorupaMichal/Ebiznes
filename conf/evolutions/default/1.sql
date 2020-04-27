@@ -29,7 +29,7 @@ CREATE TABLE Basket(
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
-CREATE TABLE BasketHelper(
+CREATE TABLE ProductBasket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
     basket_id INTEGER NOT NULL,
     product_id INTEGER not null,
@@ -112,5 +112,5 @@ DROP TABLE Orders;
 DROP TABLE Payment;
 DROP TABLE User;
 DROP TABLE Subcategory;
-DROP TABLE BasketHelper;
+DROP TABLE ProductBasket;
 DROP TABLE OrderHelper;

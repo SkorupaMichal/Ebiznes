@@ -22,6 +22,8 @@ GET     /deletebasket/:id                   controllers.BasketController.deleteB
 # Produkty
 GET     /products                           controllers.ProductController.getProducts
 GET     /products/:id                       controllers.ProductController.getPRoductByID(id:Int)
+GET     /addproductbasket/:id               controllers.ProductController.addProductToBasket(id:Int)
+POST    /addproductbaskethandle/:id         controllers.ProductController.addProductBasketHandle(id:Int)
 GET     /createproduct                      controllers.ProductController.createProduct
 POST    /createproducthandle                controllers.ProductController.createProductHandle
 GET     /updateproduct/:productId           controllers.ProductController.updateProduct(productId:Int)
@@ -68,6 +70,7 @@ POST    /updatedeliverhandle                controllers.DeliveryController.updat
 GET     /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
 #Zestawy urzytkownikow
 GET     /users                                  controllers.UserController.getUsers
+GET     /userbaskets/:id                        controllers.UserController.getUsersBasket(id:Int)
 GET     /user/:id                               controllers.UserController.getUserById(id:Int)
 GET     /createuser                             controllers.UserController.createUser
 GET     /updateuser/:UserId                     controllers.UserController.updateUser(UserId:Int)

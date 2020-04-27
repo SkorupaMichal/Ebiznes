@@ -5,13 +5,14 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
+import scala.concurrent.{Await, ExecutionContext, Future,duration}
 case class CreateUserForm(login:String,email:String,password:String)
 case class UpdateUserForm(id:Int,login:String,email:String,password:String)
 
 @Singleton
-class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,userRepo:UserRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
+class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,userRepo:UserRepository,
+                                productbasketRepo: ProductBasketRepository,basketRepo: BasketRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
   /*Product set controller, client can make easier set of products*/
   val userForm: Form[CreateUserForm] = Form{
     mapping(
@@ -46,7 +47,16 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     )
 
   }
-
+  def getUsersBasket(userId:Int) = Action.async{ implicit request =>
+    val baskets = basketRepo.getByUserId(userId)
+    Await.result(baskets,duration.Duration.Inf)
+    var buu = Seq[Tuple4[Int,Int,String,Int]]()
+    productbasketRepo.getFullListOfProductsByUser(userId).onComplete{
+      case Success(c) => buu = c
+      case Failure(_) => print("dupa")
+    }
+        userRepo.getById(userId).map(b=>{Ok(views.html.userbaskets(buu))})
+  }
   def createUser = Action.async{implicit request =>
     userForm.bindFromRequest.fold(
       errorForm => {

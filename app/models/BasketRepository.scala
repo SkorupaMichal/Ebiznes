@@ -31,6 +31,9 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
   def getById(id:Int): Future[Option[Basket]] = db.run{
     baskets.filter(_.id ===id).result.headOption
   }
+  def getByUserId(userId:Int): Future[Seq[Basket]] = db.run{
+    baskets.filter(_.user_id === userId).result
+  }
   def create(description:String,user_id:Int):Future[Basket] = db.run{
     (baskets.map(c => (c.description,c.user_id))
       returning baskets.map(_.id)
