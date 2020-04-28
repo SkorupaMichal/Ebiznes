@@ -98,4 +98,20 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     Redirect("/users")
   }
 
+  /*Json api*/
+  def getUsersJson = Action.async{ implicit request =>
+    val users = userRepo.list()
+    Await.result(users,duration.Duration.Inf)
+    users.map(b=>Ok(Json.toJson(b)))
+  }
+  def getUsersByIdJson(userId:Int) = Action.async{ implicit request =>
+    val users = userRepo.getById(userId)
+    Await.result(users,duration.Duration.Inf)
+    users.map(b=>Ok(Json.toJson(b)))
+  }
+  def getUsersByLoginNameJson(login:String) = Action.async{ implicit request =>
+    val users = userRepo.getByLogin(login)
+    Await.result(users,duration.Duration.Inf)
+    users.map(b=>Ok(Json.toJson(b)))
+  }
 }

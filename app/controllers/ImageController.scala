@@ -5,7 +5,8 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
 case class CreateImageForm(url:String,description:String,product_id:Int)
@@ -106,5 +107,22 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
   def deleteImage(imageId: Int) = Action{
     reposImages.delete(imageId)
     Redirect("/images")
+  }
+
+  /*Json api*/
+  def getImagesJson = Action.async{implicit request=>
+    val images = reposImages.list()
+    Await.result(images,duration.Duration.Inf)
+    images.map(b=>Ok(Json.toJson(b)))
+  }
+  def getImageByIdJson(imageId:Int) = Action.async{implicit request=>
+    val images = reposImages.getById(imageId)
+    Await.result(images,duration.Duration.Inf)
+    images.map(b=>Ok(Json.toJson(b)))
+  }
+  def getImageByProductId(prodId:Int) = Action.async{implicit  request =>
+    val images = reposImages.getByProductId(prodId)
+    Await.result(images,duration.Duration.Inf)
+    images.map(b=>Ok(Json.toJson(b)))
   }
 }

@@ -5,7 +5,8 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
 case class CreateCommentForm(title:String,content:String,product_id:Int,user_id:Int)
@@ -144,4 +145,24 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     Redirect("/comments")
   }
 
+  /*Json api*/
+  def getCommentsJson = Action.async{implicit request =>
+    val comments = commentRepo.list()
+    Await.result(comments,duration.Duration.Inf)
+    comments.map(b=>Ok(Json.toJson(b)))
+  }
+  def getCommentByIdJson(commentId:Int) = Action.async{implicit request =>
+    val comment = commentRepo.getById(commentId)
+    Await.result(comment,duration.Duration.Inf)
+    comment.map(b=>Ok(Json.toJson(b)))
+  }
+  def getCommentByProductID(productid:Int) = Action.async{ implicit  request=>
+    val comments = commentRepo.getByProduct(productid)
+    Await.result(comments,duration.Duration.Inf)
+    comments.map(b=>Ok(Json.toJson(b)))
+  }
+  def getCommentWithProductDescJson(productId:Int) = Action.async{implicit request=>
+    val commentwithproductInfo = commentRepo.getWithProductDesc(productId)
+    commentwithproductInfo.map(b=>Ok(Json.toJson(b)))
+  }
 }

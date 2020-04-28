@@ -32,6 +32,9 @@ class SubCategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,pr
   def getById(subcategoryId:Int):Future[Option[SubCategory]] = db.run{
     subcategories.filter(_.id === subcategoryId).result.headOption
   }
+  def getByCategoryId(categoryId:Int):Future[Seq[SubCategory]] = db.run{
+    subcategories.filter(_.category_id === categoryId).result
+  }
   def deleteByCategoryId(categoryId:Int):Future[Unit] = db.run{
     subcategories.filter(_.category_id === categoryId).delete.map(_=>())
   }

@@ -92,5 +92,48 @@ GET 	/updatesubcategory/:id              controllers.SubCategoryController.updat
 POST    /updatsubcategoryhandle             controllers.SubCategoryController.updateSubCategoryHandle
 GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.deleteSubCategory(categoryId:Int)
 
+# Api Rest
+#Basket
+GET     /basketsjson                        controllers.BasketController.get_AllBasketsJSON
+GET     /basketjson/:id                     controllers.BasketController.getBasketByID(id:Int)
+POST    /createbasketjson                   controllers.BasketController.createBasketJson
+# Category
+GET     /categoriesjson                     controllers.CategoryController.getCategoryJson
+GET     /categoriesjson/:id                 controllers.CategoryController.getCategoryByIdJson(id:Int)
+# Comment
+GET     /commentsjson                       controllers.CommentController.getCommentsJson
+GET     /commentsjson/:id                   controllers.CommentController.getCommentByIdJson(id:Int)
+GET     /commentbyprod/:id                  controllers.CommentController.getCommentsByProductID(id:Int)
+GET     /commentwithprodinfo/:prodId        controllers.CommentController.getCommentWithProductDescJson(prodId:Int)
+# Deliver
+GET     /deliverjson                        controllers.DeliveryController.getDeliversJson
+GET     /deliverjson/:id                    controllers.DeliveryController.getDeliverByIdJson(id:Int)
+# Comment
+GET     /imagesjson                         controllers.ImageController.getImagesJson
+GET     /imagesjson/:id                     controllers.ImageController.getImageByIdJson(id:Int)
+GET     /imagebyprodidjson/:id              controllers.ImageController.getImageByProductId(id:Int)
+# Order
+GET     /ordersjson                         controllers.OrderController.getOrderJson
+GET     /ordersjson/:id                     controllers.OrderController.getOrderByIdJson(id:Int)
+GET     /orderbyuseridjson/:id              controllers.OrderController.getOrderByUserIdJson(id:Int)
+GET     /orderbydelividjson/:id             controllers.OrderController.getOrderByDeliverIdJson(id:Int)
+# PaymentMethod
+GET     /paymentmethodsjson                 controllers.PaymentMethodsController.getPaymentMethodsJson
+GET     /paymentmethodsjson/:id             controllers.PaymentMethodsController.getPaymentMethodsByIdJson(id:Int)
+# Products
+GET     /productsjson                       controllers.ProductController.getProductsJson
+GET     /productsjson/:id                   controllers.ProductController.getProductsByIdJson(id:Int)
+GET     /productscategoryjson/:id           controllers.ProductController.getProductsByCategoryIdJson(id:Int)
+GET     /productssubcategoryjson/:id        controllers.ProductController.getProductsBySubcategoryIdJson(id:Int)
+# Subcategories
+GET     /subcategoriesjson                  controllers.SubCategoryController.getSubcategoriesJson
+GET     /subcategoriesjson/:id              controllers.SubCategoryController.getSubcategoriesByIdJson(id:Int)
+GET     /subcategoriesByCategoryjson/:id    controllers.SubCategoryController.getSubcategoriesByCategoryIdJson(id:Int)
+# Users
+GET     /usersjson                          controllers.UserController.getUsersJson
+GET     /usersjson/:id                      controllers.UserController.getUsersByIdJson(id:Int)
+GET     /userbylogin/:login                 controllers.UserController.getUsersByLoginNameJson(login:String)
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

@@ -5,8 +5,9 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+
 import scala.util.{Failure, Success}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 
 case class CreateBasketForm(description:String,user_id:Int)
 case class UpdateBasketForm(id:Int,description:String,user_id:Int)
@@ -107,6 +108,29 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
   def deleteBasket(basketid:Int):Action[AnyContent] = Action{
     repo.delete(basketid);
     Redirect("/baskets")
+  }
+
+  /*Json api*/
+  def get_AllBasketsJSON: Action[AnyContent] = Action.async{ implicit request =>
+    val baskets = repo.list()
+    Await.result(baskets,duration.Duration.Inf)
+    baskets.map(b=>Ok(Json.toJson(b)))
+  }
+  def getBasketByIdJSON(id:Int): Action[AnyContent] = Action.async{ implicit request =>
+    val baskets = repo.getById(id)
+    Await.result(baskets,duration.Duration.Inf)
+    baskets.map(b=>Ok(Json.toJson(b)))
+  }
+  def getBasketByUserId(userID:Int): Action[AnyContent] = Action.async{ implicit request =>
+    val userbasket = repo.getByUserId(userID)
+    Await.result(userbasket,duration.Duration.Inf)
+    userbasket.map(b=>Ok(Json.toJson(b)))
+  }
+  def createBasketJson = Action { request =>
+    /*Do dopracowania*/
+    val json = request.body.asJson.get
+    print(json)
+    Ok
   }
 
 }

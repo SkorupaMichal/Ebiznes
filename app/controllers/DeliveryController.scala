@@ -5,7 +5,9 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
+import scala.util.{Failure, Success}
 
 case class CreateDeliverForm(name:String,cost:Int,description:String)
 case class UpdateDeliverForm(id:Int,name:String,cost:Int,description:String)
@@ -80,5 +82,17 @@ class DeliveryController @Inject()(cc:ControllerComponents,dd:MessagesController
   def deleteDelivery(userId: Int) = Action{
     deliverRepo.delete(userId)
     Redirect("/delivers")
+  }
+
+  /*Json api*/
+  def getDeliversJson = Action.async{implicit request=>
+    val delivers = deliverRepo.list()
+    Await.result(delivers,duration.Duration.Inf)
+    delivers.map(b=>Ok(Json.toJson(b)))
+  }
+  def getDeliverByIdJson(deliverID:Int) = Action.async{implicit request=>
+    val delivers = deliverRepo.getById(deliverID)
+    Await.result(delivers,duration.Duration.Inf)
+    delivers.map(b=>Ok(Json.toJson(b)))
   }
 }

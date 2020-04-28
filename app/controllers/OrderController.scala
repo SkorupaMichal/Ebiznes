@@ -5,8 +5,10 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import slick.jdbc.H2Profile.api._
+
 import scala.util.{Failure, Success}
 
 case class CreateOrderForm(date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int)
@@ -188,5 +190,27 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
   def deleteOrder(orderId: Int) = Action{
     orderRepo.delete(orderId)
     Redirect("/orders")
+  }
+
+  /*Json Api*/
+  def getOrderJson = Action.async{ implicit  request =>
+    val orders = orderRepo.createJoin()
+    Await.result(orders,duration.Duration.Inf)
+    orders.map(b=>Ok(Json.toJson(b)))
+  }
+  def getOrderByIdJson(orderId:Int) = Action.async{implicit request =>
+    val orders = orderRepo.getById(orderId)
+    Await.result(orders,duration.Duration.Inf)
+    orders.map(b=>Ok(Json.toJson(b)))
+  }
+  def getOrderByUserIdJson(userId:Int) = Action.async{implicit request=>
+    val orders = orderRepo.getByUserId(userId)
+    Await.result(orders,duration.Duration.Inf)
+    orders.map(b=>Ok(Json.toJson(b)))
+  }
+  def getOrderByDeliverIdJson(deliverId:Int) = Action.async{implicit request=>
+    val orders = orderRepo.getByDeliverId(deliverId)
+    Await.result(orders,duration.Duration.Inf)
+    orders.map(b=>Ok(Json.toJson(b)))
   }
 }

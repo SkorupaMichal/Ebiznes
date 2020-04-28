@@ -41,6 +41,17 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
   def getByProduct(productID:Int):Future[Seq[Comment]] = db.run{
     comments.filter(_.product_id === productID).result
   }
+  def getWithProductDesc(productID:Int):Future[Seq[(Int, String, String, Int, String, Int, String)]] = db.run{
+    val jsontable = comments join products on{
+      case (comm,prod) =>
+        prod.id === productID &&
+        comm.product_id === prod.id
+    }
+    val query = for{
+      (comm,prod) <- jsontable
+    }yield(comm.id,comm.title,comm.content,prod.id,prod.name,prod.cost,prod.producer)
+    query.result
+  }
   def create(title:String,content:String,product_id:Int,user_id:Int):Future[Comment] = db.run{
     (comments.map(c=>(c.title,c.content,c.product_id,c.user_id))
       returning comments.map(_.id)

@@ -5,8 +5,10 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+
 import scala.concurrent._
 import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 case class CreateCategoryForm(name:String,description:String)
 case class UpdateCategoryForm(id:Int,name:String,description:String)
@@ -87,4 +89,15 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
     Redirect("/categories")
   }
 
+  /*Json api*/
+  def getCategoryJson = Action.async {implicit request =>
+    val categories = repo.list()
+    Await.result(categories,duration.Duration.Inf)
+    categories.map(b=>Ok(Json.toJson(b)))
+  }
+  def getCategoryByIdJson(categoryId:Int) = Action.async{ implicit request =>
+    val categories = repo.getById(categoryId)
+    Await.result(categories,duration.Duration.Inf)
+    categories.map(b=>Ok(Json.toJson(b)))
+  }
 }

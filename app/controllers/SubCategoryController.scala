@@ -5,7 +5,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await,duration,ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 case class CreateSubCategoryForm(name:String,description:String,category_id:Int)
@@ -109,5 +109,22 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
     def deleteSubCategory( subcategoryId:Int) = Action{
         subcatRepo.delete(subcategoryId)
         Redirect("/subcategories")
+    }
+
+    /*Json api*/
+    def getSubcategoriesJson = Action.async{ implicit request =>
+        val subcategories = subcatRepo.list()
+        Await.result(subcategories,duration.Duration.Inf)
+        subcategories.map(b=>Ok(Json.toJson(b)))
+    }
+    def getSubcategoriesByIdJson(subcatId:Int) = Action.async{ implicit request =>
+        val subcategories = subcatRepo.getById(subcatId)
+        Await.result(subcategories,duration.Duration.Inf)
+        subcategories.map(b=>Ok(Json.toJson(b)))
+    }
+    def getSubcategoriesByCategoryIdJson(categoryId:Int) = Action.async{ implicit request =>
+        val subcategories = subcatRepo.getByCategoryId(categoryId)
+        Await.result(subcategories,duration.Duration.Inf)
+        subcategories.map(b=>Ok(Json.toJson(b)))
     }
 }

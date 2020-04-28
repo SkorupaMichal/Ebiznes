@@ -31,6 +31,9 @@ class ImageRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
   def getById(id:Int):Future[Option[Image]] = db.run{
     images.filter(_.id === id).result.headOption
   }
+  def getByProductId(prodID:Int):Future[Seq[Image]] = db.run{
+    images.filter(_.product_id === prodID).result
+  }
   def create(url:String,description:String,product_id:Int):Future[Image] = db.run{
     (images.map(c=>(c.url,c.description,c.product_id))
       returning images.map(_.id)

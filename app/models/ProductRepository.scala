@@ -40,6 +40,12 @@ class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
   def getById(id:Int): Future[Option[Product]] = db.run{
     products.filter(_.id === id).result.headOption;
   }
+  def getByCategoryId(catid:Int): Future[Seq[Product]] = db.run{
+    products.filter(_.category_id === catid).result
+  }
+  def getBySubCategoryId(subcatid:Int): Future[Seq[Product]] = db.run{
+    products.filter(_.subcategory_id === subcatid).result
+  }
   def create(name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int): Future[Product] = db.run{
     (products.map(c=>(c.name,c.cost,c.count,c.producer,c.category_id,c.subcategory_id))
       returning products.map(_.id)

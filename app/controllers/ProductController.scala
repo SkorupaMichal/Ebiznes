@@ -172,4 +172,27 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     productRepo.delete(productId)
     Redirect("/products")
   }
+
+  /*Json api*/
+  def getProductsJson = Action.async{implicit request=>
+    val products = productRepo.list()
+    Await.result(products,duration.Duration.Inf)
+    products.map(b=>Ok(Json.toJson(b)))
+  }
+  def getProductsByIdJson(prodId:Int) = Action.async{implicit request=>
+    val products = productRepo.getById(prodId)
+    Await.result(products,duration.Duration.Inf)
+    products.map(b=>Ok(Json.toJson(b)))
+  }
+  def getProductsByCategoryIdJson(categoryId:Int) = Action.async{implicit request=>
+    val products = productRepo.getByCategoryId(categoryId)
+    Await.result(products,duration.Duration.Inf)
+    products.map(b=>Ok(Json.toJson(b)))
+  }
+  def getProductsBySubcategoryIdJson(subcatid:Int) = Action.async{implicit request=>
+    val products = productRepo.getBySubCategoryId(subcatid)
+    Await.result(products,duration.Duration.Inf)
+    products.map(b=>Ok(Json.toJson(b)))
+  }
+
 }

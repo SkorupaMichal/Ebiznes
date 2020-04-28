@@ -5,7 +5,9 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
+import scala.util.{Failure, Success}
 
 case class CreatePaymentMethodForm(name:String,description:String)
 case class UpdatePaymentMethodForm(id:Int,name:String,description:String)
@@ -77,5 +79,15 @@ class PaymentMethodsController @Inject() (cc:ControllerComponents,dd:MessagesCon
     paymentRepo.delete(paymentMethodId)
     Redirect("/paymentmethods")
   }
-
+  /*Json api*/
+  def getPaymentMethodsJson =  Action.async { implicit request=>
+    val paymentmetho = paymentRepo.list()
+    Await.result(paymentmetho,duration.Duration.Inf)
+    paymentmetho.map(b=>Ok(Json.toJson(b)))
+  }
+  def getPaymentMethodsByIdJson(pId:Int) =  Action.async { implicit request=>
+    val paymentmetho = paymentRepo.getById(pId)
+    Await.result(paymentmetho,duration.Duration.Inf)
+    paymentmetho.map(b=>Ok(Json.toJson(b)))
+  }
 }
