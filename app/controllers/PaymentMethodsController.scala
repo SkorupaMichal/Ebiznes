@@ -90,4 +90,20 @@ class PaymentMethodsController @Inject() (cc:ControllerComponents,dd:MessagesCon
     Await.result(paymentmetho,duration.Duration.Inf)
     paymentmetho.map(b=>Ok(Json.toJson(b)))
   }
+  def createPaymentMethodJson = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    paymentRepo.create(name,description)
+    Ok("")
+  }
+  def updatePaymentMethodJson(pmId:Int) = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    paymentRepo.update(pmId,Payment(pmId,name,description))
+    Ok("")
+  }
+  def deletePaymentMethodJson(pmId:Int) = Action{
+    Await.result(paymentRepo.delete(pmId),duration.Duration.Inf)
+    Ok("")
+  }
 }

@@ -213,4 +213,29 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     Await.result(orders,duration.Duration.Inf)
     orders.map(b=>Ok(Json.toJson(b)))
   }
+  def createOrderJson = Action(parse.json){implicit request=>
+    /*,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int*/
+    val date = (request.body \ "name").as[String]
+    val cost = (request.body \ "cost").as[Int]
+    val deliver_id = (request.body \ "deliver_id").as[Int]
+    val user_id = (request.body \ "user_id").as[Int]
+    val payment_id = (request.body \ "payment_id").as[Int]
+    val basket_id = (request.body \ "basket_id").as[Int]
+    orderRepo.create(date,cost,deliver_id,user_id,payment_id,basket_id)
+    Ok("")
+  }
+  def updateOrderJson(orderId:Int) = Action(parse.json){implicit request=>
+    val date = (request.body \ "name").as[String]
+    val cost = (request.body \ "cost").as[Int]
+    val deliver_id = (request.body \ "deliver_id").as[Int]
+    val user_id = (request.body \ "user_id").as[Int]
+    val payment_id = (request.body \ "payment_id").as[Int]
+    val basket_id = (request.body \ "basket_id").as[Int]
+    orderRepo.update(orderId,Order(orderId,date,cost,deliver_id,user_id,payment_id,basket_id))
+    Ok("")
+  }
+  def deleteOrderJson(orderId:Int) = Action{
+    Await.result(orderRepo.delete(orderId),duration.Duration.Inf)
+    Ok("")
+  }
 }

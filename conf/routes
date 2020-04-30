@@ -97,42 +97,72 @@ GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.deleteSu
 GET     /basketsjson                        controllers.BasketController.get_AllBasketsJSON
 GET     /basketjson/:id                     controllers.BasketController.getBasketByID(id:Int)
 POST    /createbasketjson                   controllers.BasketController.createBasketJson
+POST    /updatebasketjson/:id               controllers.BasketController.updateBasketJson(id:Int)
+DELETE  /deletebasketjson/:id               controllers.BasketController.deleteBasketJson(id:Int)
 # Category
 GET     /categoriesjson                     controllers.CategoryController.getCategoryJson
 GET     /categoriesjson/:id                 controllers.CategoryController.getCategoryByIdJson(id:Int)
+POST    /createcategoryjson                 controllers.CategoryController.createCategoryByJson
+POST    /updatecategoryjson/:id             controllers.CategoryController.updateCategoryByJson(id:Int)
+DELETE  /deletecategoryjson/:id             controllers.CategoryController.deleteCategoryByJson(id:Int)
 # Comment
 GET     /commentsjson                       controllers.CommentController.getCommentsJson
 GET     /commentsjson/:id                   controllers.CommentController.getCommentByIdJson(id:Int)
 GET     /commentbyprod/:id                  controllers.CommentController.getCommentsByProductID(id:Int)
 GET     /commentwithprodinfo/:prodId        controllers.CommentController.getCommentWithProductDescJson(prodId:Int)
+POST    /commentcreatejson                  controllers.CommentController.createCommentByJson
+POST    /updatecommentjson/:id              controllers.CommentController.updateCommentByJson(id:Int)
+DELETE  /deletecommentjson/:id              controllers.CommentController.deleteCommentByJson(id:Int)
+
 # Deliver
 GET     /deliverjson                        controllers.DeliveryController.getDeliversJson
 GET     /deliverjson/:id                    controllers.DeliveryController.getDeliverByIdJson(id:Int)
-# Comment
+POST    /delivercreatejson                  controllers.DeliveryController.createDeliverJson
+POST    /updatedeliverjson/:id              controllers.DeliveryController.updateDeliverJson(id:Int)
+DELETE  /deletecdeliverjson/:id             controllers.DeliveryController.deleteDeliverJson(id:Int)
+# Image
 GET     /imagesjson                         controllers.ImageController.getImagesJson
 GET     /imagesjson/:id                     controllers.ImageController.getImageByIdJson(id:Int)
-GET     /imagebyprodidjson/:id              controllers.ImageController.getImageByProductId(id:Int)
+GET     /imagebyprodidjson/:id              controllers.ImageController.getImageByProductIdJson(id:Int)
+POST    /imagecreatejson                    controllers.ImageController.createImageJson
+POST    /updateimagejson/:id                controllers.ImageController.updateImageJson(id:Int)
+DELETE  /deleteimagejson/:id                controllers.ImageController.deleteImageJson(id:Int)
 # Order
 GET     /ordersjson                         controllers.OrderController.getOrderJson
 GET     /ordersjson/:id                     controllers.OrderController.getOrderByIdJson(id:Int)
 GET     /orderbyuseridjson/:id              controllers.OrderController.getOrderByUserIdJson(id:Int)
 GET     /orderbydelividjson/:id             controllers.OrderController.getOrderByDeliverIdJson(id:Int)
+POST    /ordercreatejson                    controllers.OrderController.createOrderJson
+POST    /updateorderjson/:id                controllers.OrderController.updateOrderJson(id:Int)
+DELETE  /deleteorderjson/:id                controllers.OrderController.deleteOrderJson(id:Int)
 # PaymentMethod
 GET     /paymentmethodsjson                 controllers.PaymentMethodsController.getPaymentMethodsJson
 GET     /paymentmethodsjson/:id             controllers.PaymentMethodsController.getPaymentMethodsByIdJson(id:Int)
+POST    /paymentmethodcreatejson            controllers.PaymentMethodsController.createPaymentMethodJson
+POST    /updatepaymentmethodjson/:id        controllers.PaymentMethodsController.updatePaymentMethodJson(id:Int)
+DELETE  /deletepaymentmethodjson/:id        controllers.PaymentMethodsController.deletePaymentMethodJson(id:Int)
 # Products
 GET     /productsjson                       controllers.ProductController.getProductsJson
 GET     /productsjson/:id                   controllers.ProductController.getProductsByIdJson(id:Int)
 GET     /productscategoryjson/:id           controllers.ProductController.getProductsByCategoryIdJson(id:Int)
 GET     /productssubcategoryjson/:id        controllers.ProductController.getProductsBySubcategoryIdJson(id:Int)
+POST    /productcreatejson                  controllers.ProductController.createProductByJson
+POST    /updateproductjson/:id              controllers.ProductController.updateProductByJson(id:Int)
+DELETE  /deleteproductjson/:id              controllers.ProductController.deleteProductByJson(id:Int)
 # Subcategories
 GET     /subcategoriesjson                  controllers.SubCategoryController.getSubcategoriesJson
 GET     /subcategoriesjson/:id              controllers.SubCategoryController.getSubcategoriesByIdJson(id:Int)
 GET     /subcategoriesByCategoryjson/:id    controllers.SubCategoryController.getSubcategoriesByCategoryIdJson(id:Int)
+POST    /subcategorycreatejson              controllers.SubCategoryController.createSubCategoryByJson
+POST    /updatesubcategoryjson/:id          controllers.SubCategoryController.updateSubCategoryByJson(id:Int)
+DELETE  /deletesubcategoryjson/:id          controllers.SubCategoryController.deleteSubCategoryByJson(id:Int)
 # Users
 GET     /usersjson                          controllers.UserController.getUsersJson
 GET     /usersjson/:id                      controllers.UserController.getUsersByIdJson(id:Int)
 GET     /userbylogin/:login                 controllers.UserController.getUsersByLoginNameJson(login:String)
+POST    /usercreatejson                     controllers.UserController.createUserByJson
+POST    /updateuserjson/:id                 controllers.UserController.updateUserByJson(id:Int)
+DELETE  /deleteuserjson/:id                 controllers.UserController.deleteUserByJson(id:Int)
 
 
 # Map static resources from the /public folder to the /assets URL path

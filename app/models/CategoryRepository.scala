@@ -2,7 +2,7 @@ package models
 import javax.inject._
 import slick.jdbc.JdbcProfile
 import play.api.db.slick.DatabaseConfigProvider
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResult, JsValue, Json}
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.SQLiteProfile.api._
@@ -39,4 +39,5 @@ class CategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
     val updated_category = new_category.copy(categoryId)
     db.run(categories.filter(_.id===categoryId).update(updated_category).map(_=>()))
   }
+
 }

@@ -165,4 +165,25 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     val commentwithproductInfo = commentRepo.getWithProductDesc(productId)
     commentwithproductInfo.map(b=>Ok(Json.toJson(b)))
   }
+  def createCommentByJson = Action(parse.json){implicit request=>
+    val title = (request.body \ "title").as[String]
+    val content = (request.body \ "content").as[String]
+    val product_id = (request.body \ "product_id").as[Int]
+    val user_id = (request.body \ "user_id").as[Int]
+    commentRepo.create(title,content,product_id,user_id)
+    Ok("")
+  }
+  def updateCommentByJson(commentId:Int) =Action(parse.json) { implicit request =>
+    val title = (request.body \ "title").as[String]
+    val content = (request.body \ "content").as[String]
+    val product_id = (request.body \ "product_id").as[Int]
+    val user_id = (request.body \ "user_id").as[Int]
+    commentRepo.update(commentId, Comment(commentId, title, content, product_id, user_id))
+    Ok("")
+  }
+  def deleteCommentByJson(commentId:Int) = Action {
+    Await.result(commentRepo.delete(commentId),duration.Duration.Inf)
+    Ok
+  }
+
 }

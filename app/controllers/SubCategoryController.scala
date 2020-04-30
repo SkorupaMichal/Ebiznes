@@ -127,4 +127,23 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         Await.result(subcategories,duration.Duration.Inf)
         subcategories.map(b=>Ok(Json.toJson(b)))
     }
+    def createSubCategoryByJson = Action(parse.json){implicit request=>
+        /*id:Int,name:String,description:String,category_id:Int*/
+        val name = (request.body \ "name").as[String]
+        val description = (request.body \ "description").as[String]
+        val category_id = (request.body \ "category_id").as[Int]
+        subcatRepo.create(name,description,category_id)
+        Ok("")
+    }
+    def updateSubCategoryByJson(subcategoryId:Int) = Action(parse.json){implicit request=>
+        val name = (request.body \ "name").as[String]
+        val description = (request.body \ "description").as[String]
+        val category_id = (request.body \ "category_id").as[Int]
+        subcatRepo.update(subcategoryId,SubCategory(subcategoryId,name,description,category_id))
+        Ok("")
+    }
+    def deleteSubCategoryByJson(subcategoryId:Int) = Action{
+        Await.result(subcatRepo.delete(subcategoryId),duration.Duration.Inf)
+        Ok("")
+    }
 }

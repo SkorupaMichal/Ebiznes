@@ -126,11 +126,22 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Await.result(userbasket,duration.Duration.Inf)
     userbasket.map(b=>Ok(Json.toJson(b)))
   }
-  def createBasketJson = Action { request =>
+  def createBasketJson = Action(parse.json) { request =>
     /*Do dopracowania*/
-    val json = request.body.asJson.get
-    print(json)
+    val desc = (request.body \ "description").as[String]
+    val pass = (request.body \ "user_id").as[Int]
+    repo.create(desc,pass)
     Ok
+  }
+  def deleteBasketJson(basketId:Int) = Action { request =>
+    Await.result(repo.delete(basketId),duration.Duration.Inf)
+    Ok("")
+  }
+  def updateBasketJson(basketId:Int) = Action(parse.json) {implicit request=>
+    val decription = (request.body \ "description").as[String]
+    val user_id = (request.body \ "user_id").as[Int]
+    repo.update(basketId,Basket(basketId,decription,user_id))
+    Ok("")
   }
 
 }

@@ -114,4 +114,23 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     Await.result(users,duration.Duration.Inf)
     users.map(b=>Ok(Json.toJson(b)))
   }
+  def createUserByJson = Action(parse.json){implicit request=>
+    /*id:Int,login:String,email:String,password:String*/
+    val login = (request.body \ "login").as[String]
+    val email = (request.body \ "email").as[String]
+    val password = (request.body \ "password").as[String]
+    userRepo.create(login,email,password)
+    Ok("")
+  }
+  def updateUserByJson(userId:Int) = Action(parse.json){implicit request=>
+    val login = (request.body \ "login").as[String]
+    val email = (request.body \ "email").as[String]
+    val password = (request.body \ "password").as[String]
+    userRepo.update(userId,User(userId,login,email,password))
+    Ok("")
+  }
+  def deleteUserByJson(userId:Int) = Action{
+    Await.result(userRepo.delete(userId),duration.Duration.Inf)
+    Ok("")
+  }
 }

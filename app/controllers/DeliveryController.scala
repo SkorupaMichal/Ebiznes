@@ -95,4 +95,22 @@ class DeliveryController @Inject()(cc:ControllerComponents,dd:MessagesController
     Await.result(delivers,duration.Duration.Inf)
     delivers.map(b=>Ok(Json.toJson(b)))
   }
+  def createDeliverJson = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val cost = (request.body \ "cost").as[Int]
+    val description = (request.body \ "description").as[String]
+    deliverRepo.create(name,cost,description)
+    Ok("")
+  }
+  def updateDeliverJson(deliverId:Int) = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val cost = (request.body \ "cost").as[Int]
+    val description = (request.body \ "description").as[String]
+    deliverRepo.update(deliverId,Delivery(deliverId,name,cost,description))
+    Ok("")
+  }
+  def deleteDeliverJson(deliverId:Int) = Action{
+    Await.result(deliverRepo.delete(deliverId),duration.Duration.Inf)
+    Ok("")
+  }
 }

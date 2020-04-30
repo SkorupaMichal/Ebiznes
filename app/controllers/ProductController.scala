@@ -194,5 +194,30 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     Await.result(products,duration.Duration.Inf)
     products.map(b=>Ok(Json.toJson(b)))
   }
+  def createProductByJson = Action(parse.json){implicit request=>
+    /*id:Int,name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int*/
+    val name = (request.body \ "name").as[String]
+    val cost = (request.body \ "cost").as[Int]
+    val count = (request.body \ "count").as[Int]
+    val producer = (request.body \ "producer").as[String]
+    val category_id = (request.body \ "category_id").as[Int]
+    val subcategory_id = (request.body \ "subcategory_id").as[Int]
+    productRepo.create(name,cost,count,producer,category_id,subcategory_id)
+    Ok("")
+  }
+  def updateProductByJson(productId:Int) = Action(parse.json){implicit request=>
+    val name =  (request.body \ "name").as[String]
+    val cost =  (request.body \ "cost").as[Int]
+    val count = (request.body \ "count").as[Int]
+    val producer = (request.body \ "producer").as[String]
+    val category_id = (request.body \ "category_id").as[Int]
+    val subcategory_id = (request.body \ "subcategory_id").as[Int]
+    productRepo.update(productId,Product(productId,name,cost,count,producer,category_id,subcategory_id))
+    Ok("")
+  }
+  def deleteProductByJson(categoryId:Int) = Action{
+    Await.result(productRepo.delete(categoryId),duration.Duration.Inf)
+    Ok("")
+  }
 
 }

@@ -100,4 +100,20 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
     Await.result(categories,duration.Duration.Inf)
     categories.map(b=>Ok(Json.toJson(b)))
   }
+  def createCategoryByJson = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    repo.create(name,description)
+    Ok("")
+  }
+  def updateCategoryByJson(categoryId:Int) = Action(parse.json){implicit request=>
+    val name = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    repo.update(categoryId,Category(categoryId,name,description))
+    Ok("")
+  }
+  def deleteCategoryByJson(categoryId:Int) = Action{
+    Await.result(repo.delete(categoryId),duration.Duration.Inf)
+    Ok("")
+  }
 }

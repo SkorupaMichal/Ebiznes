@@ -120,9 +120,27 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     Await.result(images,duration.Duration.Inf)
     images.map(b=>Ok(Json.toJson(b)))
   }
-  def getImageByProductId(prodId:Int) = Action.async{implicit  request =>
+  def getImageByProductIdJson(prodId:Int) = Action.async{implicit  request =>
     val images = reposImages.getByProductId(prodId)
     Await.result(images,duration.Duration.Inf)
     images.map(b=>Ok(Json.toJson(b)))
+  }
+  def createImageJson = Action(parse.json){implicit request=>
+    val url = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    val product_id = (request.body \ "product_id").as[Int]
+    reposImages.create(url,description,product_id)
+    Ok("")
+  }
+  def updateImageJson(imageId:Int) = Action(parse.json){implicit request=>
+    val url = (request.body \ "name").as[String]
+    val description = (request.body \ "description").as[String]
+    val product_id = (request.body \ "product_id").as[Int]
+    reposImages.update(imageId,Image(imageId,url,description,product_id))
+    Ok("")
+  }
+  def deleteImageJson(imageId:Int) = Action{
+    Await.result(reposImages.delete(imageId),duration.Duration.Inf)
+    Ok("")
   }
 }
