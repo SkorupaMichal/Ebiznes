@@ -32,7 +32,7 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
     repo.list().map(
       category=>Ok(views.html.categories(category))
     )
-    //Ok("Categories")
+
   }
   def getCategoriesByID(categoryId:Int) = Action.async{ implicit request=>
     repo.getById(categoryId).map(

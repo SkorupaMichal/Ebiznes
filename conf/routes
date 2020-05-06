@@ -12,7 +12,7 @@ GET     /message                    controllers.AsyncController.message
 
 GET     /controllerpanel                    controllers.HomeController.getModelPanel
 # koszyk
-GET     /baskets                            controllers.BasketController.get_AllBaskets
+GET     /baskets                            controllers.BasketController.getAllBaskets
 GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)
 GET     /createbasket                       controllers.BasketController.index
 POST    /createbasket                       controllers.BasketController.createBasket
@@ -94,7 +94,7 @@ GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.deleteSu
 
 # Api Rest
 #Basket
-GET     /basketsjson                        controllers.BasketController.get_AllBasketsJSON
+GET     /basketsjson                        controllers.BasketController.getAllBasketsJSON
 GET     /basketjson/:id                     controllers.BasketController.getBasketByID(id:Int)
 POST    /createbasketjson                   controllers.BasketController.createBasketJson
 POST    /updatebasketjson/:id               controllers.BasketController.updateBasketJson(id:Int)

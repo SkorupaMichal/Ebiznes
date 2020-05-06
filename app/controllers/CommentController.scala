@@ -4,13 +4,15 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
 
 import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
-case class CreateCommentForm(title:String,content:String,product_id:Int,user_id:Int)
-case class UpdateCommentForm(id:Int,title:String,content:String,product_id:Int,user_id:Int)
+case class CreateCommentForm(title:String,content:String,productId:Int,userId:Int)
+case class UpdateCommentForm(id:Int,title:String,content:String,productId:Int,userId:Int)
 
 @Singleton
 class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRepository,dd:MessagesControllerComponents,
@@ -21,8 +23,8 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     mapping(
       "title" ->nonEmptyText,
       "content"->nonEmptyText,
-      "product_id"->number,
-      "user_id" ->number
+      "productId"->number,
+      "userId" ->number
     )(CreateCommentForm.apply)(CreateCommentForm.unapply)
   }
   val updateCommentForm: Form[UpdateCommentForm] = Form{
@@ -30,8 +32,8 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
       "id" -> number,
       "title" ->nonEmptyText,
       "content"->nonEmptyText,
-      "product_id"->number,
-      "user_id" ->number
+      "productId"->number,
+      "userId" ->number
     )(UpdateCommentForm.apply)(UpdateCommentForm.unapply)
   }
 
@@ -46,7 +48,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     commentRepo.getByProduct(productId).map(
       comments => Ok(Json.toJson(comments))
     )
-    // Ok("Comments" + productId)
+
   }
   def getCommentByID(commentId: Int) = Action.async{ implicit  request=>
     commentRepo.getById(commentId).map(
@@ -77,11 +79,11 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   def createCommentHandle = Action.async { implicit request =>
     var prod:Seq[Product] = Seq[Product]()
     var users:Seq[User] = Seq[User]()
-    val products = productRepository.list().onComplete{
+    productRepository.list().onComplete{
       case Success(c) => prod = c
       case Failure(_) =>print("fail")
     }
-    val u = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => users = c
       case Failure(_) =>print("fail")
     }
@@ -92,7 +94,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
         )
       },
       comment => {
-        commentRepo.create(comment.title, comment.content, comment.product_id,comment.user_id).map { _ =>
+        commentRepo.create(comment.title, comment.content, comment.productId,comment.userId).map { _ =>
           Redirect(routes.CommentController.getComments()).flashing("success" -> "product.created")
         }
       }
@@ -101,11 +103,11 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   def updateComment(commentid: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     var prod:Seq[Product] =  Seq[Product]();
     var users:Seq[User] = Seq[User]()
-    val products = productRepository.list().onComplete {
+    productRepository.list().onComplete {
       case Success(c) => prod = c
       case Failure(_) => print("fail")
     }
-    val u = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => users = c
       case Failure(_) =>print("fail")
     }
@@ -118,11 +120,11 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   def updateCommentHandle = Action.async{implicit request=>
     var prod:Seq[Product] = Seq[Product]()
     var users:Seq[User] = Seq[User]()
-    val products = productRepository.list().onComplete{
+    productRepository.list().onComplete{
       case Success(c) => prod = c
       case Failure(_) => print("fail")
     }
-    val u = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => users = c
       case Failure(_) =>print("fail")
     }
@@ -133,7 +135,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
         )
       },
       comment =>{
-        commentRepo.update(comment.id,Comment(comment.id,comment.title,comment.content,comment.product_id,comment.user_id)).map{
+        commentRepo.update(comment.id,Comment(comment.id,comment.title,comment.content,comment.productId,comment.userId)).map{
           _ => Redirect(routes.CommentController.updateComment(comment.id)).flashing("success"->"basket update")
         }
       }
@@ -168,17 +170,17 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   def createCommentByJson = Action(parse.json){implicit request=>
     val title = (request.body \ "title").as[String]
     val content = (request.body \ "content").as[String]
-    val product_id = (request.body \ "product_id").as[Int]
-    val user_id = (request.body \ "user_id").as[Int]
-    commentRepo.create(title,content,product_id,user_id)
+    val productId = (request.body \ "product_id").as[Int]
+    val userId = (request.body \ "user_id").as[Int]
+    commentRepo.create(title,content,productId,userId)
     Ok("")
   }
   def updateCommentByJson(commentId:Int) =Action(parse.json) { implicit request =>
     val title = (request.body \ "title").as[String]
     val content = (request.body \ "content").as[String]
-    val product_id = (request.body \ "product_id").as[Int]
-    val user_id = (request.body \ "user_id").as[Int]
-    commentRepo.update(commentId, Comment(commentId, title, content, product_id, user_id))
+    val productId = (request.body \ "product_id").as[Int]
+    val userId = (request.body \ "user_id").as[Int]
+    commentRepo.update(commentId, Comment(commentId, title, content, productId, userId))
     Ok("")
   }
   def deleteCommentByJson(commentId:Int) = Action {

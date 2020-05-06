@@ -9,7 +9,7 @@
     @helper.CSRF.formField
     @inputText(image("url"))
     @inputText(image("description"))
-    <select name="product_id" id="product_id">
+    <select name="productId" id="productId">
     @for(prod <- products){
         <option value="@prod.id">@prod.name</option>
     }

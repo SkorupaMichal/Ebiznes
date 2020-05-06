@@ -8,8 +8,8 @@ import play.api.libs.json.Json
 import scala.concurrent.{Await,duration,ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-case class CreateSubCategoryForm(name:String,description:String,category_id:Int)
-case class UpdateSubCategoryForm(id:Int,name:String,description:String,category_id:Int)
+case class CreateSubCategoryForm(name:String,description:String,categoryId:Int)
+case class UpdateSubCategoryForm(id:Int,name:String,description:String,categoryId:Int)
 @Singleton
 class SubCategoryController @Inject()(cc:ControllerComponents,protected val catRepo:CategoryRepository,dd:MessagesControllerComponents,subcatRepo:SubCategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
     /*Sub category controller*/
@@ -18,7 +18,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         mapping(
             "name" -> nonEmptyText,
             "description" ->nonEmptyText,
-            "category_id" -> number
+            "categoryId" -> number
         )(CreateSubCategoryForm.apply)(CreateSubCategoryForm.unapply)
     }
     val updateSubCategoryForm: Form[UpdateSubCategoryForm] = Form{
@@ -26,7 +26,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
             "id"  -> number,
             "name" -> nonEmptyText,
             "description" ->nonEmptyText,
-            "category_id" -> number
+            "categoryId" -> number
         )(UpdateSubCategoryForm.apply)(UpdateSubCategoryForm.unapply)
     }
 
@@ -58,7 +58,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
     }
     def addSubCategoryHandle = Action.async { implicit request =>
         var cat:Seq[Category] = Seq[Category]()
-        val categories = catRepo.list().onComplete{
+        catRepo.list().onComplete{
             case Success(c) => cat = c
             case Failure(_) =>print("fail")
         }
@@ -69,7 +69,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
                 )
             },
             subcat => {
-                subcatRepo.create(subcat.name, subcat.description, subcat.category_id).map { _ =>
+                subcatRepo.create(subcat.name, subcat.description, subcat.categoryId).map { _ =>
                     Redirect(routes.SubCategoryController.getSubCategories()).flashing("success" -> "product.created")
                 }
             }
@@ -77,7 +77,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
     }
     def updateSubCategory(subcategoryId:Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
         var cat:Seq[Category] =  Seq[Category]();
-        val categories = catRepo.list().onComplete {
+        catRepo.list().onComplete {
             case Success(c) => cat = c
             case Failure(_) => print("fail")
         }
@@ -89,7 +89,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
     }
     def updateSubCategoryHandle = Action.async{implicit request=>
         var cat:Seq[Category] = Seq[Category]()
-        val categories = catRepo.list().onComplete{
+        catRepo.list().onComplete{
             case Success(c) => cat = c
             case Failure(_) => print("fail")
         }
@@ -100,7 +100,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
                 )
             },
             subcategory =>{
-                subcatRepo.update(subcategory.id,SubCategory(subcategory.id,subcategory.name,subcategory.description,subcategory.category_id)).map{
+                subcatRepo.update(subcategory.id,SubCategory(subcategory.id,subcategory.name,subcategory.description,subcategory.categoryId)).map{
                     _ => Redirect(routes.SubCategoryController.updateSubCategory(subcategory.id)).flashing("success"->"basket update")
                 }
             }
@@ -131,15 +131,15 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         /*id:Int,name:String,description:String,category_id:Int*/
         val name = (request.body \ "name").as[String]
         val description = (request.body \ "description").as[String]
-        val category_id = (request.body \ "category_id").as[Int]
-        subcatRepo.create(name,description,category_id)
+        val categoryId = (request.body \ "category_id").as[Int]
+        subcatRepo.create(name,description,categoryId)
         Ok("")
     }
     def updateSubCategoryByJson(subcategoryId:Int) = Action(parse.json){implicit request=>
         val name = (request.body \ "name").as[String]
         val description = (request.body \ "description").as[String]
-        val category_id = (request.body \ "category_id").as[Int]
-        subcatRepo.update(subcategoryId,SubCategory(subcategoryId,name,description,category_id))
+        val categoryId = (request.body \ "category_id").as[Int]
+        subcatRepo.update(subcategoryId,SubCategory(subcategoryId,name,description,categoryId))
         Ok("")
     }
     def deleteSubCategoryByJson(subcategoryId:Int) = Action{

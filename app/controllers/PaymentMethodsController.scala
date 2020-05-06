@@ -29,7 +29,6 @@ class PaymentMethodsController @Inject() (cc:ControllerComponents,dd:MessagesCon
     paymentRepo.list().map(
       payment=> Ok(views.html.paymentmethods(payment))
     )
-    //Ok("PaymentMethods" )
   }
   def getPaymentMethodByID(paymentId:Int) = Action.async{ implicit request =>
     paymentRepo.getById(paymentId).map(

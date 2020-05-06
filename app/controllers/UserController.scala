@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
+import com.github.t3hnar.bcrypt._
 import scala.util.{Failure, Success}
 import scala.concurrent.{Await, ExecutionContext, Future,duration}
 case class CreateUserForm(login:String,email:String,password:String)
@@ -36,7 +37,6 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     userRepo.list().map(
       ps => Ok(views.html.users(ps))
     )
-    //Ok("ProductSets" )
   }
   def getUserById(psId:Int) = Action.async{ implicit request =>
     userRepo.getById(psId).map(
@@ -63,13 +63,39 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
         Future.successful(Ok(views.html.useradd(errorForm)))
       },
       user =>{
-        userRepo.create(user.login,user.email,user.password).map(_=>
+        val salt = generateSalt
+        val password = user.password.bcrypt(salt)
+        userRepo.create(user.login,user.email,password).map(_=>
           Redirect(routes.UserController.getUsers()).flashing("success"->"basket.created")
         )
       }
     )
   }
+  def validate(value: String, hash: String): Boolean = {
+    // Validating the hash
+    value.isBcryptedSafe(hash) match {
+      case Success(result) => {
+        result
+      }
+      case Failure(failure) => {
+        // Hash is invalid
+        false
+      }
+    }
 
+  }
+  def authUser(login:String,password:String): Boolean ={
+  userRepo.getByLogin(login).onComplete {
+    case Success(c) => {
+      if (validate(password, c.head.password))
+        return true
+      else
+        return false
+    }
+    case Failure(_) => false
+  }
+    (false)
+  }
   def updateUser(userId: Int) :Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     val user = userRepo.getById(userId)
     user.map(b=>{

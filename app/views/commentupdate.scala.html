@@ -19,9 +19,9 @@
 
     }
     </select>
-    <select name="user_id" id="user_id">
+    <select name="userId" id="userId">
     @for(user <- users){
-        @if(user.id.toString==comment("user_id").value.getOrElse(0)) {
+        @if(user.id.toString==comment("userId").value.getOrElse(0)) {
             <option value="@user.id" selected>@user.login</option>
         }else{
             <option value="@user.id">@user.login</option>

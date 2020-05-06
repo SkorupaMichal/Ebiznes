@@ -16,12 +16,12 @@ class ProductBasketRepository @Inject() (dbConfigProvider:DatabaseConfigProvider
   class ProductBasketTableDef(tag: Tag)extends Table[ProductBasket](tag,"productbasket"){
 
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
-    def basket_id = column[Int]("basket_id")
-    def basket_fk = foreignKey("basket_fk",basket_id,baskets)(_.id,onUpdate = ForeignKeyAction.Restrict,
+    def basketId = column[Int]("basket_id")
+    def basketFk = foreignKey("basket_fk",basketId,baskets)(_.id,onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade)
-    def product_id = column[Int]("product_id")
-    def product_fk = foreignKey("product_fk",product_id,products)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,basket_id,product_id)<>((ProductBasket.apply _).tupled,ProductBasket.unapply)
+    def productId = column[Int]("product_id")
+    def productFk = foreignKey("product_fk",productId,products)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def * = (id,basketId,productId)<>((ProductBasket.apply _).tupled,ProductBasket.unapply)
   }
 
   import basketRepo.BasketTableDef
@@ -42,30 +42,30 @@ class ProductBasketRepository @Inject() (dbConfigProvider:DatabaseConfigProvider
     val bb = baskets.filter(_.user_id === userID)
     val sequence = productbasket join products join baskets on {
       case((cbp,products),bb) =>
-        cbp.product_id === products.id &&
-        cbp.basket_id === bb.id
+        cbp.productId === products.id &&
+        cbp.basketId === bb.id
     }
     def query = for{
       ((productxbasket,products),bb) <- sequence
-    } yield(productxbasket.basket_id,productxbasket.product_id,products.name,products.cost)
+    } yield(productxbasket.basketId,productxbasket.productId,products.name,products.cost)
     query.result
   }
-  def create(basket_id:Int,product_id:Int):Future[ProductBasket] = db.run{
-    (productbasket.map(c=>(c.basket_id,c.product_id))
+  def create(basketId:Int,productId:Int):Future[ProductBasket] = db.run{
+    (productbasket.map(c=>(c.basketId,c.productId))
       returning productbasket.map(_.id)
-      into {case((basket_id,product_id),id)=>ProductBasket(id,basket_id,product_id)})+=(basket_id,product_id)
+      into {case((basketId,productId),id)=>ProductBasket(id,basketId,productId)})+=(basketId,productId)
   }
   def delete(productbasketId:Int):Future[Unit] = db.run{
     productbasket.filter(_.id === productbasketId).delete.map(_=>())
   }
   def deleteByProductId(productId:Int) = db.run{
-    productbasket.filter(_.product_id === productId).delete.map(_=>())
+    productbasket.filter(_.productId === productId).delete.map(_=>())
   }
   def deleteByBasketId(basketId:Int) = db.run{
-    productbasket.filter(_.basket_id === basketId).delete.map(_=>())
+    productbasket.filter(_.basketId === basketId).delete.map(_=>())
   }
-  def update(productbasketId:Int,new_productbasket:ProductBasket):Future[Unit] = {
-    val productbasketUpdate = new_productbasket.copy(productbasketId)
+  def update(productbasketId:Int,newProductbasket:ProductBasket):Future[Unit] = {
+    val productbasketUpdate = newProductbasket.copy(productbasketId)
     db.run{
       productbasket.filter(_.id === productbasketId).update(productbasketUpdate).map(_=>())
     }

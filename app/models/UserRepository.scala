@@ -28,8 +28,8 @@ class UserRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit
   def getById(id:Int):Future[Option[User]] = db.run{
     users.filter(_.id===id).result.headOption
   }
-  def getByLogin(login:String): Future[Seq[User]] = db.run{
-    users.filter(_.login === login).result
+  def getByLogin(login:String): Future[Option[User]] = db.run{
+    users.filter(_.login === login).result.headOption
   }
   def create(login:String,email:String,password:String):Future[User] = db.run{
     (users.map(c=>(c.login,c.email,c.password))
@@ -39,8 +39,8 @@ class UserRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit
   def delete(productSetId: Int):Future[Unit]= db.run{
     users.filter(_.id===productSetId).delete.map(_=>())
   }
-  def update(userId:Int,new_user:User):Future[Unit] = {
-    val updated_user = new_user.copy(userId)
-    db.run(users.filter(_.id===userId).update(updated_user).map(_=>()))
+  def update(userId:Int,newUser:User):Future[Unit] = {
+    val updatedUser = newUser.copy(userId)
+    db.run(users.filter(_.id===userId).update(updatedUser).map(_=>()))
   }
 }

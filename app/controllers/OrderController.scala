@@ -11,8 +11,8 @@ import slick.jdbc.H2Profile.api._
 
 import scala.util.{Failure, Success}
 
-case class CreateOrderForm(date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int)
-case class UpdateOrderForm(id:Int,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int)
+case class CreateOrderForm(date:String,cost:Int,deliverId:Int,userId:Int,paymentId:Int,basketId:Int)
+case class UpdateOrderForm(id:Int,date:String,cost:Int,deliverId:Int,userId:Int,paymentId:Int,basketId:Int)
 
 @Singleton
 class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderRepository,dd:MessagesControllerComponents,userRepo:UserRepository,
@@ -23,10 +23,10 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     mapping(
       "date" -> nonEmptyText,
       "cost" -> number,
-      "deliver_id" -> number,
-      "user_id" ->number,
-      "payment_id" -> number,
-      "basket_id" -> number
+      "deliverId" -> number,
+      "userId" ->number,
+      "paymentId" -> number,
+      "basketId" -> number
     )(CreateOrderForm.apply)(CreateOrderForm.unapply)
   }
   val updateOrderForm: Form[UpdateOrderForm] = Form{
@@ -34,20 +34,16 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
       "id"  -> number,
       "date" -> nonEmptyText,
       "cost" -> number,
-      "deliver_id" -> number,
-      "user_id" ->number,
-      "payment_id" -> number,
-      "basket_id" -> number
+      "deliverId" -> number,
+      "userId" ->number,
+      "paymentId" -> number,
+      "basketId" -> number
     )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
   }
   def getOrders = Action.async{ implicit  request =>
 
     val q =  orderRepo.createJoin()
     q.map(c=>Ok(views.html.orders(c)))
-    //orderRepo.list().map(
-    //  order => Ok(Json.toJson(order))
-   //)
-    //Ok("Orders" )
   }
   def getOrderByID(orderID:Int) = Action.async{implicit  request=>
     orderRepo.getById(orderID).map(
@@ -63,15 +59,15 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     var basket:Seq[Basket] = Seq[Basket]()
     var user= userRepo.list()
 
-    val payments = paymentRepo.list().onComplete{
+    paymentRepo.list().onComplete{
       case Success(c) => payment = c
       case Failure(_) =>print("fail")
     }
-    val delivers = deliverRepo.list().onComplete{
+    deliverRepo.list().onComplete{
       case Success(c) => deliver = c
       case Failure(_) =>print("fail")
     }
-    val baskets = basketRepo.list().onComplete{
+    basketRepo.list().onComplete{
       case Success(c) => basket = c
       case Failure(_) =>print("fail")
     }
@@ -85,19 +81,19 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     var basket:Seq[Basket] = Seq[Basket]()
     var user:Seq[User]  = Seq[User]();
 
-    val payments = paymentRepo.list().onComplete{
+    paymentRepo.list().onComplete{
       case Success(c) => payment = c
       case Failure(_) =>print("fail")
     }
-    val delivers = deliverRepo.list().onComplete{
+    deliverRepo.list().onComplete{
       case Success(c) => deliver = c
       case Failure(_) =>print("fail")
     }
-    val baskets = basketRepo.list().onComplete{
+    basketRepo.list().onComplete{
       case Success(c) => basket = c
       case Failure(_) =>print("fail")
     }
-    val users = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => user = c
       case Failure(_) =>print("fail")
     }
@@ -110,8 +106,8 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
         )
       },
       order => {
-        orderRepo.create(order.date, order.cost, order.deliver_id,
-          order.user_id,order.payment_id,order.basket_id).map { _ =>
+        orderRepo.create(order.date, order.cost, order.deliverId,
+          order.userId,order.paymentId,order.basketId).map { _ =>
           Redirect(routes.OrderController.getOrders()).flashing("success" -> "product.created")
         }
       }
@@ -125,19 +121,19 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     var basket:Seq[Basket] = Seq[Basket]()
     var user:Seq[User]  = Seq[User]();
 
-    val payments = paymentRepo.list().onComplete{
+    paymentRepo.list().onComplete{
       case Success(c) => payment = c
       case Failure(_) =>print("fail")
     }
-    val delivers = deliverRepo.list().onComplete{
+    deliverRepo.list().onComplete{
       case Success(c) => deliver = c
       case Failure(_) =>print("fail")
     }
-    val baskets = basketRepo.list().onComplete{
+    basketRepo.list().onComplete{
       case Success(c) => basket = c
       case Failure(_) =>print("fail")
     }
-    val users = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => user = c
       case Failure(_) =>print("fail")
     }
@@ -156,19 +152,19 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     var basket:Seq[Basket] = Seq[Basket]()
     var user:Seq[User]  = Seq[User]();
 
-    val payments = paymentRepo.list().onComplete{
+    paymentRepo.list().onComplete{
       case Success(c) => payment = c
       case Failure(_) =>print("fail")
     }
-    val delivers = deliverRepo.list().onComplete{
+    deliverRepo.list().onComplete{
       case Success(c) => deliver = c
       case Failure(_) =>print("fail")
     }
-    val baskets = basketRepo.list().onComplete{
+    basketRepo.list().onComplete{
       case Success(c) => basket = c
       case Failure(_) =>print("fail")
     }
-    val users = userRepo.list().onComplete{
+    userRepo.list().onComplete{
       case Success(c) => user = c
       case Failure(_) =>print("fail")
     }
@@ -180,7 +176,7 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
       },
       order =>{
         orderRepo.update(order.id,Order(order.id,order.date,
-          order.cost,order.deliver_id,order.user_id,order.payment_id,order.basket_id)).map{
+          order.cost,order.deliverId,order.userId,order.paymentId,order.basketId)).map{
           _ => Redirect(routes.OrderController.updateOrder(order.id)).flashing("success"->"basket update")
         }
       }
@@ -217,21 +213,21 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     /*,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int*/
     val date = (request.body \ "name").as[String]
     val cost = (request.body \ "cost").as[Int]
-    val deliver_id = (request.body \ "deliver_id").as[Int]
-    val user_id = (request.body \ "user_id").as[Int]
-    val payment_id = (request.body \ "payment_id").as[Int]
-    val basket_id = (request.body \ "basket_id").as[Int]
-    orderRepo.create(date,cost,deliver_id,user_id,payment_id,basket_id)
+    val deliverId = (request.body \ "deliver_id").as[Int]
+    val userId = (request.body \ "user_id").as[Int]
+    val paymentId = (request.body \ "payment_id").as[Int]
+    val basketId = (request.body \ "basket_id").as[Int]
+    orderRepo.create(date,cost,deliverId,userId,paymentId,basketId)
     Ok("")
   }
   def updateOrderJson(orderId:Int) = Action(parse.json){implicit request=>
     val date = (request.body \ "name").as[String]
     val cost = (request.body \ "cost").as[Int]
-    val deliver_id = (request.body \ "deliver_id").as[Int]
-    val user_id = (request.body \ "user_id").as[Int]
-    val payment_id = (request.body \ "payment_id").as[Int]
-    val basket_id = (request.body \ "basket_id").as[Int]
-    orderRepo.update(orderId,Order(orderId,date,cost,deliver_id,user_id,payment_id,basket_id))
+    val deliverId = (request.body \ "deliver_id").as[Int]
+    val userId = (request.body \ "user_id").as[Int]
+    val paymentId = (request.body \ "payment_id").as[Int]
+    val basketId = (request.body \ "basket_id").as[Int]
+    orderRepo.update(orderId,Order(orderId,date,cost,deliverId,userId,paymentId,basketId))
     Ok("")
   }
   def deleteOrderJson(orderId:Int) = Action{

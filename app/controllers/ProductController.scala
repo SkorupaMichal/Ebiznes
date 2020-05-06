@@ -9,9 +9,9 @@ import play.api.libs.json.Json
 import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
-case class CreateProductForm(name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int)
-case class UpdateProductForm(id:Int,name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int)
-case class AddProductToBasketForm(basket_id:Int);
+case class CreateProductForm(name:String,cost:Int,count:Int,producer:String,categoryId:Int,subcategoryId:Int)
+case class UpdateProductForm(id:Int,name:String,cost:Int,count:Int,producer:String,categoryId:Int,subcategoryId:Int)
+case class AddProductToBasketForm(basketId:Int);
 @Singleton
 class ProductController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,
                                    subcatRepo:SubCategoryRepository,productRepo:ProductRepository,
@@ -24,8 +24,8 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
       "cost" -> number,
       "count" -> number,
       "producer" ->nonEmptyText,
-      "category_id" -> number,
-      "subcategory_id" -> number
+      "categoryId" -> number,
+      "subcategoryId" -> number
     )(CreateProductForm.apply)(CreateProductForm.unapply)
   }
   val updateProductForm: Form[UpdateProductForm] = Form{
@@ -35,13 +35,13 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
       "cost" -> number,
       "count" -> number,
       "producer" ->nonEmptyText,
-      "category_id" -> number,
-      "subcategory_id" -> number
+      "categoryId" -> number,
+      "subcategoryId" -> number
     )(UpdateProductForm.apply)(UpdateProductForm.unapply)
   }
   val addProductForm: Form[AddProductToBasketForm] = Form{
     mapping(
-      "basket_id" -> number,
+      "basketId" -> number,
     )(AddProductToBasketForm.apply)(AddProductToBasketForm.unapply)
   }
 
@@ -49,7 +49,6 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     productRepo.list().map(
       products=>Ok(views.html.products(products))
     )
-    //Ok("Product")
   }
   def getPRoductByID(productId:Int) = Action.async{ implicit request=>
     productRepo.getById(productId).map(
@@ -62,7 +61,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
   def addProductToBasket(productId:Int) = Action.async { implicit request: MessagesRequest[AnyContent] =>
     var basket:Seq[Basket] =  Seq[Basket]();
-    val subcategories = basketRepo.list().onComplete {
+    basketRepo.list().onComplete {
       case Success(c) => basket = c
       case Failure(_) => print("fail")
     }
@@ -71,7 +70,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
   def addProductBasketHandle(productId:Int) = Action.async{ implicit request =>
     var basket:Seq[Basket] =  Seq[Basket]();
-    val subcategories = basketRepo.list().onComplete {
+    basketRepo.list().onComplete {
       case Success(c) => basket = c
       case Failure(_) => print("fail")
     }
@@ -82,7 +81,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
         )
       },
       prod => {
-        prodbasketRepo.create(prod.basket_id,productId).map { _ =>
+        prodbasketRepo.create(prod.basketId,productId).map { _ =>
           Redirect(routes.ProductController.getProducts()).flashing("success" -> "product.created")
         }
       }
@@ -92,7 +91,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     val subcat = subcatRepo.list()
     Await.result(subcat,duration.Duration.Inf)
     var seqCat = Seq[Category]()
-    var cat = catRepo.list().onComplete{
+    catRepo.list().onComplete{
       case Success(c) => seqCat = c
       case Failure(_) => print("fail")
     }
@@ -101,12 +100,12 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
   def createProductHandle = Action.async { implicit request =>
     var subcat:Seq[SubCategory] = Seq[SubCategory]()
-    val subcategories = subcatRepo.list().onComplete{
+    subcatRepo.list().onComplete{
       case Success(c) => subcat = c
       case Failure(_) =>print("fail")
     }
     var cat:Seq[Category] = Seq[Category]()
-    val categories = catRepo.list().onComplete{
+    catRepo.list().onComplete{
       case Success(c) => cat = c
       case Failure(_) =>print("fail")
     }
@@ -117,7 +116,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
         )
       },
       prod => {
-        productRepo.create(prod.name, prod.cost,prod.count,prod.producer,prod.category_id, prod.subcategory_id).map { _ =>
+        productRepo.create(prod.name, prod.cost,prod.count,prod.producer,prod.categoryId, prod.subcategoryId).map { _ =>
           Redirect(routes.ProductController.getProducts()).flashing("success" -> "product.created")
         }
       }
@@ -126,12 +125,12 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
 
   def updateProduct(productId: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     var subcat:Seq[SubCategory] =  Seq[SubCategory]();
-    val subcategories = subcatRepo.list().onComplete {
+    subcatRepo.list().onComplete {
       case Success(c) => subcat = c
       case Failure(_) => print("fail")
     }
     var cat:Seq[Category] =  Seq[Category]();
-    val categories = catRepo.list().onComplete {
+    catRepo.list().onComplete {
       case Success(c) => cat = c
       case Failure(_) => print("fail")
     }
@@ -144,12 +143,12 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
 
   def updateProductHandle = Action.async { implicit request =>
     var subcat:Seq[SubCategory] = Seq[SubCategory]()
-    val subcategories = subcatRepo.list().onComplete{
+    subcatRepo.list().onComplete{
       case Success(c) => subcat = c
       case Failure(_) =>print("fail")
     }
     var cat:Seq[Category] = Seq[Category]()
-    val categories = catRepo.list().onComplete{
+    catRepo.list().onComplete{
       case Success(c) => cat = c
       case Failure(_) =>print("fail")
     }
@@ -160,7 +159,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
         )
       },
       product =>{
-        productRepo.update(product.id,Product(product.id,product.name,product.cost,product.count,product.producer,product.category_id,product.subcategory_id)).map{
+        productRepo.update(product.id,Product(product.id,product.name,product.cost,product.count,product.producer,product.categoryId,product.subcategoryId)).map{
           _ => Redirect(routes.ProductController.updateProduct(product.id)).flashing("success"->"basket update")
         }
       }
@@ -200,9 +199,9 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     val cost = (request.body \ "cost").as[Int]
     val count = (request.body \ "count").as[Int]
     val producer = (request.body \ "producer").as[String]
-    val category_id = (request.body \ "category_id").as[Int]
-    val subcategory_id = (request.body \ "subcategory_id").as[Int]
-    productRepo.create(name,cost,count,producer,category_id,subcategory_id)
+    val categoryId = (request.body \ "category_id").as[Int]
+    val subcategoryId = (request.body \ "subcategory_id").as[Int]
+    productRepo.create(name,cost,count,producer,categoryId,subcategoryId)
     Ok("")
   }
   def updateProductByJson(productId:Int) = Action(parse.json){implicit request=>
@@ -210,9 +209,9 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     val cost =  (request.body \ "cost").as[Int]
     val count = (request.body \ "count").as[Int]
     val producer = (request.body \ "producer").as[String]
-    val category_id = (request.body \ "category_id").as[Int]
-    val subcategory_id = (request.body \ "subcategory_id").as[Int]
-    productRepo.update(productId,Product(productId,name,cost,count,producer,category_id,subcategory_id))
+    val categoryId = (request.body \ "category_id").as[Int]
+    val subcategoryId = (request.body \ "subcategory_id").as[Int]
+    productRepo.update(productId,Product(productId,name,cost,count,producer,categoryId,subcategoryId))
     Ok("")
   }
   def deleteProductByJson(categoryId:Int) = Action{

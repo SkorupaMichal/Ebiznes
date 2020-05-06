@@ -1,7 +1,7 @@
 @(basket: Form[UpdateBasketForm],users: Seq[User])(implicit request: MessagesRequestHeader,flash:Flash)
 @import helper._
 @flash.get("success").getOrElse("")
-<a href="@routes.BasketController.get_AllBaskets()">Powrót</a>
+<a href="@routes.BasketController.getAllBaskets()">Powrót</a>
 @form(routes.BasketController.updateBasketHandle){
     @helper.CSRF.formField
     <input name="id" id="id" value="@basket("id").value" type="hidden">
@@ -9,7 +9,7 @@
     @inputText(basket("description"),'_label->"Basket desctription")
     <select id="user_id" name="user_id">
     @for(user <- users){
-        @if(user.id.toString==basket("user_id").value.getOrElse(0)) {
+        @if(user.id.toString==basket("userId").value.getOrElse(0)) {
             <option value="@user.id" selected>@user.login</option>
         }else{
             <option value="@user.id">@user.login</option>

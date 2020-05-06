@@ -33,7 +33,6 @@ class DeliveryController @Inject()(cc:ControllerComponents,dd:MessagesController
     deliverRepo.list().map(
       delivers => Ok(views.html.delivers(delivers))
     )
-    //Ok("Delivery" )
   }
   def getDeliverById(deliverId:Int) = Action.async{ implicit request =>
     deliverRepo.getById(deliverId).map(

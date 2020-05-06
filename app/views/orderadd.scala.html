@@ -10,22 +10,22 @@
     @helper.CSRF.formField
     @inputText(order("date"))
     @inputText(order("cost"))
-    <select name="deliver_id" id="deliver_id">
+    <select name="deliverId" id="deliverId">
     @for(dev <- delivers){
         <option value="@dev.id">@dev.name</option>
     }
     </select>
-    <select name="payment_id" id="payment_id">
+    <select name="paymentId" id="paymentId">
     @for(pay <- payments){
         <option value="@pay.id">@pay.name</option>
     }
     </select>
-    <select name="basket_id" id="basket_id">
+    <select name="basketId" id="basketId">
     @for(bas <- baskets){
         <option value="@bas.id">@bas.id</option>
     }
     </select>
-    <select name="user_id" id="user_id">
+    <select name="userId" id="userId">
     @for(user <- users){
         <option value="@user.id">@user.login</option>
     }

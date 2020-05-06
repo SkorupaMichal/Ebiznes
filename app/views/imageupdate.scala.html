@@ -9,9 +9,9 @@
     @inputText(image("url"),'_label->"Image url")
     <div class="margin__"/>
     @inputText(image("description"),'_label->"Image desctription")
-    <select name="category" id="category">
+    <select name="productId" id="productId">
     @for(prod <- products){
-        @if(prod.id.toString==image("product_id").value.getOrElse(0)) {
+        @if(prod.id.toString==image("productId").value.getOrElse(0)) {
             <option value="@prod.id" selected>@prod.name</option>
         }else{
             <option value="@prod.id">@prod.name</option>
@@ -20,7 +20,7 @@
     }
     </select>
     <div class="buttons">
-        <input type="submit" value="Update basket"/>
+        <input type="submit" value="Update image"/>
     </div>
 }
 <style>

@@ -11,12 +11,12 @@
     @inputText(product("cost"))
     @inputText(product("count"))
     @inputText(product("producer"))
-    <select name="category_id" id="category_id">
+    <select name="categoryId" id="categoryId">
     @for(cat <- categories){
         <option value="@cat.id">@cat.name</option>
     }
     </select>
-    <select name="subcategory_id" id="subcategory_id">
+    <select name="subcategoryId" id="subcategoryId">
     @for(subcat <- subcategories){
         <option value="@subcat.id">@subcat.name</option>
     }

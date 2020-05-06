@@ -9,8 +9,8 @@ import play.api.libs.json.Json
 import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
-case class CreateImageForm(url:String,description:String,product_id:Int)
-case class UpdateImageForm(id:Int,url:String,description:String,product_id:Int)
+case class CreateImageForm(url:String,description:String,productId:Int)
+case class UpdateImageForm(id:Int,url:String,description:String,productId:Int)
 
 @Singleton
 class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,reposImages:ImageRepository,
@@ -21,7 +21,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     mapping(
       "url" -> nonEmptyText,
       "description" ->nonEmptyText,
-      "product_id" -> number
+      "productId" -> number
     )(CreateImageForm.apply)(CreateImageForm.unapply)
   }
   val updateimageForm: Form[UpdateImageForm] = Form{
@@ -29,7 +29,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
       "id"  -> number,
       "url" -> nonEmptyText,
       "description" ->nonEmptyText,
-      "product_id" -> number
+      "productId" -> number
     )(UpdateImageForm.apply)(UpdateImageForm.unapply)
   }
   def getImages = Action.async{ implicit request =>
@@ -37,7 +37,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     reposImages.list().map(
       images=>Ok(views.html.images(images))
     )
-    //Ok("Comments" )
+
   }
   def getImagesById(imageId:Int) = Action.async(implicit request=>{
       reposImages.getById(imageId).map(
@@ -54,7 +54,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
   }
   def createImageHandle = Action.async { implicit request =>
     var prod:Seq[Product] = Seq[Product]()
-    val products = pRepo.list().onComplete{
+    pRepo.list().onComplete{
       case Success(c) => prod = c
       case Failure(_) =>print("fail")
     }
@@ -65,7 +65,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
         )
       },
       image => {
-        reposImages.create(image.url, image.description, image.product_id).map { _ =>
+        reposImages.create(image.url, image.description, image.productId).map { _ =>
           Redirect(routes.ImageController.getImages()).flashing("success" -> "image.created")
         }
       }
@@ -74,7 +74,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
 
   def updateImage(imageId: Int) : Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     var prod:Seq[Product] =  Seq[Product]();
-    val products = pRepo.list().onComplete {
+    pRepo.list().onComplete {
       case Success(c) => prod = c
       case Failure(_) => print("fail")
     }
@@ -86,7 +86,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
   }
   def updateImageHandle = Action.async{implicit request=>
     var prod:Seq[Product] = Seq[Product]()
-    val products = pRepo.list().onComplete{
+    pRepo.list().onComplete{
       case Success(c) => prod = c
       case Failure(_) => print("fail")
     }
@@ -97,7 +97,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
         )
       },
       image =>{
-        reposImages.update(image.id,Image(image.id,image.url,image.description,image.product_id)).map{
+        reposImages.update(image.id,Image(image.id,image.url,image.description,image.productId)).map{
           _ => Redirect(routes.ImageController.updateImage(image.id)).flashing("success"->"basket update")
         }
       }
@@ -128,15 +128,15 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
   def createImageJson = Action(parse.json){implicit request=>
     val url = (request.body \ "name").as[String]
     val description = (request.body \ "description").as[String]
-    val product_id = (request.body \ "product_id").as[Int]
-    reposImages.create(url,description,product_id)
+    val productId = (request.body \ "product_id").as[Int]
+    reposImages.create(url,description,productId)
     Ok("")
   }
   def updateImageJson(imageId:Int) = Action(parse.json){implicit request=>
     val url = (request.body \ "name").as[String]
     val description = (request.body \ "description").as[String]
-    val product_id = (request.body \ "product_id").as[Int]
-    reposImages.update(imageId,Image(imageId,url,description,product_id))
+    val productId = (request.body \ "product_id").as[Int]
+    reposImages.update(imageId,Image(imageId,url,description,productId))
     Ok("")
   }
   def deleteImageJson(imageId:Int) = Action{
