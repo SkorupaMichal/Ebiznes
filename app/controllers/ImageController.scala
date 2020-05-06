@@ -32,6 +32,13 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
       "productId" -> number
     )(UpdateImageForm.apply)(UpdateImageForm.unapply)
   }
+  var products:Seq[Product] = Seq[Product]()
+  def getProductsSeq = {
+    pRepo.list().onComplete{
+      case Success(c) => products = c
+      case Failure(_) =>print("fail")
+    }
+  }
   def getImages = Action.async{ implicit request =>
     /* Get all images from database*/
     reposImages.list().map(
@@ -53,15 +60,11 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     products.map(prod =>Ok(views.html.imageadd(imageForm,prod)))
   }
   def createImageHandle = Action.async { implicit request =>
-    var prod:Seq[Product] = Seq[Product]()
-    pRepo.list().onComplete{
-      case Success(c) => prod = c
-      case Failure(_) =>print("fail")
-    }
+    getProductsSeq
     imageForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.imageadd(errorForm,prod))
+          BadRequest(views.html.imageadd(errorForm,products))
         )
       },
       image => {
@@ -73,27 +76,19 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
   }
 
   def updateImage(imageId: Int) : Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var prod:Seq[Product] =  Seq[Product]();
-    pRepo.list().onComplete {
-      case Success(c) => prod = c
-      case Failure(_) => print("fail")
-    }
+    getProductsSeq
     val image = reposImages.getById(imageId)
     image.map(b=>{
       val bForm = updateimageForm.fill(UpdateImageForm(b.head.id,b.head.url,b.head.description,b.head.product_id))
-      Ok(views.html.imageupdate(bForm,prod))
+      Ok(views.html.imageupdate(bForm,products))
     })
   }
   def updateImageHandle = Action.async{implicit request=>
-    var prod:Seq[Product] = Seq[Product]()
-    pRepo.list().onComplete{
-      case Success(c) => prod = c
-      case Failure(_) => print("fail")
-    }
+    getProductsSeq
     updateimageForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
-          BadRequest(views.html.imageupdate(errorForm,prod))
+          BadRequest(views.html.imageupdate(errorForm,products))
         )
       },
       image =>{

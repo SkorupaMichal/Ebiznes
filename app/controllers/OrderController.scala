@@ -40,8 +40,36 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
       "basketId" -> number
     )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
   }
-  def getOrders = Action.async{ implicit  request =>
+  var payments:Seq[Payment] = Seq[Payment]()
+  var delivers:Seq[Delivery] = Seq[Delivery]()
+  var baskets:Seq[Basket] = Seq[Basket]()
+  var users:Seq[User] = Seq[User]()
+  def getPaymentsSeq = {
+    paymentRepo.list().onComplete{
+      case Success(c) => payments = c
+      case Failure(_) =>print("fail")
+    }
+  }
+  def getDeliversSeq = {
+    deliverRepo.list().onComplete{
+      case Success(c) => delivers = c
+      case Failure(_) =>print("fail")
+    }
+  }
+  def getBasketsSeq = {
+    basketRepo.list().onComplete{
+      case Success(c) => baskets = c
+      case Failure(_) =>print("fail")
+    }
+  }
+  def getUserSeq = {
+    userRepo.list().onComplete{
+      case Success(c) => users = c
+      case Failure(_) =>print("fail")
+    }
+  }
 
+  def getOrders = Action.async{ implicit  request =>
     val q =  orderRepo.createJoin()
     q.map(c=>Ok(views.html.orders(c)))
   }
@@ -54,55 +82,23 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     )
   }
   def createOrder:Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var payment:Seq[Payment] = Seq[Payment]()
-    var deliver:Seq[Delivery] = Seq[Delivery]()
-    var basket:Seq[Basket] = Seq[Basket]()
+    getPaymentsSeq
+    getBasketsSeq
+    getDeliversSeq
     var user= userRepo.list()
-
-    paymentRepo.list().onComplete{
-      case Success(c) => payment = c
-      case Failure(_) =>print("fail")
-    }
-    deliverRepo.list().onComplete{
-      case Success(c) => deliver = c
-      case Failure(_) =>print("fail")
-    }
-    basketRepo.list().onComplete{
-      case Success(c) => basket = c
-      case Failure(_) =>print("fail")
-    }
-    user.map(u=>Ok(views.html.orderadd(orderForm,payment,deliver,basket,u)))
+    user.map(u=>Ok(views.html.orderadd(orderForm,payments,delivers,baskets,u)))
   }
 
 
   def createOrderHandle = Action.async { implicit request =>
-    var payment:Seq[Payment] = Seq[Payment]()
-    var deliver:Seq[Delivery] = Seq[Delivery]()
-    var basket:Seq[Basket] = Seq[Basket]()
-    var user:Seq[User]  = Seq[User]();
-
-    paymentRepo.list().onComplete{
-      case Success(c) => payment = c
-      case Failure(_) =>print("fail")
-    }
-    deliverRepo.list().onComplete{
-      case Success(c) => deliver = c
-      case Failure(_) =>print("fail")
-    }
-    basketRepo.list().onComplete{
-      case Success(c) => basket = c
-      case Failure(_) =>print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => user = c
-      case Failure(_) =>print("fail")
-    }
-
-
+    getPaymentsSeq
+    getBasketsSeq
+    getDeliversSeq
+    getUserSeq
     orderForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.orderadd(errorForm,payment,deliver,basket,user))
+          BadRequest(views.html.orderadd(errorForm,payments,delivers,baskets,users))
         )
       },
       order => {
@@ -113,65 +109,29 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
       }
     )
   }
-
-
   def updateOrder(orderId: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var payment:Seq[Payment] = Seq[Payment]()
-    var deliver:Seq[Delivery] = Seq[Delivery]()
-    var basket:Seq[Basket] = Seq[Basket]()
-    var user:Seq[User]  = Seq[User]();
-
-    paymentRepo.list().onComplete{
-      case Success(c) => payment = c
-      case Failure(_) =>print("fail")
-    }
-    deliverRepo.list().onComplete{
-      case Success(c) => deliver = c
-      case Failure(_) =>print("fail")
-    }
-    basketRepo.list().onComplete{
-      case Success(c) => basket = c
-      case Failure(_) =>print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => user = c
-      case Failure(_) =>print("fail")
-    }
+    getPaymentsSeq
+    getBasketsSeq
+    getDeliversSeq
+    getUserSeq
     val order = orderRepo.getById(orderId)
     order.map(b=>{
       val bForm = updateOrderForm.fill(UpdateOrderForm(b.head.id,b.head.date,b.head.cost,b.head.deliver_id,
         b.head.user_id,b.head.payment_id,b.head.basket_id))
-      Ok(views.html.orderupdate(bForm,payment,deliver,basket,user))
+      Ok(views.html.orderupdate(bForm,payments,delivers,baskets,users))
 
     })
   }
 
   def updateOrderHandle = Action.async{implicit request=>
-    var payment:Seq[Payment] = Seq[Payment]()
-    var deliver:Seq[Delivery] = Seq[Delivery]()
-    var basket:Seq[Basket] = Seq[Basket]()
-    var user:Seq[User]  = Seq[User]();
-
-    paymentRepo.list().onComplete{
-      case Success(c) => payment = c
-      case Failure(_) =>print("fail")
-    }
-    deliverRepo.list().onComplete{
-      case Success(c) => deliver = c
-      case Failure(_) =>print("fail")
-    }
-    basketRepo.list().onComplete{
-      case Success(c) => basket = c
-      case Failure(_) =>print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => user = c
-      case Failure(_) =>print("fail")
-    }
+    getPaymentsSeq
+    getBasketsSeq
+    getDeliversSeq
+    getUserSeq
     updateOrderForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
-          BadRequest(views.html.orderupdate(errorForm,payment,deliver,basket,user))
+          BadRequest(views.html.orderupdate(errorForm,payments,delivers,baskets,users))
         )
       },
       order =>{

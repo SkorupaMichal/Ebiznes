@@ -36,8 +36,21 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
       "userId" ->number
     )(UpdateCommentForm.apply)(UpdateCommentForm.unapply)
   }
+  var users: Seq[User] = Seq[User]()
+  var products: Seq[Product] = Seq[Product]()
 
-
+  def getUserSeq = {
+    userRepo.list()onComplete {
+      case Success(c) => users = c
+      case Failure(_) => print("fals")
+    }
+  }
+  def getProductSeq = {
+    productRepository.list().onComplete {
+      case Success(c) => products = c
+      case Failure(_) => print("fail")
+    }
+  }
   def getComments = Action.async{ implicit request =>
     commentRepo.list().map(
       comment => Ok(views.html.comments(comment))
@@ -67,30 +80,17 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
 
   def createComment:Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     val products = productRepository.list()
-    val users = userRepo.list()
-    var user:Seq[User] = Seq[User]()
-    users.onComplete {
-      case Success(c) => user = c
-      case Failure(_) => print("fals")
-    }
-    products.map(prod =>Ok(views.html.commentadd(commentForm,prod,user)))
+    getUserSeq
+    products.map(prod =>Ok(views.html.commentadd(commentForm,prod,users)))
   }
 
   def createCommentHandle = Action.async { implicit request =>
-    var prod:Seq[Product] = Seq[Product]()
-    var users:Seq[User] = Seq[User]()
-    productRepository.list().onComplete{
-      case Success(c) => prod = c
-      case Failure(_) =>print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) =>print("fail")
-    }
+    getProductSeq
+    getUserSeq
     commentForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.commentadd(errorForm,prod,users))
+          BadRequest(views.html.commentadd(errorForm,products,users))
         )
       },
       comment => {
@@ -101,37 +101,21 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     )
   }
   def updateComment(commentid: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var prod:Seq[Product] =  Seq[Product]();
-    var users:Seq[User] = Seq[User]()
-    productRepository.list().onComplete {
-      case Success(c) => prod = c
-      case Failure(_) => print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) =>print("fail")
-    }
+    getUserSeq
+    getProductSeq
     val comment = commentRepo.getById(commentid)
     comment.map(b=>{
       val bForm = updateCommentForm.fill(UpdateCommentForm(b.head.id,b.head.title,b.head.content,b.head.product_id,b.head.user_id))
-      Ok(views.html.commentupdate(bForm,prod,users))
+      Ok(views.html.commentupdate(bForm,products,users))
     })
   }
   def updateCommentHandle = Action.async{implicit request=>
-    var prod:Seq[Product] = Seq[Product]()
-    var users:Seq[User] = Seq[User]()
-    productRepository.list().onComplete{
-      case Success(c) => prod = c
-      case Failure(_) => print("fail")
-    }
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) =>print("fail")
-    }
+    getProductSeq
+    getUserSeq
     updateCommentForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
-          BadRequest(views.html.commentupdate(errorForm,prod,users))
+          BadRequest(views.html.commentupdate(errorForm,products,users))
         )
       },
       comment =>{

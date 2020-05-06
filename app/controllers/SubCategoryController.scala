@@ -29,6 +29,14 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
             "categoryId" -> number
         )(UpdateSubCategoryForm.apply)(UpdateSubCategoryForm.unapply)
     }
+    var categories:Seq[Category] = Seq[Category]()
+
+    def getCategoriesSeq = {
+        catRepo.list().onComplete{
+            case Success(c) => categories = c
+            case Failure(_) =>print("fail")
+        }
+    }
 
     def getSubCategories = Action.async{ implicit request =>
         subcatRepo.list().map(
@@ -57,15 +65,11 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         categories.map(cat =>Ok(views.html.subcategoryadd(subcategoryForm,cat)))
     }
     def addSubCategoryHandle = Action.async { implicit request =>
-        var cat:Seq[Category] = Seq[Category]()
-        catRepo.list().onComplete{
-            case Success(c) => cat = c
-            case Failure(_) =>print("fail")
-        }
+        getCategoriesSeq
         subcategoryForm.bindFromRequest.fold(
             errorForm => {
                 Future.successful(
-                    BadRequest(views.html.subcategoryadd(errorForm,cat))
+                    BadRequest(views.html.subcategoryadd(errorForm,categories))
                 )
             },
             subcat => {
@@ -76,27 +80,19 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         )
     }
     def updateSubCategory(subcategoryId:Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-        var cat:Seq[Category] =  Seq[Category]();
-        catRepo.list().onComplete {
-            case Success(c) => cat = c
-            case Failure(_) => print("fail")
-        }
+        getCategoriesSeq
         val subcategory = subcatRepo.getById(subcategoryId)
         subcategory.map(b=>{
             val bForm = updateSubCategoryForm.fill(UpdateSubCategoryForm(b.head.id,b.head.name,b.head.description,b.head.category_id))
-            Ok(views.html.subcategoryupdate(bForm,cat))
+            Ok(views.html.subcategoryupdate(bForm,categories))
         })
     }
     def updateSubCategoryHandle = Action.async{implicit request=>
-        var cat:Seq[Category] = Seq[Category]()
-        catRepo.list().onComplete{
-            case Success(c) => cat = c
-            case Failure(_) => print("fail")
-        }
+        getCategoriesSeq
         updateSubCategoryForm.bindFromRequest.fold(
             errorForm =>{
                 Future.successful(
-                    BadRequest(views.html.subcategoryupdate(errorForm,cat))
+                    BadRequest(views.html.subcategoryupdate(errorForm,categories))
                 )
             },
             subcategory =>{

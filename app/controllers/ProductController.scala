@@ -44,6 +44,27 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
       "basketId" -> number,
     )(AddProductToBasketForm.apply)(AddProductToBasketForm.unapply)
   }
+  var baskets:Seq[Basket] = Seq[Basket]()
+  var categories:Seq[Category] = Seq[Category]()
+  var subcategories:Seq[SubCategory] = Seq[SubCategory]()
+  def getBasketsSeq = {
+    basketRepo.list().onComplete {
+      case Success(c) => baskets = c
+      case Failure(_) => print("fail")
+    }
+  }
+  def getCategoriesSeq = {
+    catRepo.list().onComplete{
+      case Success(c) => categories = c
+      case Failure(_) => print("fail")
+    }
+  }
+  def getSubCategoriesSeq = {
+    subcatRepo.list().onComplete{
+      case Success(c) => subcat = c
+      case Failure(_) =>print("fail")
+    }
+  }
 
   def getProducts = Action.async{ implicit request =>
     productRepo.list().map(
@@ -60,24 +81,16 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
 
   }
   def addProductToBasket(productId:Int) = Action.async { implicit request: MessagesRequest[AnyContent] =>
-    var basket:Seq[Basket] =  Seq[Basket]();
-    basketRepo.list().onComplete {
-      case Success(c) => basket = c
-      case Failure(_) => print("fail")
-    }
-    productRepo.getById(productId).map(b=>Ok(views.html.addproducttobasket(addProductForm,basket,productId)))
+    getBasketsSeq
+    productRepo.getById(productId).map(b=>Ok(views.html.addproducttobasket(addProductForm,baskets,productId)))
 
   }
   def addProductBasketHandle(productId:Int) = Action.async{ implicit request =>
-    var basket:Seq[Basket] =  Seq[Basket]();
-    basketRepo.list().onComplete {
-      case Success(c) => basket = c
-      case Failure(_) => print("fail")
-    }
+    getBasketsSeq
     addProductForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.addproducttobasket(errorForm,basket,productId))
+          BadRequest(views.html.addproducttobasket(errorForm,baskets,productId))
         )
       },
       prod => {
@@ -90,29 +103,17 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   def createProduct:Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     val subcat = subcatRepo.list()
     Await.result(subcat,duration.Duration.Inf)
-    var seqCat = Seq[Category]()
-    catRepo.list().onComplete{
-      case Success(c) => seqCat = c
-      case Failure(_) => print("fail")
-    }
+    getCategoriesSeq
 
-    subcat.map(c=>Ok(views.html.productadd(productForm,c,seqCat)))
+    subcat.map(c=>Ok(views.html.productadd(productForm,c,categories)))
   }
   def createProductHandle = Action.async { implicit request =>
-    var subcat:Seq[SubCategory] = Seq[SubCategory]()
-    subcatRepo.list().onComplete{
-      case Success(c) => subcat = c
-      case Failure(_) =>print("fail")
-    }
-    var cat:Seq[Category] = Seq[Category]()
-    catRepo.list().onComplete{
-      case Success(c) => cat = c
-      case Failure(_) =>print("fail")
-    }
+    getSubCategoriesSeq
+    getCategoriesSeq
     productForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.productadd(errorForm,subcat,cat))
+          BadRequest(views.html.productadd(errorForm,subcategories,categories))
         )
       },
       prod => {
@@ -124,38 +125,22 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
 
   def updateProduct(productId: Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var subcat:Seq[SubCategory] =  Seq[SubCategory]();
-    subcatRepo.list().onComplete {
-      case Success(c) => subcat = c
-      case Failure(_) => print("fail")
-    }
-    var cat:Seq[Category] =  Seq[Category]();
-    catRepo.list().onComplete {
-      case Success(c) => cat = c
-      case Failure(_) => print("fail")
-    }
+    getSubCategoriesSeq
+    getCategoriesSeq
     val products = productRepo.getById(productId)
     products.map(b=>{
       val bForm = updateProductForm.fill(UpdateProductForm(b.head.id,b.head.name,b.head.cost,b.head.count,b.head.producer,b.head.category_id,b.head.subcategory_id))
-      Ok(views.html.productupdate(bForm,subcat,cat))
+      Ok(views.html.productupdate(bForm,subcategories,categories))
     })
   }
 
   def updateProductHandle = Action.async { implicit request =>
-    var subcat:Seq[SubCategory] = Seq[SubCategory]()
-    subcatRepo.list().onComplete{
-      case Success(c) => subcat = c
-      case Failure(_) =>print("fail")
-    }
-    var cat:Seq[Category] = Seq[Category]()
-    catRepo.list().onComplete{
-      case Success(c) => cat = c
-      case Failure(_) =>print("fail")
-    }
+    getSubCategoriesSeq
+    getCategoriesSeq
     updateProductForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.productupdate(errorForm,subcat,cat))
+          BadRequest(views.html.productupdate(errorForm,subcategories,categories))
         )
       },
       product =>{

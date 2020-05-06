@@ -29,12 +29,17 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
       "userId" -> number
     )(UpdateBasketForm.apply)(UpdateBasketForm.unapply)
   }
-  def index = Action { implicit request =>
-    var users:Seq[User] = Seq[User]()
+  var users:Seq[User] = Seq[User]()
+
+  def getUsersSeq = {
     userRepo.list().onComplete{
       case Success(c) => users = c
       case Failure(_) => print("fail")
     }
+
+  }
+  def index = Action { implicit request =>
+    getUsersSeq
     Ok(views.html.basketadd(basketForm,users))
 
   }
@@ -55,11 +60,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Ok("Return Basket");
   }
   def createBasket =  Action.async{ implicit request =>
-    var users:Seq[User] = Seq[User]()
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) => print("fail")
-    }
+    getUsersSeq
     basketForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(Ok(views.html.basketadd(errorForm,users)))
@@ -72,11 +73,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     )
   }
   def updateBasket(id:Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    var users:Seq[User] = Seq[User]()
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) => print("fail")
-    }
+    getUsersSeq
     val basket = repo.getById(id)
     basket.map(b=>{
       val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description,b.head.user_id))
@@ -84,11 +81,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     })
   }
   def updateBasketHandle = Action.async{implicit request=>
-    var users:Seq[User] = Seq[User]()
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) => print("fail")
-    }
+    getUsersSeq
     updateBasketForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
