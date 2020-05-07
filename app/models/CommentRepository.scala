@@ -19,13 +19,13 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def title = column[String]("title")
     def content = column[String]("content")
-    def product_id = column[Int]("product_id")
-    def product_fk = foreignKey("product_fk",product_id,products)(_.id,onUpdate = ForeignKeyAction.Restrict,
+    def productId = column[Int]("product_id")
+    def productFk = foreignKey("product_fk",productId,products)(_.id,onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade)
-    def user_id = column[Int]("user_id")
-    def user_fk = foreignKey("user_fk",user_id,users)(_.id,onUpdate = ForeignKeyAction.Restrict,
+    def userId = column[Int]("user_id")
+    def userFk = foreignKey("user_fk",userId,users)(_.id,onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade)
-    def * = (id,title,content,product_id,user_id)<>((Comment.apply _).tupled,Comment.unapply)
+    def * = (id,title,content,productId,userId)<>((Comment.apply _).tupled,Comment.unapply)
   }
   import pR.ProductTableDef
   import uR.UserTableDef
@@ -39,32 +39,32 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     comments.filter(_.id===id).result.headOption
   }
   def getByProduct(productID:Int):Future[Seq[Comment]] = db.run{
-    comments.filter(_.product_id === productID).result
+    comments.filter(_.productId === productID).result
   }
   def getWithProductDesc(productID:Int):Future[Seq[(Int, String, String, Int, String, Int, String)]] = db.run{
     val jsontable = comments join products on{
       case (comm,prod) =>
         prod.id === productID &&
-        comm.product_id === prod.id
+        comm.productId === prod.id
     }
     val query = for{
       (comm,prod) <- jsontable
     }yield(comm.id,comm.title,comm.content,prod.id,prod.name,prod.cost,prod.producer)
     query.result
   }
-  def create(title:String,content:String,product_id:Int,user_id:Int):Future[Comment] = db.run{
-    (comments.map(c=>(c.title,c.content,c.product_id,c.user_id))
+  def create(title:String,content:String,prodId:Int,userId:Int):Future[Comment] = db.run{
+    (comments.map(c=>(c.title,c.content,c.productId,c.userId))
       returning comments.map(_.id)
-      into{case((title,content,product_id,user_id),id)=>Comment(id,title,content,product_id,user_id)})+=(title,content,product_id,user_id)
+      into{case((title,content,prodId,userId),id)=>Comment(id,title,content,prodId,userId)})+=(title,content,prodId,userId)
   }
   def delete(commentId: Int):Future[Unit]= db.run{
     comments.filter(_.id===commentId).delete.map(_=>())
   }
   def deleteByProductId(productId: Int):Future[Unit] = db.run{
-    comments.filter(_.product_id === productId).delete.map(_=>())
+    comments.filter(_.productId === productId).delete.map(_=>())
   }
-  def update(commentId:Int,new_comment:Comment):Future[Unit] = {
-    val updated_comment = new_comment.copy(commentId)
-    db.run(comments.filter(_.id===commentId).update(updated_comment).map(_=>()))
+  def update(commentId:Int,newComment:Comment):Future[Unit] = {
+    val updatedComment = newComment.copy(commentId)
+    db.run(comments.filter(_.id===commentId).update(updatedComment).map(_=>()))
   }
 }

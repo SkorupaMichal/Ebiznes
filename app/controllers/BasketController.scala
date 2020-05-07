@@ -76,7 +76,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     getUsersSeq
     val basket = repo.getById(id)
     basket.map(b=>{
-      val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description,b.head.user_id))
+      val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description,b.head.userId))
       Ok(views.html.basketupdate(bForm,users))
     })
   }
@@ -129,6 +129,10 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
   def deleteBasketJson(basketId:Int) = Action { request =>
     Await.result(repo.delete(basketId),duration.Duration.Inf)
     Ok("")
+  }
+  def deleteBasketByUserIdJson(userId:Int) = Action{request=>
+    Await.result(repo.deleteBasketByUser(userId),duration.Duration.Inf)
+    Ok(200)
   }
   def updateBasketJson(basketId:Int) = Action(parse.json) {implicit request=>
     val decription = (request.body \ "description").as[String]

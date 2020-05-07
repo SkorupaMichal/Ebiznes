@@ -35,9 +35,9 @@ class CategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
   def delete(categoryId: Int):Future[Unit]= db.run{
     categories.filter(_.id===categoryId).delete.map(_=>())
   }
-  def update(categoryId:Int,new_category:Category):Future[Unit] = {
-    val updated_category = new_category.copy(categoryId)
-    db.run(categories.filter(_.id===categoryId).update(updated_category).map(_=>()))
+  def update(categoryId:Int,newCategory:Category):Future[Unit] = {
+    val updatedCategory = newCategory.copy(categoryId)
+    db.run(categories.filter(_.id===categoryId).update(updatedCategory).map(_=>()))
   }
 
 }

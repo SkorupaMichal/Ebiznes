@@ -17,10 +17,10 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
 
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def description = column[String]("description",O.Default(""))
-    def user_id = column[Int]("user_id")
-    def user_fk = foreignKey("user_fk",user_id,
+    def userId = column[Int]("user_id")
+    def userFk = foreignKey("user_fk",userId,
       users)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,description,user_id) <> (( Basket.apply _ ).tupled, Basket.unapply)
+    def * = (id,description,userId) <> (( Basket.apply _ ).tupled, Basket.unapply)
   }
   import uR.UserTableDef
   val baskets = TableQuery[BasketTableDef]
@@ -32,18 +32,21 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
     baskets.filter(_.id ===id).result.headOption
   }
   def getByUserId(userId:Int): Future[Seq[Basket]] = db.run{
-    baskets.filter(_.user_id === userId).result
+    baskets.filter(_.userId === userId).result
   }
-  def create(description:String,user_id:Int):Future[Basket] = db.run{
-    (baskets.map(c => (c.description,c.user_id))
+  def create(description:String,userId:Int):Future[Basket] = db.run{
+    (baskets.map(c => (c.description,c.userId))
       returning baskets.map(_.id)
-      into {case ((description,user_id),id)=>Basket(id,description,user_id)}) +=(description,user_id)
+      into {case ((description,userId),id)=>Basket(id,description,userId)}) +=(description,userId)
   }
   def delete(basketID:Int):Future[Unit] = {
     db.run(baskets.filter(_.id === basketID).delete).map(_=>())
   }
-  def update(bid:Int,new_basket: Basket):Future[Unit]={
-    val updatedBasket: Basket = new_basket.copy(bid)
+  def deleteBasketByUser(userId:Int): Future[Unit] = {
+    db.run(baskets.filter(_.userId === userId).delete).map(_=>())
+  }
+  def update(bid:Int,newBasket: Basket):Future[Unit]={
+    val updatedBasket: Basket = newBasket.copy(bid)
     db.run(baskets.filter(_.id === bid).update(updatedBasket)).map(_=>())
   }
 

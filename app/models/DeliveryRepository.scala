@@ -37,8 +37,8 @@ class DeliveryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impl
   def delete(deliverid:Int):Future[Unit] = db.run{
     delivers.filter(_.id === deliverid).delete.map(_=>())
   }
-  def update(deliverid:Int,new_deliver:Delivery):Future[Unit] = db.run{
-    val updated_deliver = new_deliver.copy(deliverid)
-    delivers.filter(_.id === deliverid).update(updated_deliver).map(_=>())
+  def update(deliverid:Int,newDeliver:Delivery):Future[Unit] = db.run{
+    val updatedDeliver = newDeliver.copy(deliverid)
+    delivers.filter(_.id === deliverid).update(updatedDeliver).map(_=>())
   }
 }
