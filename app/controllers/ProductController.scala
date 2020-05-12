@@ -4,9 +4,9 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
-import scala.concurrent.{Await, ExecutionContext, Future,duration}
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
 
 case class CreateProductForm(name:String,cost:Int,count:Int,producer:String,categoryId:Int,subcategoryId:Int)
@@ -61,7 +61,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
   }
   def getSubCategoriesSeq = {
     subcatRepo.list().onComplete{
-      case Success(c) => subcat = c
+      case Success(c) => subcategories = c
       case Failure(_) =>print("fail")
     }
   }
@@ -129,7 +129,7 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     getCategoriesSeq
     val products = productRepo.getById(productId)
     products.map(b=>{
-      val bForm = updateProductForm.fill(UpdateProductForm(b.head.id,b.head.name,b.head.cost,b.head.count,b.head.producer,b.head.category_id,b.head.subcategory_id))
+      val bForm = updateProductForm.fill(UpdateProductForm(b.head.id,b.head.name,b.head.cost,b.head.count,b.head.producer,b.head.categoryId,b.head.subcategoryId))
       Ok(views.html.productupdate(bForm,subcategories,categories))
     })
   }
@@ -178,25 +178,42 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     Await.result(products,duration.Duration.Inf)
     products.map(b=>Ok(Json.toJson(b)))
   }
+  def getProductFromRequest(request:MessagesRequest[JsValue]):(String,Int,Int,String,Int,Int) = {
+    var name = ""
+    var cost = -1
+    var count = -1
+    var producer = ""
+    var cateogryId = -1
+    var subcateogryId = -1
+    (request.body \ "name").asOpt[String].map{ na=>
+      name = na
+    }
+    (request.body \ "cost").asOpt[Int].map{ co=>
+      cost = co
+    }
+    (request.body \ "count").asOpt[Int].map{ con=>
+      count = con
+    }
+    (request.body \ "producer").asOpt[String].map{ prod=>
+      producer = prod
+    }
+    (request.body \ "cateogryId").asOpt[Int].map{ catid=>
+      cateogryId = catid
+    }
+    (request.body \ "subcateogryId").asOpt[Int].map{ subcatid=>
+      subcateogryId = subcatid
+    }
+    (name,cost,count,producer,cateogryId,subcateogryId)
+  }
   def createProductByJson = Action(parse.json){implicit request=>
     /*id:Int,name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int*/
-    val name = (request.body \ "name").as[String]
-    val cost = (request.body \ "cost").as[Int]
-    val count = (request.body \ "count").as[Int]
-    val producer = (request.body \ "producer").as[String]
-    val categoryId = (request.body \ "category_id").as[Int]
-    val subcategoryId = (request.body \ "subcategory_id").as[Int]
-    productRepo.create(name,cost,count,producer,categoryId,subcategoryId)
+    val product = getProductFromRequest(request)
+    productRepo.create(product._1,product._2,product._3,product._4,product._5,product._6)
     Ok("")
   }
   def updateProductByJson(productId:Int) = Action(parse.json){implicit request=>
-    val name =  (request.body \ "name").as[String]
-    val cost =  (request.body \ "cost").as[Int]
-    val count = (request.body \ "count").as[Int]
-    val producer = (request.body \ "producer").as[String]
-    val categoryId = (request.body \ "category_id").as[Int]
-    val subcategoryId = (request.body \ "subcategory_id").as[Int]
-    productRepo.update(productId,Product(productId,name,cost,count,producer,categoryId,subcategoryId))
+    val product = getProductFromRequest(request)
+    productRepo.update(productId,Product(productId,product._1,product._2,product._3,product._4,product._5,product._6))
     Ok("")
   }
   def deleteProductByJson(categoryId:Int) = Action{

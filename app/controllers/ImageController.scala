@@ -4,9 +4,9 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
-import scala.concurrent.{Await, ExecutionContext, Future,duration}
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
 
 case class CreateImageForm(url:String,description:String,productId:Int)
@@ -79,7 +79,7 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     getProductsSeq
     val image = reposImages.getById(imageId)
     image.map(b=>{
-      val bForm = updateimageForm.fill(UpdateImageForm(b.head.id,b.head.url,b.head.description,b.head.product_id))
+      val bForm = updateimageForm.fill(UpdateImageForm(b.head.id,b.head.url,b.head.description,b.head.productId))
       Ok(views.html.imageupdate(bForm,products))
     })
   }
@@ -120,18 +120,29 @@ class ImageController @Inject()(cc:ControllerComponents,dd:MessagesControllerCom
     Await.result(images,duration.Duration.Inf)
     images.map(b=>Ok(Json.toJson(b)))
   }
+  def getImageFromRequest(request:MessagesRequest[JsValue]):(String,String,Int) = {
+    var url = ""
+    var description = ""
+    var productId = -1
+    (request.body \ "url").asOpt[String].map{ur=>
+      url = ur
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "description").asOpt[String].map{desc=>
+      description = desc
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "product_id").asOpt[Int].map{prodid=>
+      productId = prodid
+    }.getOrElse(BadRequest("Blad"))
+    (url,description,productId)
+  }
   def createImageJson = Action(parse.json){implicit request=>
-    val url = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    val productId = (request.body \ "product_id").as[Int]
-    reposImages.create(url,description,productId)
+    val image = getImageFromRequest(request)
+    reposImages.create(image._1,image._2,image._3)
     Ok("")
   }
   def updateImageJson(imageId:Int) = Action(parse.json){implicit request=>
-    val url = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    val productId = (request.body \ "product_id").as[Int]
-    reposImages.update(imageId,Image(imageId,url,description,productId))
+    val image = getImageFromRequest(request)
+    reposImages.update(imageId,Image(imageId,image._1,image._2,image._3))
     Ok("")
   }
   def deleteImageJson(imageId:Int) = Action{

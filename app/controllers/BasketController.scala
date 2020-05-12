@@ -4,7 +4,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.util.{Failure, Success}
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
@@ -119,11 +119,23 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Await.result(userbasket,duration.Duration.Inf)
     userbasket.map(b=>Ok(Json.toJson(b)))
   }
-  def createBasketJson = Action(parse.json) { request =>
+
+  def getReqestJson(request:MessagesRequest[JsValue]):(String,Int) = {
+    var descrption = ""
+    var userID = 0
+      (request.body \ "description").asOpt[String].map{ desc=>
+        descrption = desc
+      }.getOrElse(BadRequest("Oho zly json"))
+      (request.body \ "user_id").asOpt[Int].map{usid=>
+        userID = usid
+      }.getOrElse(BadRequest("Zla skladnia"))
+
+    (descrption,userID)
+  }
+  def createBasketJson = Action(parse.json) { implicit request =>
     /*Do dopracowania*/
-    val desc = (request.body \ "description").as[String]
-    val pass = (request.body \ "user_id").as[Int]
-    repo.create(desc,pass)
+    val newBasket = getReqestJson(request)
+    repo.create(newBasket._1,newBasket._2)
     Ok
   }
   def deleteBasketJson(basketId:Int) = Action { request =>
@@ -132,12 +144,11 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
   }
   def deleteBasketByUserIdJson(userId:Int) = Action{request=>
     Await.result(repo.deleteBasketByUser(userId),duration.Duration.Inf)
-    Ok(200)
+    Ok("")
   }
   def updateBasketJson(basketId:Int) = Action(parse.json) {implicit request=>
-    val decription = (request.body \ "description").as[String]
-    val userId = (request.body \ "user_id").as[Int]
-    repo.update(basketId,Basket(basketId,decription,userId))
+    val updateBasket = getReqestJson(request)
+    repo.update(basketId,Basket(basketId,updateBasket._1,updateBasket._2))
     Ok("")
   }
 

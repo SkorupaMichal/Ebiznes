@@ -21,13 +21,13 @@ class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
     def cost = column[Int]("cost")
     def count = column[Int]("count")
     def producer = column[String]("producer")
-    def category_id = column[Int]("category_id")
-    def category_fk = foreignKey("category_fk",category_id,
+    def categoryId = column[Int]("category_id")
+    def categoryFk = foreignKey("category_fk",categoryId,
       subcategoryTable)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def subcategory_id = column[Int]("subcategory_id",O.SqlType("not null"))
-    def subcategory_fk = foreignKey("subcategory_fk",subcategory_id,
+    def subcategoryId = column[Int]("subcategory_id",O.SqlType("not null"))
+    def subcategoryFk = foreignKey("subcategory_fk",subcategoryId,
       subcategoryTable)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,name,cost,count,producer,category_id,subcategory_id) <>((Product.apply _).tupled, Product.unapply)
+    def * = (id,name,cost,count,producer,categoryId,subcategoryId) <>((Product.apply _).tupled, Product.unapply)
   }
   import cR.SubCategoryTableDef
   import catRepo.CategoryTableDef
@@ -41,21 +41,27 @@ class ProductRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
     products.filter(_.id === id).result.headOption;
   }
   def getByCategoryId(catid:Int): Future[Seq[Product]] = db.run{
-    products.filter(_.category_id === catid).result
+    products.filter(_.categoryId === catid).result
   }
   def getBySubCategoryId(subcatid:Int): Future[Seq[Product]] = db.run{
-    products.filter(_.subcategory_id === subcatid).result
+    products.filter(_.subcategoryId === subcatid).result
   }
-  def create(name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int): Future[Product] = db.run{
-    (products.map(c=>(c.name,c.cost,c.count,c.producer,c.category_id,c.subcategory_id))
+  def create(name:String,cost:Int,count:Int,producer:String,categoryId:Int,subcategoryId:Int): Future[Product] = db.run{
+    (products.map(c=>(c.name,c.cost,c.count,c.producer,c.categoryId,c.subcategoryId))
       returning products.map(_.id)
-      into{ case((name,cost,count,producer,category_id,subcategory_id),id)=>Product(id,name,cost,count,producer,category_id,subcategory_id)}) += (name,cost,count,producer,category_id,subcategory_id)
+      into{ case((name,cost,count,producer,categoryId,subcategoryId),id)=>Product(id,name,cost,count,producer,categoryId,subcategoryId)}) += (name,cost,count,producer,categoryId,subcategoryId)
   }
   def delete(productID:Int): Future[Unit] = {
     db.run(products.filter(_.id === productID).delete).map(_=>())
   }
-  def update(productID:Int, new_product:Product):Future[Unit] = {
-    val updatedProduct = new_product.copy(productID)
+  def deleteByCategory(categoryId:Int): Future[Unit] = db.run{
+    products.filter(_.categoryId === categoryId).delete.map(_=>())
+  }
+  def deleteBySubcategory(subcatId:Int):Future[Unit] = db.run{
+    products.filter(_.subcategoryId === subcatId).delete.map(_=>())
+  }
+  def update(productID:Int, newProduct:Product):Future[Unit] = {
+    val updatedProduct = newProduct.copy(productID)
     db.run(products.filter(_.id===productID).update(updatedProduct)).map(_=>())
   }
 }

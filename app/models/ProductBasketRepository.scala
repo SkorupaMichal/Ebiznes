@@ -39,7 +39,7 @@ class ProductBasketRepository @Inject() (dbConfigProvider:DatabaseConfigProvider
     productbasket.filter(_.id === productbasketId).result.headOption
   }
   def getFullListOfProductsByUser(userID:Int) = db.run{
-    val bb = baskets.filter(_.user_id === userID)
+    val bb = baskets.filter(_.userId === userID)
     val sequence = productbasket join products join baskets on {
       case((cbp,products),bb) =>
         cbp.productId === products.id &&

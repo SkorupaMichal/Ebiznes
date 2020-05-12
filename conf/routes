@@ -110,6 +110,7 @@ GET     /commentsjson                       controllers.CommentController.getCom
 GET     /commentsjson/:id                   controllers.CommentController.getCommentByIdJson(id:Int)
 GET     /commentbyprod/:id                  controllers.CommentController.getCommentsByProductID(id:Int)
 GET     /commentwithprodinfo/:prodId        controllers.CommentController.getCommentWithProductDescJson(prodId:Int)
+GET     /commentbyuser/:id                  controllers.CommentController.getCommentByUserID(id:Int)
 POST    /commentcreatejson                  controllers.CommentController.createCommentByJson
 POST    /updatecommentjson/:id              controllers.CommentController.updateCommentByJson(id:Int)
 DELETE  /deletecommentjson/:id              controllers.CommentController.deleteCommentByJson(id:Int)
@@ -132,6 +133,7 @@ GET     /ordersjson                         controllers.OrderController.getOrder
 GET     /ordersjson/:id                     controllers.OrderController.getOrderByIdJson(id:Int)
 GET     /orderbyuseridjson/:id              controllers.OrderController.getOrderByUserIdJson(id:Int)
 GET     /orderbydelividjson/:id             controllers.OrderController.getOrderByDeliverIdJson(id:Int)
+GET     /orderbyuserpayment/:userid/:payid  controllers.OrderController.getOrderByUseraPaymentJson(userid:Int,payid:Int)
 POST    /ordercreatejson                    controllers.OrderController.createOrderJson
 POST    /updateorderjson/:id                controllers.OrderController.updateOrderJson(id:Int)
 DELETE  /deleteorderjson/:id                controllers.OrderController.deleteOrderJson(id:Int)

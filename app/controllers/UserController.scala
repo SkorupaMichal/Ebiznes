@@ -4,10 +4,11 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import com.github.t3hnar.bcrypt._
+
 import scala.util.{Failure, Success}
-import scala.concurrent.{Await, ExecutionContext, Future,duration}
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 case class CreateUserForm(login:String,email:String,password:String)
 case class UpdateUserForm(id:Int,login:String,email:String,password:String)
 
@@ -140,19 +141,31 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
     Await.result(users,duration.Duration.Inf)
     users.map(b=>Ok(Json.toJson(b)))
   }
+  def getUserFromRequest(request:MessagesRequest[JsValue]):(String,String,String) = {
+    var login = ""
+    var email = ""
+    var password = ""
+    (request.body \ "login").asOpt[String].map{log=>
+      login = log
+    }
+    (request.body \ "email").asOpt[String].map{ema=>
+      email = ema
+    }
+    (request.body \ "password").asOpt[String].map{pass=>
+      password = pass
+    }
+    (login,email,password)
+
+  }
   def createUserByJson = Action(parse.json){implicit request=>
     /*id:Int,login:String,email:String,password:String*/
-    val login = (request.body \ "login").as[String]
-    val email = (request.body \ "email").as[String]
-    val password = (request.body \ "password").as[String]
-    userRepo.create(login,email,password)
+    val user = getUserFromRequest(request)
+    userRepo.create(user._1,user._2,user._3)
     Ok("")
   }
   def updateUserByJson(userId:Int) = Action(parse.json){implicit request=>
-    val login = (request.body \ "login").as[String]
-    val email = (request.body \ "email").as[String]
-    val password = (request.body \ "password").as[String]
-    userRepo.update(userId,User(userId,login,email,password))
+    val user = getUserFromRequest(request)
+    userRepo.update(userId,User(userId,user._1,user._2,user._3))
     Ok("")
   }
   def deleteUserByJson(userId:Int) = Action{

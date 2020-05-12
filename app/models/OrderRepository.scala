@@ -19,19 +19,19 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def date = column[String]("date")
     def cost = column[Int]("cost")
-    def deliver_id = column[Int]("deliver_id")
-    def deliver_fk = foreignKey("deliver_fk",deliver_id,
+    def deliverId = column[Int]("deliver_id")
+    def deliverFk = foreignKey("deliver_fk",deliverId,
       delivers)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def user_id = column[Int]("user_id")
-    def user_fk = foreignKey("user_fk",user_id,
+    def userId = column[Int]("user_id")
+    def userFk = foreignKey("user_fk",userId,
       users)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def payment_id = column[Int]("payment_id")
-    def payment_fk = foreignKey("payment_fk",payment_id,
+    def paymentId = column[Int]("payment_id")
+    def paymentFk = foreignKey("payment_fk",paymentId,
       payments)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def basket_id = column[Int]("basket_id")
-    def basket_fk = foreignKey("basket_fk",basket_id,
+    def basketId = column[Int]("basket_id")
+    def basketFk = foreignKey("basket_fk",basketId,
       baskets)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,date,cost,deliver_id,user_id,payment_id,basket_id)<>((Order.apply _).tupled,Order.unapply)
+    def * = (id,date,cost,deliverId,userId,paymentId,basketId)<>((Order.apply _).tupled,Order.unapply)
   }
   import uR.UserTableDef
   import dR.DeliveryTableDef
@@ -49,35 +49,38 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
     orders.filter(_.id===id).result.headOption
   }
   def getByUserId(userId:Int):Future[Seq[Order]] = db.run{
-    orders.filter(_.user_id === userId).result
+    orders.filter(_.deliverId === userId).result
   }
   def getByDeliverId(deliverID:Int):Future[Seq[Order]] = db.run{
-    orders.filter(_.deliver_id === deliverID).result
+    orders.filter(_.deliverId === deliverID).result
+  }
+  def getByUserPayment(userId:Int,paymentId:Int): Future[Seq[Order]] = db.run{
+    orders.filter( m =>m.userId === userId && m.paymentId === paymentId).result
   }
   def createJoin():Future[Seq[(Int,String,Int,String,String,String)]] = db.run{
     /// Info o kurierze platnosci uzytkowniku i cena
     val sequence = orders join delivers join payments join users on{
       case(((order,deliver),payment),user) =>
-        order.deliver_id === deliver.id &&
-        order.payment_id === payment.id &&
-        order.user_id === user.id
+        order.deliverId === deliver.id &&
+        order.paymentId === payment.id &&
+        order.userId === user.id
     };
     def query = for{
       (((order,deliver),payment),user) <- sequence
     }yield (order.id,order.date,order.cost,deliver.name,payment.name,user.login)
     query.result
   }
-  def create(date:String,cost:Int,deliver_id:Int,user_id:Int,
-             payment_id:Int,basket_id:Int):Future[Order] = db.run{
-    (orders.map(c=>(c.date,c.cost,c.deliver_id,c.user_id,c.payment_id,c.basket_id))
+  def create(date:String,cost:Int,deliverid:Int,userid:Int,
+             paymentid:Int,basketid:Int):Future[Order] = db.run{
+    (orders.map(c=>(c.date,c.cost,c.deliverId,c.userId,c.paymentId,c.basketId))
       returning orders.map(_.id)
-      into{case((date,cost,deliver_id,user_id,payment_id,basket_id),id)=>Order(id,date,cost,deliver_id,user_id,payment_id,basket_id)})+=(date,cost,deliver_id,user_id,payment_id,basket_id)
+      into{case((date,cost,deliverid,userid,paymentid,basketid),id)=>Order(id,date,cost,deliverid,userid,paymentid,basketid)})+=(date,cost,deliverid,userid,paymentid,basketid)
   }
   def delete(orderId: Int):Future[Unit]= db.run{
     orders.filter(_.id===orderId).delete.map(_=>())
   }
-  def update(orderId:Int,new_order:Order):Future[Unit] = {
-    val updated_order = new_order.copy(orderId)
-    db.run(orders.filter(_.id===orderId).update(updated_order).map(_=>()))
+  def update(orderId:Int,newOrder:Order):Future[Unit] = {
+    val updatedOrder = newOrder.copy(orderId)
+    db.run(orders.filter(_.id===orderId).update(updatedOrder).map(_=>()))
   }
 }

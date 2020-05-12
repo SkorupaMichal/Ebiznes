@@ -36,8 +36,8 @@ class PaymentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(impli
   def delete(categoryId: Int):Future[Unit]= db.run{
     payments.filter(_.id===categoryId).delete.map(_=>())
   }
-  def update(categoryId:Int,new_payment:Payment):Future[Unit] = {
-    val updated_payment = new_payment.copy(categoryId)
-    db.run(payments.filter(_.id===categoryId).update(updated_payment).map(_=>()))
+  def update(categoryId:Int,newPayment:Payment):Future[Unit] = {
+    val updatedPayment = newPayment.copy(categoryId)
+    db.run(payments.filter(_.id===categoryId).update(updatedPayment).map(_=>()))
   }
 }

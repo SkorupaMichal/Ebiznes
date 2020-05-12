@@ -16,10 +16,10 @@ class ImageRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def url = column[String]("url")
     def description = column[String]("description",O.Default(""))
-    def product_id = column[Int]("product_id")
-    def product_fk = foreignKey("product_fk",product_id,products)(_.id,
+    def productId = column[Int]("product_id")
+    def productFk = foreignKey("product_fk",productId,products)(_.id,
       onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,url,description,product_id) <>((Image.apply _).tupled,Image.unapply)
+    def * = (id,url,description,productId) <>((Image.apply _).tupled,Image.unapply)
   }
   import pR.ProductTableDef
   val images = TableQuery[ImageTableDef]
@@ -32,18 +32,18 @@ class ImageRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
     images.filter(_.id === id).result.headOption
   }
   def getByProductId(prodID:Int):Future[Seq[Image]] = db.run{
-    images.filter(_.product_id === prodID).result
+    images.filter(_.productId === prodID).result
   }
-  def create(url:String,description:String,product_id:Int):Future[Image] = db.run{
-    (images.map(c=>(c.url,c.description,c.product_id))
+  def create(url:String,description:String,prodId:Int):Future[Image] = db.run{
+    (images.map(c=>(c.url,c.description,c.productId))
       returning images.map(_.id)
-      into{case((url,description,product_id),id)=>Image(id,url,description,product_id)})+=(url,description,product_id)
+      into{case((url,description,prodId),id)=>Image(id,url,description,prodId)})+=(url,description,prodId)
   }
   def delete(imageId:Int):Future[Unit] = {
     db.run(images.filter(_.id ===imageId).delete).map(_=>())
   }
-  def update(imageID:Int,new_Image:Image):Future[Unit]={
-    val updatedIamge = new_Image.copy(imageID)
+  def update(imageID:Int,newImage:Image):Future[Unit]={
+    val updatedIamge = newImage.copy(imageID)
     db.run(images.filter(_.id === imageID).update(updatedIamge)).map(_=>())
   }
 }

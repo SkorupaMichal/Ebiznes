@@ -4,7 +4,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
@@ -89,16 +89,25 @@ class PaymentMethodsController @Inject() (cc:ControllerComponents,dd:MessagesCon
     Await.result(paymentmetho,duration.Duration.Inf)
     paymentmetho.map(b=>Ok(Json.toJson(b)))
   }
+  def getPaymentMethodFromRequest(request:MessagesRequest[JsValue]):(String,String) = {
+    var name = ""
+    var description = ""
+    (request.body \ "name").asOpt[String].map{na =>
+      name = na
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "description").asOpt[String].map{desc =>
+      description = desc
+    }.getOrElse(BadRequest("Blad"))
+    (name,description)
+  }
   def createPaymentMethodJson = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    paymentRepo.create(name,description)
+    val paymentmethod = getPaymentMethodFromRequest(request)
+    paymentRepo.create(paymentmethod._1,paymentmethod._2)
     Ok("")
   }
   def updatePaymentMethodJson(pmId:Int) = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    paymentRepo.update(pmId,Payment(pmId,name,description))
+    val paymentmethod = getPaymentMethodFromRequest(request)
+    paymentRepo.update(pmId,Payment(pmId,paymentmethod._1,paymentmethod._2))
     Ok("")
   }
   def deletePaymentMethodJson(pmId:Int) = Action{

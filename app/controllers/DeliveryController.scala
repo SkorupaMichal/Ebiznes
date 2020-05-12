@@ -4,7 +4,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
@@ -94,18 +94,29 @@ class DeliveryController @Inject()(cc:ControllerComponents,dd:MessagesController
     Await.result(delivers,duration.Duration.Inf)
     delivers.map(b=>Ok(Json.toJson(b)))
   }
+  def getDeliverFromRequest(request:MessagesRequest[JsValue]):(String,Int,String) = {
+    var name = ""
+    var cost = -1
+    var description = ""
+    (request.body \ "name").asOpt[String].map{ n=>
+      name = n
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "cost").asOpt[Int].map{ c=>
+      cost = c
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "description").asOpt[String].map{ desc=>
+      description = desc
+    }.getOrElse(BadRequest("Blad"))
+    (name,cost,description)
+  }
   def createDeliverJson = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val cost = (request.body \ "cost").as[Int]
-    val description = (request.body \ "description").as[String]
-    deliverRepo.create(name,cost,description)
+    val deliver = getDeliverFromRequest(request)
+    deliverRepo.create(deliver._1,deliver._2,deliver._3)
     Ok("")
   }
   def updateDeliverJson(deliverId:Int) = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val cost = (request.body \ "cost").as[Int]
-    val description = (request.body \ "description").as[String]
-    deliverRepo.update(deliverId,Delivery(deliverId,name,cost,description))
+    val deliver = getDeliverFromRequest(request)
+    deliverRepo.update(deliverId,Delivery(deliverId,deliver._1,deliver._2,deliver._3))
     Ok("")
   }
   def deleteDeliverJson(deliverId:Int) = Action{

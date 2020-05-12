@@ -1,17 +1,19 @@
 package controllers
-import models.{SubCategoryRepository,SubCategory,CategoryRepository,Category}
+import models.{Category, CategoryRepository, ProductRepository, SubCategory, SubCategoryRepository}
 import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
-import scala.concurrent.{Await,duration,ExecutionContext, Future}
+import play.api.libs.json.{JsValue, Json}
+
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
 
 case class CreateSubCategoryForm(name:String,description:String,categoryId:Int)
 case class UpdateSubCategoryForm(id:Int,name:String,description:String,categoryId:Int)
 @Singleton
-class SubCategoryController @Inject()(cc:ControllerComponents,protected val catRepo:CategoryRepository,dd:MessagesControllerComponents,subcatRepo:SubCategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
+class SubCategoryController @Inject()(cc:ControllerComponents,protected val catRepo:CategoryRepository,dd:MessagesControllerComponents,subcatRepo:SubCategoryRepository,
+                                      prodRepo:ProductRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
     /*Sub category controller*/
 
     val subcategoryForm: Form[CreateSubCategoryForm] = Form{
@@ -83,7 +85,7 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         getCategoriesSeq
         val subcategory = subcatRepo.getById(subcategoryId)
         subcategory.map(b=>{
-            val bForm = updateSubCategoryForm.fill(UpdateSubCategoryForm(b.head.id,b.head.name,b.head.description,b.head.category_id))
+            val bForm = updateSubCategoryForm.fill(UpdateSubCategoryForm(b.head.id,b.head.name,b.head.description,b.head.categoryId))
             Ok(views.html.subcategoryupdate(bForm,categories))
         })
     }
@@ -123,22 +125,34 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         Await.result(subcategories,duration.Duration.Inf)
         subcategories.map(b=>Ok(Json.toJson(b)))
     }
+    def getSubcategoryFromRequest(request:MessagesRequest[JsValue]) = {
+        var name = ""
+        var description = ""
+        var categoryId = -1
+        (request.body \ "name").asOpt[String].map{ i =>
+          name = i
+        }.getOrElse(BadRequest("Blad"))
+        (request.body \ "description").asOpt[String].map{ i =>
+            description = i
+        }.getOrElse(BadRequest("Blad"))
+        (request.body \ "category_id").asOpt[Int].map{ i =>
+            categoryId = i
+        }.getOrElse(BadRequest("Blad"))
+        (name,description,categoryId)
+    }
     def createSubCategoryByJson = Action(parse.json){implicit request=>
         /*id:Int,name:String,description:String,category_id:Int*/
-        val name = (request.body \ "name").as[String]
-        val description = (request.body \ "description").as[String]
-        val categoryId = (request.body \ "category_id").as[Int]
-        subcatRepo.create(name,description,categoryId)
+        val subcategory = getSubcategoryFromRequest(request)
+        subcatRepo.create(subcategory._1,subcategory._2,subcategory._3)
         Ok("")
     }
     def updateSubCategoryByJson(subcategoryId:Int) = Action(parse.json){implicit request=>
-        val name = (request.body \ "name").as[String]
-        val description = (request.body \ "description").as[String]
-        val categoryId = (request.body \ "category_id").as[Int]
-        subcatRepo.update(subcategoryId,SubCategory(subcategoryId,name,description,categoryId))
+        val subcategory = getSubcategoryFromRequest(request)
+        subcatRepo.update(subcategoryId,SubCategory(subcategoryId,subcategory._1,subcategory._2,subcategory._3))
         Ok("")
     }
     def deleteSubCategoryByJson(subcategoryId:Int) = Action{
+        Await.result(prodRepo.deleteBySubcategory(subcategoryId),duration.Duration.Inf)
         Await.result(subcatRepo.delete(subcategoryId),duration.Duration.Inf)
         Ok("")
     }

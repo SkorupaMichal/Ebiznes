@@ -4,7 +4,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent._
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -14,7 +14,8 @@ case class CreateCategoryForm(name:String,description:String)
 case class UpdateCategoryForm(id:Int,name:String,description:String)
 
 @Singleton
-class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,repo:CategoryRepository,subcatrepo:SubCategoryRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,repo:CategoryRepository,subcatrepo:SubCategoryRepository,
+                                   prodRepo:ProductRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
 
   /*Category controller*/
   val categoryForm: Form[CreateCategoryForm] = Form{
@@ -81,11 +82,13 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
       }
     )
   }
-
+  def cascadeDeleteCategory(categoryId:Int) = {
+    Await.result(prodRepo.deleteByCategory(categoryId),duration.Duration.Inf)
+    Await.result(subcatrepo.deleteByCategoryId(categoryId),duration.Duration.Inf)
+    Await.result(repo.delete(categoryId),duration.Duration.Inf)
+  }
   def deleteCategory(category:Int) = Action{
-    Await.result(subcatrepo.deleteByCategoryId(category),duration.Duration.Inf)
-    val catdelete = repo.delete(category);
-    Await.result(catdelete,duration.Duration.Inf)
+    cascadeDeleteCategory(category)
     Redirect("/categories")
   }
 
@@ -100,20 +103,30 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
     Await.result(categories,duration.Duration.Inf)
     categories.map(b=>Ok(Json.toJson(b)))
   }
+  def getCategoryFromRequestJson(request:MessagesRequest[JsValue]):(String,String) = {
+    var name = ""
+    var description = ""
+    (request.body \ "name").asOpt[String].map{ desc=>
+      name = desc
+    }.getOrElse(BadRequest("Oho zly json"))
+    (request.body \ "description").asOpt[String].map{usid=>
+      description = usid
+    }.getOrElse(BadRequest("Zla skladnia"))
+
+    (name,description)
+  }
   def createCategoryByJson = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    repo.create(name,description)
+    val categoryFromJson = getCategoryFromRequestJson(request)
+    repo.create(categoryFromJson._1,categoryFromJson._2)
     Ok("")
   }
   def updateCategoryByJson(categoryId:Int) = Action(parse.json){implicit request=>
-    val name = (request.body \ "name").as[String]
-    val description = (request.body \ "description").as[String]
-    repo.update(categoryId,Category(categoryId,name,description))
+    val categoryFromJson = getCategoryFromRequestJson(request)
+    repo.update(categoryId,Category(categoryId,categoryFromJson._1,categoryFromJson._2))
     Ok("")
   }
   def deleteCategoryByJson(categoryId:Int) = Action{
-    Await.result(repo.delete(categoryId),duration.Duration.Inf)
+    cascadeDeleteCategory(categoryId)
     Ok("")
   }
 }

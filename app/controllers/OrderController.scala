@@ -4,7 +4,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import slick.jdbc.H2Profile.api._
@@ -116,8 +116,8 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     getUserSeq
     val order = orderRepo.getById(orderId)
     order.map(b=>{
-      val bForm = updateOrderForm.fill(UpdateOrderForm(b.head.id,b.head.date,b.head.cost,b.head.deliver_id,
-        b.head.user_id,b.head.payment_id,b.head.basket_id))
+      val bForm = updateOrderForm.fill(UpdateOrderForm(b.head.id,b.head.date,b.head.cost,b.head.deliverId,
+        b.head.userId,b.head.paymentId,b.head.basketId))
       Ok(views.html.orderupdate(bForm,payments,delivers,baskets,users))
 
     })
@@ -164,30 +164,52 @@ class OrderController @Inject() (cc:ControllerComponents,orderRepo:OrderReposito
     Await.result(orders,duration.Duration.Inf)
     orders.map(b=>Ok(Json.toJson(b)))
   }
+  def getOrderByUseraPaymentJson(userId:Int,paymentId:Int) = Action.async{implicit request=>
+    val orderbyuserpayment = orderRepo.getByUserPayment(userId,paymentId)
+    Await.result(orderbyuserpayment,duration.Duration.Inf)
+    orderbyuserpayment.map(b=>Ok(Json.toJson(b)))
+  }
   def getOrderByDeliverIdJson(deliverId:Int) = Action.async{implicit request=>
     val orders = orderRepo.getByDeliverId(deliverId)
     Await.result(orders,duration.Duration.Inf)
     orders.map(b=>Ok(Json.toJson(b)))
   }
+  def getOrderFromReqest(request:MessagesRequest[JsValue]):(String,Int,Int,Int,Int,Int) = {
+    var date = ""
+    var cost = -1
+    var deliverId = -1
+    var userId = -1
+    var paymentId = -1
+    var basketId = -1
+    (request.body \ "date").asOpt[String].map{ur=>
+      date = ur
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "cost").asOpt[Int].map{cos=>
+      cost = cos
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "deliverId").asOpt[Int].map{del=>
+      deliverId = del
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "userId").asOpt[Int].map{user=>
+      userId = user
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "paymentId").asOpt[Int].map{pay=>
+      paymentId = pay
+    }.getOrElse(BadRequest("Blad"))
+    (request.body \ "basketId").asOpt[Int].map{basket=>
+      basketId = basket
+    }.getOrElse(BadRequest("Blad"))
+    (date,cost,deliverId,userId,paymentId,basketId)
+  }
   def createOrderJson = Action(parse.json){implicit request=>
     /*,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int*/
-    val date = (request.body \ "name").as[String]
-    val cost = (request.body \ "cost").as[Int]
-    val deliverId = (request.body \ "deliver_id").as[Int]
-    val userId = (request.body \ "user_id").as[Int]
-    val paymentId = (request.body \ "payment_id").as[Int]
-    val basketId = (request.body \ "basket_id").as[Int]
-    orderRepo.create(date,cost,deliverId,userId,paymentId,basketId)
+    val order = getOrderFromReqest(request)
+    orderRepo.create(order._1,order._2,order._3,order._4,order._5,order._6)
     Ok("")
   }
   def updateOrderJson(orderId:Int) = Action(parse.json){implicit request=>
-    val date = (request.body \ "name").as[String]
-    val cost = (request.body \ "cost").as[Int]
-    val deliverId = (request.body \ "deliver_id").as[Int]
-    val userId = (request.body \ "user_id").as[Int]
-    val paymentId = (request.body \ "payment_id").as[Int]
-    val basketId = (request.body \ "basket_id").as[Int]
-    orderRepo.update(orderId,Order(orderId,date,cost,deliverId,userId,paymentId,basketId))
+    val order = getOrderFromReqest(request)
+    orderRepo.update(orderId,Order(orderId,order._1,order._2,order._3,order._4,order._5,order._6))
     Ok("")
   }
   def deleteOrderJson(orderId:Int) = Action{

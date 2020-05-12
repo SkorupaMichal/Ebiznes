@@ -18,9 +18,9 @@ class SubCategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,pr
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def name = column[String]("name",O.Unique)
     def description = column[String]("description")
-    def category_id = column[Int]("category_id")
-    def category_fk = foreignKey("category_fk",category_id,categories)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def * = (id,name,description,category_id) <>((SubCategory.apply _).tupled,SubCategory.unapply)
+    def categoryId = column[Int]("category_id")
+    def categoryFk = foreignKey("category_fk",categoryId,categories)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def * = (id,name,description,categoryId) <>((SubCategory.apply _).tupled,SubCategory.unapply)
   }
   import cR.CategoryTableDef
   val categories = TableQuery[CategoryTableDef]
@@ -33,22 +33,22 @@ class SubCategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,pr
     subcategories.filter(_.id === subcategoryId).result.headOption
   }
   def getByCategoryId(categoryId:Int):Future[Seq[SubCategory]] = db.run{
-    subcategories.filter(_.category_id === categoryId).result
+    subcategories.filter(_.categoryId === categoryId).result
   }
   def deleteByCategoryId(categoryId:Int):Future[Unit] = db.run{
-    subcategories.filter(_.category_id === categoryId).delete.map(_=>())
+    subcategories.filter(_.categoryId === categoryId).delete.map(_=>())
   }
-  def create(name:String,description:String,category_id:Int):Future[SubCategory] = db.run{
-    (subcategories.map(c=>(c.name,c.description,c.category_id))
+  def create(name:String,description:String,categoryId:Int):Future[SubCategory] = db.run{
+    (subcategories.map(c=>(c.name,c.description,c.categoryId))
       returning subcategories.map(_.id)
-      into{case((name,description,category_id),id)=>SubCategory(id,name,description,category_id)}
-      ) += (name,description,category_id)
+      into{case((name,description,categoryId),id)=>SubCategory(id,name,description,categoryId)}
+      ) += (name,description,categoryId)
   }
   def delete(subcategoryId:Int):Future[Unit] = db.run{
     subcategories.filter(_.id === subcategoryId).delete.map(_=>())
   }
-  def update(subcategoryId:Int,new_subcategory:SubCategory):Future[Unit] = {
-    val updated_subcategories = new_subcategory.copy(subcategoryId)
-    db.run(subcategories.filter(_.id === subcategoryId).update(updated_subcategories)).map(_=>())
+  def update(subcategoryId:Int,newSubcategory:SubCategory):Future[Unit] = {
+    val updatedSubcategories = newSubcategory.copy(subcategoryId)
+    db.run(subcategories.filter(_.id === subcategoryId).update(updatedSubcategories)).map(_=>())
   }
 }

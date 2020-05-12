@@ -105,7 +105,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     getProductSeq
     val comment = commentRepo.getById(commentid)
     comment.map(b=>{
-      val bForm = updateCommentForm.fill(UpdateCommentForm(b.head.id,b.head.title,b.head.content,b.head.product_id,b.head.user_id))
+      val bForm = updateCommentForm.fill(UpdateCommentForm(b.head.id,b.head.title,b.head.content,b.head.productId,b.head.userId))
       Ok(views.html.commentupdate(bForm,products,users))
     })
   }
@@ -149,22 +149,42 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   }
   def getCommentWithProductDescJson(productId:Int) = Action.async{implicit request=>
     val commentwithproductInfo = commentRepo.getWithProductDesc(productId)
+    Await.result(commentwithproductInfo,duration.Duration.Inf)
     commentwithproductInfo.map(b=>Ok(Json.toJson(b)))
   }
+  def getCommentByUserID(userID:Int) = Action.async{implicit request =>
+    val commentbyuser = commentRepo.getByUser(userID)
+    Await.result(commentbyuser,duration.Duration.Inf)
+    commentbyuser.map(cbu=>Ok(Json.toJson(cbu)))
+  }
+  def getCommentFromRequestJson(request:MessagesRequest[JsValue]):(String,String,Int,Int) = {
+    var title = ""
+    var content = ""
+    var productId = 0
+    var userId = 0
+    (request.body \ "title").asOpt[String].map{ t=>
+      title = t
+    }.getOrElse(BadRequest("Oho zly json"))
+    (request.body \ "content").asOpt[String].map{cont=>
+      content = cont
+    }.getOrElse(BadRequest("Zla skladnia"))
+    (request.body \ "product_id").asOpt[Int].map{prodid=>
+      productId = prodid
+    }.getOrElse(BadRequest("Zla skladnia"))
+    (request.body \ "user_id").asOpt[Int].map{usid=>
+      userId = usid
+    }.getOrElse(BadRequest("Zla skladnia"))
+
+    (title,content,productId,userId)
+  }
   def createCommentByJson = Action(parse.json){implicit request=>
-    val title = (request.body \ "title").as[String]
-    val content = (request.body \ "content").as[String]
-    val productId = (request.body \ "product_id").as[Int]
-    val userId = (request.body \ "user_id").as[Int]
-    commentRepo.create(title,content,productId,userId)
+    val comment = getCommentFromRequestJson(request)
+    commentRepo.create(comment._1,comment._2,comment._3,comment._4)
     Ok("")
   }
   def updateCommentByJson(commentId:Int) =Action(parse.json) { implicit request =>
-    val title = (request.body \ "title").as[String]
-    val content = (request.body \ "content").as[String]
-    val productId = (request.body \ "product_id").as[Int]
-    val userId = (request.body \ "user_id").as[Int]
-    commentRepo.update(commentId, Comment(commentId, title, content, productId, userId))
+    val comment = getCommentFromRequestJson(request)
+    commentRepo.update(commentId, Comment(commentId, comment._1,comment._2,comment._3,comment._4))
     Ok("")
   }
   def deleteCommentByJson(commentId:Int) = Action {

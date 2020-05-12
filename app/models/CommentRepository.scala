@@ -52,6 +52,9 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     }yield(comm.id,comm.title,comm.content,prod.id,prod.name,prod.cost,prod.producer)
     query.result
   }
+  def getByUser(userId:Int): Future[Seq[Comment]] = db.run{
+    comments.filter(_.userId === userId).result
+  }
   def create(title:String,content:String,prodId:Int,userId:Int):Future[Comment] = db.run{
     (comments.map(c=>(c.title,c.content,c.productId,c.userId))
       returning comments.map(_.id)
