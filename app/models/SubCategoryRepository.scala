@@ -35,6 +35,16 @@ class SubCategoryRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,pr
   def getByCategoryId(categoryId:Int):Future[Seq[SubCategory]] = db.run{
     subcategories.filter(_.categoryId === categoryId).result
   }
+  def getWithCategory:Future[Seq[(Int,String,String,Int,String,String)]] = db.run{
+    val joinsequence = subcategories join categories on{
+      case((subcat,cat)) =>
+        subcat.categoryId === cat.id
+    }
+    def query = for{
+      ((subcat,cat)) <- joinsequence
+    }yield(cat.id,cat.name,cat.description,subcat.id,subcat.name,subcat.description)
+    query.result
+  }
   def deleteByCategoryId(categoryId:Int):Future[Unit] = db.run{
     subcategories.filter(_.categoryId === categoryId).delete.map(_=>())
   }

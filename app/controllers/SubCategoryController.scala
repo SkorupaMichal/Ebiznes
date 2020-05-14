@@ -115,6 +115,11 @@ class SubCategoryController @Inject()(cc:ControllerComponents,protected val catR
         Await.result(subcategories,duration.Duration.Inf)
         subcategories.map(b=>Ok(Json.toJson(b)))
     }
+    def getSubcategoriesWithCategories = Action.async{implicit request=>
+      val catwithsubcat = subcatRepo.getWithCategory
+      Await.result(catwithsubcat,duration.Duration.Inf)
+      catwithsubcat.map(b=>Ok(Json.toJson(b)))
+    }
     def getSubcategoriesByIdJson(subcatId:Int) = Action.async{ implicit request =>
         val subcategories = subcatRepo.getById(subcatId)
         Await.result(subcategories,duration.Duration.Inf)

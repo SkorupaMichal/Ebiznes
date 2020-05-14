@@ -152,6 +152,7 @@ POST    /productcreatejson                  controllers.ProductController.create
 POST    /updateproductjson/:id              controllers.ProductController.updateProductByJson(id:Int)
 DELETE  /deleteproductjson/:id              controllers.ProductController.deleteProductByJson(id:Int)
 # Subcategories
+GET     /categorieswithsub                  controllers.SubCategoryController.getSubcategoriesWithCategories
 GET     /subcategoriesjson                  controllers.SubCategoryController.getSubcategoriesJson
 GET     /subcategoriesjson/:id              controllers.SubCategoryController.getSubcategoriesByIdJson(id:Int)
 GET     /subcategoriesByCategoryjson/:id    controllers.SubCategoryController.getSubcategoriesByCategoryIdJson(id:Int)
