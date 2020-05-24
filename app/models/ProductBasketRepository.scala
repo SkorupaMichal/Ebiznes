@@ -50,6 +50,17 @@ class ProductBasketRepository @Inject() (dbConfigProvider:DatabaseConfigProvider
     } yield(productxbasket.basketId,productxbasket.productId,products.name,products.cost)
     query.result
   }
+  def getFullListOfProductsByBasketId(basetId:Int) = db.run{
+    val sequence = productbasket join products on{
+      case((pb,prod)) =>
+        pb.basketId === basetId &&
+        pb.productId === prod.id
+    }
+    def query = for{
+      ((pb,prod)) <- sequence
+    }yield(pb.basketId,prod.id,prod.name,prod.cost,prod.producer)
+    query.result
+  }
   def create(basketId:Int,productId:Int):Future[ProductBasket] = db.run{
     (productbasket.map(c=>(c.basketId,c.productId))
       returning productbasket.map(_.id)

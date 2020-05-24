@@ -31,6 +31,9 @@ class UserRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit
   def getByLogin(login:String): Future[Option[User]] = db.run{
     users.filter(_.login === login).result.headOption
   }
+  def checkUserLogin(login:String) = db.run{
+    users.filter(_.login === login).length.result
+  }
   def create(login:String,email:String,password:String):Future[User] = db.run{
     (users.map(c=>(c.login,c.email,c.password))
       returning users.map(_.id)

@@ -160,13 +160,16 @@ POST    /subcategorycreatejson              controllers.SubCategoryController.cr
 POST    /updatesubcategoryjson/:id          controllers.SubCategoryController.updateSubCategoryByJson(id:Int)
 DELETE  /deletesubcategoryjson/:id          controllers.SubCategoryController.deleteSubCategoryByJson(id:Int)
 # Users
+POST    /authuser                           controllers.UserController.authUserJson
+POST    /userexists                         controllers.UserController.checkUserIfExists
 GET     /usersjson                          controllers.UserController.getUsersJson
 GET     /usersjson/:id                      controllers.UserController.getUsersByIdJson(id:Int)
 GET     /userbylogin/:login                 controllers.UserController.getUsersByLoginNameJson(login:String)
 POST    /usercreatejson                     controllers.UserController.createUserByJson
 POST    /updateuserjson/:id                 controllers.UserController.updateUserByJson(id:Int)
 DELETE  /deleteuserjson/:id                 controllers.UserController.deleteUserByJson(id:Int)
-
-
+#Helper
+POST    /addproductsbasket                  controllers.ProductBasketController.addProductToBasket
+GET     /getproductsbybasket/:id            controllers.ProductBasketController.getProdctsByBasketId(id :Int)
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

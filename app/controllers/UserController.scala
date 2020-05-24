@@ -5,7 +5,7 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.{JsValue, Json}
-import com.github.t3hnar.bcrypt._
+import org.mindrot.jbcrypt.BCrypt
 
 import scala.util.{Failure, Success}
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
@@ -64,38 +64,47 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
         Future.successful(Ok(views.html.useradd(errorForm)))
       },
       user =>{
-        val salt = generateSalt
-        val password = user.password.bcrypt(salt)
+        val password =BCrypt.hashpw(user.password,BCrypt.gensalt())
         userRepo.create(user.login,user.email,password).map(_=>
           Redirect(routes.UserController.getUsers()).flashing("success"->"basket.created")
         )
       }
     )
   }
-  def validate(value: String, hash: String): Boolean = {
-    // Validating the hash
-    value.isBcryptedSafe(hash) match {
-      case Success(result) => {
-        result
-      }
-      case Failure(failure) => {
-        // Hash is invalid
-        false
-      }
+  def getUserFromLogin(request:MessagesRequest[JsValue]):(String,String) = {
+    var login = ""
+    var password = ""
+    (request.body \ "login").asOpt[String].map{log=>
+      login = log
     }
+    (request.body \ "password").asOpt[String].map{pass=>
+      password = pass
+    }
+    (login,password)
 
   }
-  def authUser(login:String,password:String): Boolean ={
-  userRepo.getByLogin(login).onComplete {
-    case Success(c) => {
-      if (validate(password, c.head.password))
-        return true
+  def authUserJson  =Action.async(parse.json){implicit request=>
+    var user = getUserFromLogin(request);
+    println(user)
+    var userbase = userRepo.getByLogin(user._1)
+    Await.result(userbase,duration.Duration.Inf)
+    userbase.map(b=>{
+      if(b == None)
+        Ok(Json.toJson("Null"))
+      else if(BCrypt.checkpw(user._2,b.head.password))
+        Ok(Json.toJson(b))
       else
-        return false
+        Ok(Json.toJson("Null"))
+    })
     }
-    case Failure(_) => false
-  }
-    (false)
+  def checkUserIfExists = Action.async(parse.json){implicit request=>
+    var login = ""
+    (request.body \ "login").asOpt[String].map{log=>
+      login = log
+    }
+    var usercount = userRepo.checkUserLogin(login)
+    Await.result(usercount,duration.Duration.Inf)
+    usercount.map(b=>Ok(Json.toJson(b)))
   }
   def updateUser(userId: Int) :Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
     val user = userRepo.getById(userId)
@@ -160,7 +169,8 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
   def createUserByJson = Action(parse.json){implicit request=>
     /*id:Int,login:String,email:String,password:String*/
     val user = getUserFromRequest(request)
-    userRepo.create(user._1,user._2,user._3)
+    val hashpass = BCrypt.hashpw(user._3,BCrypt.gensalt())
+    userRepo.create(user._1,user._2,hashpass)
     Ok("")
   }
   def updateUserByJson(userId:Int) = Action(parse.json){implicit request=>

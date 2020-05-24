@@ -135,8 +135,8 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
   def createBasketJson = Action(parse.json) { implicit request =>
     /*Do dopracowania*/
     val newBasket = getReqestJson(request)
-    repo.create(newBasket._1,newBasket._2)
-    Ok
+    val newbasket =  Await.result(repo.create(newBasket._1,newBasket._2),duration.Duration.Inf)
+    Ok(Json.toJson(newbasket))
   }
   def deleteBasketJson(basketId:Int) = Action { request =>
     Await.result(repo.delete(basketId),duration.Duration.Inf)
