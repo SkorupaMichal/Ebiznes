@@ -38,7 +38,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
   }
   var users: Seq[User] = Seq[User]()
   var products: Seq[Product] = Seq[Product]()
-
+  val BadJSON = "Zla skladnia"
   def getUserSeq = {
     userRepo.list()onComplete {
       case Success(c) => users = c
@@ -164,16 +164,16 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     var userId = 0
     (request.body \ "title").asOpt[String].map{ t=>
       title = t
-    }.getOrElse(BadRequest("Oho zly json"))
+    }.getOrElse(BadRequest(BadJSON))
     (request.body \ "content").asOpt[String].map{cont=>
       content = cont
-    }.getOrElse(BadRequest("Zla skladnia"))
+    }.getOrElse(BadRequest(BadJSON))
     (request.body \ "product_id").asOpt[Int].map{prodid=>
       productId = prodid
-    }.getOrElse(BadRequest("Zla skladnia"))
+    }.getOrElse(BadRequest(BadJSON))
     (request.body \ "user_id").asOpt[Int].map{usid=>
       userId = usid
-    }.getOrElse(BadRequest("Zla skladnia"))
+    }.getOrElse(BadRequest(BadJSON))
 
     (title,content,productId,userId)
   }

@@ -153,17 +153,17 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
   def getUserFromRequest(request:MessagesRequest[JsValue]):(String,String,String) = {
     var login = ""
     var email = ""
-    var password = ""
+    var pass = ""
     (request.body \ "login").asOpt[String].map{log=>
       login = log
     }
     (request.body \ "email").asOpt[String].map{ema=>
       email = ema
     }
-    (request.body \ "password").asOpt[String].map{pass=>
-      password = pass
+    (request.body \ "password").asOpt[String].map{passw=>
+      pass = passw
     }
-    (login,email,password)
+    (login,email,pass)
 
   }
   def createUserByJson = Action(parse.json){implicit request=>

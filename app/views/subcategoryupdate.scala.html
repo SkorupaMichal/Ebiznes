@@ -1,8 +1,8 @@
 @(subcategory: Form[UpdateSubCategoryForm],category: Seq[Category])(implicit request: MessagesRequestHeader,flash:Flash)
 @import helper._
 @flash.get("success").getOrElse("")
-<a href="@routes.CategoryController.getCategories()">Powrót</a>
-@form(routes.CategoryController.updateCategoryHandle){
+<a href="@routes.SubCategoryController.getSubCategories()">Powrót</a>
+@form(routes.SubCategoryController.updateSubCategoryHandle()){
     @helper.CSRF.formField
     <input name="id" id="id" value="@subcategory("id").value" type="hidden">
     <div class="margin__"/>

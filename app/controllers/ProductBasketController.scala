@@ -17,15 +17,15 @@ class ProductBasketController @Inject()(cc:ControllerComponents,productBasketRep
     result.map(prod=>Ok(Json.toJson(prod)))
   }
   def getBasketAndProducts(request:MessagesRequest[JsValue]) = {
-    var basket_id = -1
+    var basketId = -1
     var arrayOfProductsId = Array[Int]()
     (request.body \ "basket_id").asOpt[Int].map{ id=>
-      basket_id = id
+      basketId = id
     }.getOrElse(BadRequest("Blad"))
     (request.body \ "arrayofid").asOpt[Array[Int]].map{arr=>
       arrayOfProductsId = arr
     }
-    (basket_id,arrayOfProductsId)
+    (basketId,arrayOfProductsId)
   }
   def addProductToBasket = Action(parse.json){ implicit request =>
     val baskproducts = getBasketAndProducts(request)
