@@ -18,9 +18,38 @@ create table Product(
 );
 CREATE TABLE User(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
+    firstName TEXT,
+    lastName TEXT,
     login TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL
+);
+CREATE TABLE LoginInfo(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider_id TEXT NOT NULL,
+    provider_key TEXT NOT NULL
+);
+CREATE TABLE UserLoginInfo(
+    user_id INTEGER NOT NULL,
+    login_info_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id),
+);
+CREATE TABLE PasswordInfo(
+    hasher TEXT NOT NULL,
+    password TEXT NOT NULL,
+    salt TEXT,
+    login_info_id INTEGER NOT NULL,
+    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id)
+);
+CREATE TABLE OAuth2Info(
+    id INTEGER NOT NULL PRIMARY AUTOINCREMENT,
+    access_token TEXT NOT NULL,
+    toke_type TEXT NOT,
+    expires_in INTEGER,
+    refresh_token TEXT,
+    login_info_id INTEGER NOT NULL,
+    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id)
 );
 CREATE TABLE Basket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
@@ -111,6 +140,10 @@ DROP TABLE Image;
 DROP TABLE Orders;
 DROP TABLE Payment;
 DROP TABLE User;
+DROP TABLE LoginInfo;
+DROP TABLE UserLoginInfo;
+DROP TABLE PasswordInfo;
+DROP TABLE OAuth2Info;
 DROP TABLE Subcategory;
 DROP TABLE ProductBasket;
 DROP TABLE OrderHelper;
