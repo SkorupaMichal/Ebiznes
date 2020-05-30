@@ -12,11 +12,7 @@ trait UserService extends IdentityService[User] {
 
   def retrieveUserLoginInfo(id: UUID, providerID: String): Future[Option[(User, LoginInfo)]]
 
-  def createOrUpdate(loginInfo: LoginInfo,
-                     email: String,
-                     firstName: Option[String],
-                     lastName: Option[String],
-                     avatarURL: Option[String]): Future[User]
+  def createOrUpdate(loginInfo: LoginInfo, email: String, firstName: Option[String], lastName: Option[String], avatarURL: Option[String]): Future[User]
 
   def setEmailActivated(user: User): Future[User]
 }
