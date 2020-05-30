@@ -16,13 +16,19 @@ create table Product(
     FOREIGN KEY  (category_id) REFERENCES Category(id) ON DELETE CASCADE ,
     FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id) ON DELETE CASCADE
 );
+CREATE TABLE Role(
+    id INTEGER PRIMARY AUTOINCREMENT,
+    name TEXT NOT NULL,
+)
 CREATE TABLE User(
     id INTEGER  PRIMARY KEY AUTOINCREMENT,
     firstName TEXT,
     lastName TEXT,
-    login TEXT NOT NULL,
     email TEXT NOT NULL,
-    password TEXT NOT NULL
+--    password TEXT NOT NULL,
+    avatar_url TEXT,
+    role_id INTEGER NOT NULL,
+    FOREIGN (role_id) REFERENCES Role(id)
 );
 CREATE TABLE LoginInfo(
     id INTEGER PRIMARY KEY AUTOINCREMENT,

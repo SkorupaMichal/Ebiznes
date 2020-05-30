@@ -20,7 +20,9 @@ libraryDependencies ++= Seq(
   "com.mohiva" %% "play-silhouette-password-bcrypt" % "7.0.0",
   "com.mohiva" %% "play-silhouette-crypto-jca" % "7.0.0",
   "com.mohiva" %% "play-silhouette-persistence" % "7.0.0",
-  "com.mohiva" %% "play-silhouette-testkit" % "7.0.0" % "test"
+  "com.mohiva" %% "play-silhouette-testkit" % "7.0.0" % "test",
+  "net.codingwell" %% "scala-guice" % "4.1.0",
+  "com.iheart" %% "ficus" % "1.4.3"
 )
 libraryDependencies += "org.mindrot" % "jbcrypt" % "0.3m"
 libraryDependencies += filters

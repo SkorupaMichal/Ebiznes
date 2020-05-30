@@ -15,7 +15,7 @@ case class UpdateBasketForm(id:Int,description:String,userId:Int)
 @Singleton
 class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository,
                                  userRepo:UserRepository)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
-  /*Basket controller*/
+  /*Basket controller*//*
   val basketForm: Form[CreateBasketForm] = Form{
     mapping(
       "description"->nonEmptyText,
@@ -151,5 +151,5 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     repo.update(basketId,Basket(basketId,updateBasket._1,updateBasket._2))
     Ok("")
   }
-
+*/
 }
