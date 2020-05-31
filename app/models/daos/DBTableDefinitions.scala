@@ -1,7 +1,7 @@
 package models.daos
 
 import slick.jdbc.JdbcProfile
-import models.{User, UserRole}
+import models.{User, UserRoles}
 import com.mohiva.play.silhouette.api.LoginInfo
 
 trait DBTableDefinitions {
@@ -27,7 +27,7 @@ trait DBTableDefinitions {
                     roleId: Int)
 
   object DBUser {
-    def toUser(u: DBUser): User = User(u.userID, u.firstName, u.lastName, u.email, u.avatarURL, UserRole(u.roleId))
+    def toUser(u: DBUser): User = User(u.userID, u.firstName, u.lastName, u.email, u.avatarURL, UserRoles(u.roleId))
 
     def fromUser(u: User): DBUser = DBUser(u.id, u.firstName, u.lastName, u.email, u.avatarUrl, u.role.id)
   }

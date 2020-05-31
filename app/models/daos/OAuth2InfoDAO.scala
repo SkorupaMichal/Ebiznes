@@ -8,6 +8,7 @@ import com.mohiva.play.silhouette.api.LoginInfo
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 import scala.concurrent.{Future}
+
 /**
  * Store OAuth2 Information
  */
@@ -43,6 +44,7 @@ class OAuth2InfoDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
       map(dbOAuth2Info => (dbOAuth2Info.accessToken, dbOAuth2Info.tokenType, dbOAuth2Info.expiresIn, dbOAuth2Info.refreshToken)).
       update((authInfo.accessToken, authInfo.tokenType, authInfo.expiresIn, authInfo.refreshToken))
   }
+
   /**
    * Finds the auth info which is linked with the specified login info.
    */
@@ -54,12 +56,14 @@ class OAuth2InfoDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
       }
     }
   }
+
   /**
    * Adds new auth info for the given login info.
    */
   def add(loginInfo: LoginInfo, authInfo: OAuth2Info): Future[OAuth2Info] = {
     db.run(addAction(loginInfo, authInfo)).map(_ => authInfo)
   }
+
   /**
    * Updates the auth info for the given login info.
    */
@@ -82,6 +86,7 @@ class OAuth2InfoDAO @Inject()(protected val dbConfigProvider: DatabaseConfigProv
     }.transactionally
     db.run(action).map(_ => authInfo)
   }
+
   /**
    * Removes the auth info for the given login info.
    */

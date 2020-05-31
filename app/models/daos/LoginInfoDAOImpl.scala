@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
  * Give access to the user object.
  */
-class LoginInfoDAOImp @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends LoginInfoDAO with DAOSlick {
+class LoginInfoDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends LoginInfoDAO with DAOSlick {
   import profile.api._
 
   /*
