@@ -1,19 +1,17 @@
 package modules
 
-import com.google.inject.AbstractModule
-import net.codingwell.scalaguice.ScalaModule
-import play.api.libs.concurrent.AkkaGuiceSupport
-import models.daos.{LoginInfoDAO,LoginInfoDAOImpl}
-import com.google.inject.{Provides}
+import com.google.inject.{AbstractModule, Provides}
 import javax.inject.Named
+import models.auth.daos.{LoginInfoDAO, LoginInfoDAOImpl}
+import net.codingwell.scalaguice.ScalaModule
 import play.api.Configuration
-class BaseModule extends AbstractModule with ScalaModule with AkkaGuiceSupport{
-  /**
-   * Configures the module.
-   */
+import play.api.libs.concurrent.AkkaGuiceSupport
+
+
+class BaseModule extends AbstractModule with ScalaModule with AkkaGuiceSupport {
+
   override def configure(): Unit = {
     bind[LoginInfoDAO].to[LoginInfoDAOImpl]
-
   }
 
   @Named("SendGridApiKey")

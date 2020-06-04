@@ -12,8 +12,8 @@ GET     /message                    controllers.AsyncController.message
 
 GET     /controllerpanel                    controllers.HomeController.getModelPanel
 # Autoryzacja
-GET     /authenticate/:provider             controllers.SocialAuthController.authenticate(provider)
-GET     /singOut                            controllers.ApplicationController.signOut
+GET     /authenticate/:provider                             auth.SocialAuthController.authenticate(provider)
+GET     /api/signout                                        controllers.ApplicationController.signOut()
 # koszyk
 GET     /baskets                            controllers.BasketController.getAllBaskets
 GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)

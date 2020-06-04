@@ -11,6 +11,7 @@ import com.mohiva.play.silhouette.crypto.{JcaCrypter, JcaCrypterSettings, JcaSig
 import com.mohiva.play.silhouette.impl.authenticators._
 import com.mohiva.play.silhouette.impl.providers._
 import com.mohiva.play.silhouette.impl.providers.oauth2._
+import com.mohiva.play.silhouette.impl.providers.oauth1._
 import com.mohiva.play.silhouette.impl.providers.state.{CsrfStateItemHandler, CsrfStateSettings}
 import com.mohiva.play.silhouette.impl.services._
 import com.mohiva.play.silhouette.impl.util._
@@ -18,33 +19,24 @@ import com.mohiva.play.silhouette.password.{BCryptPasswordHasher, BCryptSha256Pa
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
 import com.typesafe.config.Config
-import models.daos.{OAuth2InfoDAO, UserDAO, UserDAOImpl}
-import models.services.{UserService, UserServiceImpl}
+import models.auth.daos.{OAuth2InfoDAO, UserDAO, UserDAOImpl}
+import models.auth.services.{UserService, UserServiceImpl}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.ceedubs.ficus.readers.ValueReader
 import net.codingwell.scalaguice.ScalaModule
-import net.ceedubs.ficus.readers.EnumerationReader._
-
 import play.api.Configuration
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.ws.WSClient
 import play.api.mvc.Cookie
 import utils.auth.DefaultEnv
+import net.ceedubs.ficus.readers.EnumerationReader._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-/**
- * The Guice module which wires all Silhouette dependencies.
- */
+
 class SilhouetteModule extends AbstractModule with ScalaModule {
 
-  /**
-   * A very nested optional reader, to support these cases:
-   * Not set, set None, will use default ('Lax')
-   * Set to null, set Some(None), will use 'No Restriction'
-   * Set to a string value try to match, Some(Option(string))
-   */
   implicit val sameSiteReader: ValueReader[Option[Option[Cookie.SameSite]]] =
     (config: Config, path: String) => {
       if (config.hasPathOrNull(path)) {
@@ -58,9 +50,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
       }
     }
 
-  /**
-   * Configures the module.
-   */
   override def configure() {
     bind[Silhouette[DefaultEnv]].to[SilhouetteProvider[DefaultEnv]]
     bind[UserService].to[UserServiceImpl]
@@ -72,25 +61,14 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     bind[Clock].toInstance(Clock())
   }
 
-
   @Provides
   def provideOAuth2InfoDAO(dbConfig: DatabaseConfigProvider): DelegableAuthInfoDAO[OAuth2Info] = {
     new OAuth2InfoDAO(dbConfig)
   }
 
-  /**
-   * Provides the HTTP layer implementation.
-   *
-   * @param client Play's WS client.
-   * @return The HTTP layer implementation.
-   */
   @Provides
   def provideHTTPLayer(client: WSClient): HTTPLayer = new PlayHTTPLayer(client)
 
-  /**
-   * Provides the Silhouette environment.
-   *
-   */
   @Provides
   def provideEnvironment(userService: UserService,
                          authenticatorService: AuthenticatorService[JWTAuthenticator],
@@ -104,25 +82,15 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     )
   }
 
-  /**
-   * Provides the social provider registry.
-   *
-   */
   @Provides
-  def provideSocialProviderRegistry(facebookProvider: FacebookProvider,
-                                    googleProvider: GoogleProvider): SocialProviderRegistry = {
-
+  def provideSocialProviderRegistry(googleProvider: GoogleProvider,
+                                    facebookProvider: FacebookProvider): SocialProviderRegistry = {
     SocialProviderRegistry(Seq(
       googleProvider,
       facebookProvider,
     ))
   }
 
-
-  /**
-   * Provides the signer for the CSRF state item handler.
-   *
-   */
   @Provides
   @Named("csrf-state-item-signer")
   def provideCSRFStateItemSigner(configuration: Configuration): Signer = {
@@ -131,10 +99,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaSigner(config)
   }
 
-  /**
-   * Provides the signer for the social state handler.
-   *
-   */
   @Provides
   @Named("social-state-signer")
   def provideSocialStateSigner(configuration: Configuration): Signer = {
@@ -143,10 +107,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaSigner(config)
   }
 
-  /**
-   * Provides the signer for the authenticator.
-   *
-   */
   @Provides
   @Named("authenticator-signer")
   def provideAuthenticatorSigner(configuration: Configuration): Signer = {
@@ -155,10 +115,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaSigner(config)
   }
 
-  /**
-   * Provides the crypter for the authenticator.
-   *
-   */
   @Provides
   @Named("authenticator-crypter")
   def provideAuthenticatorCrypter(configuration: Configuration): Crypter = {
@@ -167,44 +123,25 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new JcaCrypter(config)
   }
 
-  /**
-   * Provides the auth info repository.
-   *
-   */
   @Provides
   def provideAuthInfoRepository(oauth2InfoDAO: DelegableAuthInfoDAO[OAuth2Info]): AuthInfoRepository = {
-
     new DelegableAuthInfoRepository(oauth2InfoDAO)
   }
 
-  /**
-   * Provides the authenticator service.
-   *
-   */
   @Provides
   def provideAuthenticatorService(@Named("authenticator-crypter") crypter: Crypter,
                                   idGenerator: IDGenerator,
                                   configuration: Configuration,
                                   clock: Clock): AuthenticatorService[JWTAuthenticator] = {
-
     val config = configuration.underlying.as[JWTAuthenticatorSettings]("silhouette.authenticator")
     val encoder = new CrypterAuthenticatorEncoder(crypter)
 
     new JWTAuthenticatorService(config, None, encoder, idGenerator, clock)
   }
 
-  /**
-   * Provides the avatar service.
-   *
-   */
   @Provides
   def provideAvatarService(httpLayer: HTTPLayer): AvatarService = new GravatarService(httpLayer)
 
-
-  /**
-   * Provides the CSRF state item handler.
-   *
-   */
   @Provides
   def provideCsrfStateItemHandler(idGenerator: IDGenerator,
                                   @Named("csrf-state-item-signer") signer: Signer,
@@ -213,54 +150,28 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     new CsrfStateItemHandler(settings, idGenerator, signer)
   }
 
-  /**
-   * Provides the social state handler.
-   *
-   */
   @Provides
   def provideSocialStateHandler(@Named("social-state-signer") signer: Signer,
                                 csrfStateItemHandler: CsrfStateItemHandler): SocialStateHandler = {
-
     new DefaultSocialStateHandler(Set(csrfStateItemHandler), signer)
   }
 
-  /**
-   * Provides the password hasher registry.
-   */
   @Provides
   def providePasswordHasherRegistry(): PasswordHasherRegistry = {
     PasswordHasherRegistry(new BCryptSha256PasswordHasher(), Seq(new BCryptPasswordHasher()))
   }
 
-
-  /**
-   * Provides the Google provider.
-   *
-   */
   @Provides
   def provideGoogleProvider(httpLayer: HTTPLayer,
                             socialStateHandler: SocialStateHandler,
                             configuration: Configuration): GoogleProvider = {
-
     new GoogleProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.google"))
   }
 
-  /**
-   * Provides the Facebook provider.
-   *
-   * @param httpLayer          The HTTP layer implementation.
-   * @param socialStateHandler The social state handler implementation.
-   * @param configuration      The Play configuration.
-   * @return The Facebook provider.
-   */
   @Provides
-  def provideFacebookProvider(
-                               httpLayer: HTTPLayer,
-                               socialStateHandler: SocialStateHandler,
-                               configuration: Configuration): FacebookProvider = {
-
+  def provideFacebookProvider(httpLayer: HTTPLayer,
+                            socialStateHandler: SocialStateHandler,
+                            configuration: Configuration): FacebookProvider = {
     new FacebookProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.facebook"))
   }
-
-
 }

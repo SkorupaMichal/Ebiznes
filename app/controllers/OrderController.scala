@@ -17,7 +17,7 @@ case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: Stri
 case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int)
 
 @Singleton
-class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: daos.UserDAOImpl,
+class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: models.auth.daos.UserDAOImpl,
                                 deliverRepo: DeliveryRepository, paymentRepo: PaymentRepository,
                                 basketRepo: BasketRepository)(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
   /*Order controller*/
@@ -45,7 +45,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
   var payments: Seq[Payment] = Seq[Payment]()
   var delivers: Seq[Delivery] = Seq[Delivery]()
   var baskets: Seq[Basket] = Seq[Basket]()
-  var users: Seq[User] = Seq[User]()
+  var users: Seq[models.auth.User] = Seq[models.auth.User]()
 
   def getPaymentsSeq = {
     paymentRepo.list().onComplete {

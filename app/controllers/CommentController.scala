@@ -16,7 +16,7 @@ case class UpdateCommentForm(id:Int,title:String,content:String,productId:Int,us
 
 @Singleton
 class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRepository,dd:MessagesControllerComponents,
-                                   productRepository:ProductRepository,userRepo:daos.UserDAOImpl)(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
+                                   productRepository:ProductRepository,userRepo:models.auth.daos.UserDAOImpl)(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
   /*Comment to product controller*/
 
   val commentForm: Form[CreateCommentForm] = Form{
@@ -36,7 +36,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
       "userId" ->nonEmptyText
     )(UpdateCommentForm.apply)(UpdateCommentForm.unapply)
   }
-  var users: Seq[User] = Seq[User]()
+  var users: Seq[models.auth.User] = Seq[models.auth.User]()
   var products: Seq[Product] = Seq[Product]()
   val BadJSON = "Zla skladnia"
   def getUserSeq = {

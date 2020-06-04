@@ -1,5 +1,5 @@
 @(order: Form[CreateOrderForm],payments:Seq[Payment],delivers: Seq[Delivery],baskets:Seq[Basket],
-        users:Seq[User])(implicit request :MessagesRequestHeader,flash:Flash)
+        users:Seq[models.auth.User])(implicit request :MessagesRequestHeader,flash:Flash)
 <a href="@routes.OrderController.getOrders()">Powrót</a>
 @import helper._
 @flash.get("success").getOrElse("")
@@ -27,7 +27,7 @@
     </select>
     <select name="userId" id="userId">
     @for(user <- users){
-        <option value="@user.id">@user.firstName</option>
+        <option value="@user.userID">@user.firstName</option>
     }
     </select>
     <div class="buttons">

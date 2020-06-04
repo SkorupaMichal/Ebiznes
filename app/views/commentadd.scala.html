@@ -1,4 +1,4 @@
-@(comment: Form[CreateCommentForm],products: Seq[Product],users: Seq[User])(implicit request :MessagesRequestHeader,flash:Flash)
+@(comment: Form[CreateCommentForm],products: Seq[Product],users: Seq[models.auth.User])(implicit request :MessagesRequestHeader,flash:Flash)
 <a href="@routes.CommentController.getComments()">Powrót</a>
 @import helper._
 @flash.get("success").getOrElse("")
@@ -16,7 +16,7 @@
     </select>
     <select name="userId" id="userId">
     @for(user <- users){
-        <option value="@user.id">@user.firstName</option>
+        <option value="@user.userID">@user.firstName</option>
     }
     </select>
     <div class="buttons">

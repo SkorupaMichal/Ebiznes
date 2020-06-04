@@ -1,4 +1,4 @@
-package models.services
+package services
 
 import javax.inject.Inject
 import play.api.mvc.RequestHeader

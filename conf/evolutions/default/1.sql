@@ -16,40 +16,45 @@ create table Product(
     FOREIGN KEY  (category_id) REFERENCES Category(id) ON DELETE CASCADE ,
     FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id) ON DELETE CASCADE
 );
-CREATE TABLE Role(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-);
-CREATE TABLE User(
-    id TEXT NOT NULL PRIMARY KEY ,
-    firstName TEXT,
-    lastName TEXT,
-    email TEXT,
-    avatar_url TEXT,
-    role_id INTEGER NOT NULL,
-    FOREIGN KEY (role_id) REFERENCES Role(id)
-);
-CREATE TABLE LoginInfo(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    provider_id TEXT,
-    provider_key TEXT
-);
-CREATE TABLE UserLoginInfo(
-    user_id TEXT NOT NULL,
-    login_info_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id)
+
+CREATE TABLE role(
+    id   INTEGER NOT NULL PRIMARY KEY,
+    name VARCHAR
 );
 
-CREATE TABLE OAuth2Info(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    access_token TEXT NOT NULL,
-    toke_type TEXT,
-    expires_in INTEGER,
-    refresh_token TEXT,
-    login_info_id INTEGER NOT NULL,
-    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id)
+CREATE TABLE user(
+    id         VARCHAR    NOT NULL PRIMARY KEY,
+    first_name VARCHAR,
+    last_name  VARCHAR,
+    email      VARCHAR,
+    role_id    INTEGER     NOT NULL,
+    avatar_url VARCHAR,
+    CONSTRAINT auth_user_role_id_fk FOREIGN KEY (role_id) REFERENCES role(id)
 );
+
+CREATE TABLE login_info(
+    id           INTEGER NOT NULL PRIMARY KEY,
+    provider_id  VARCHAR,
+    provider_key VARCHAR
+);
+
+CREATE TABLE user_login_info(
+    user_id       VARCHAR   NOT NULL,
+    login_info_id INTEGER NOT NULL,
+    CONSTRAINT auth_user_login_info_user_id_fk FOREIGN KEY (user_id) REFERENCES user(id),
+    CONSTRAINT auth_user_login_info_login_info_id_fk FOREIGN KEY (login_info_id) REFERENCES login_info(id)
+);
+
+CREATE TABLE oauth2_info (
+    id            INTEGER NOT NULL PRIMARY KEY,
+    access_token  VARCHAR   NOT NULL,
+    token_type    VARCHAR,
+    expires_in    INTEGER,
+    refresh_token VARCHAR,
+    login_info_id INTEGER    NOT NULL,
+    CONSTRAINT auth_oauth2_info_login_info_id_fk FOREIGN KEY (login_info_id) REFERENCES login_info(id)
+);
+
 CREATE TABLE Basket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
     description TEXT DEFAULT "",

@@ -13,8 +13,8 @@ case class CreateBasketForm(description:String,userId:String)
 case class UpdateBasketForm(id:Int,description:String,userId:String)
 
 @Singleton
-class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository,
-                                 userRepo:daos.UserDAOImpl)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
+class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository
+                                 )(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
   /*Basket controller*/
   val basketForm: Form[CreateBasketForm] = Form{
     mapping(
@@ -31,16 +31,9 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
   }
   var users:Seq[User] = Seq[User]()
 
-  def getUsersSeq = {
-    userRepo.list().onComplete{
-      case Success(c) => users = c
-      case Failure(_) => print("fail")
-    }
 
-  }
   def index = Action { implicit request =>
-    getUsersSeq
-    Ok(views.html.basketadd(basketForm,users))
+    Ok(views.html.basketadd(basketForm,Seq[User]()))
 
   }
   def getAllBaskets:Action[AnyContent] = Action.async{implicit request=>
@@ -60,10 +53,10 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Ok("Return Basket");
   }
   def createBasket =  Action.async{ implicit request =>
-    getUsersSeq
+
     basketForm.bindFromRequest.fold(
       errorForm => {
-        Future.successful(Ok(views.html.basketadd(errorForm,users)))
+        Future.successful(Ok(views.html.basketadd(errorForm,Seq[User]())))
       },
       basket =>{
         repo.create(basket.description,basket.userId).map(_=>
@@ -73,19 +66,18 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     )
   }
   def updateBasket(id:Int): Action[AnyContent] = Action.async{ implicit request: MessagesRequest[AnyContent] =>
-    getUsersSeq
+
     val basket = repo.getById(id)
     basket.map(b=>{
       val bForm = updateBasketForm.fill(UpdateBasketForm(b.head.id,b.head.description,b.head.userId))
-      Ok(views.html.basketupdate(bForm,users))
+      Ok(views.html.basketupdate(bForm,Seq[User]()))
     })
   }
   def updateBasketHandle = Action.async{implicit request=>
-    getUsersSeq
     updateBasketForm.bindFromRequest.fold(
       errorForm =>{
         Future.successful(
-          BadRequest(views.html.basketupdate(errorForm,users))
+          BadRequest(views.html.basketupdate(errorForm,Seq[User]()))
         )
       },
       basket =>{
