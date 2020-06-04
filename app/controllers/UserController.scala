@@ -15,7 +15,7 @@ case class UpdateUserForm(id:Int,login:String,email:String,password:String)
 @Singleton
 class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,userRepo:UserRepository,
                                 productbasketRepo: ProductBasketRepository,basketRepo: BasketRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd){
-  /*Product set controller, client can make easier set of products*/
+  /*Product set controller, client can make easier set of products*//*
   val userForm: Form[CreateUserForm] = Form{
     mapping(
       "login" -> nonEmptyText,
@@ -181,5 +181,5 @@ class UserController @Inject() (cc:ControllerComponents,dd:MessagesControllerCom
   def deleteUserByJson(userId:Int) = Action{
     Await.result(userRepo.delete(userId),duration.Duration.Inf)
     Ok("")
-  }
+  }*/
 }

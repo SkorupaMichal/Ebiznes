@@ -22,16 +22,13 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     def productId = column[Int]("product_id")
     def productFk = foreignKey("product_fk",productId,products)(_.id,onUpdate = ForeignKeyAction.Restrict,
       onDelete = ForeignKeyAction.Cascade)
-    def userId = column[Int]("user_id")
-    def userFk = foreignKey("user_fk",userId,users)(_.id,onUpdate = ForeignKeyAction.Restrict,
-      onDelete = ForeignKeyAction.Cascade)
-    def * = (id,title,content,productId,userId)<>((Comment.apply _).tupled,Comment.unapply)
+    def userId = column[String]("user_id")
+   def * = (id,title,content,productId,userId)<>((Comment.apply _).tupled,Comment.unapply)
   }
   import pR.ProductTableDef
-  import uR.UserTableDef
   val comments = TableQuery[CommentTableDef]
   val products = TableQuery[ProductTableDef]
-  val users    = TableQuery[UserTableDef]
+  val users    = Seq[User]()
   def list(): Future[Seq[Comment]] = db.run{
     comments.result
   }
@@ -52,10 +49,10 @@ class CommentRepository @Inject()(dbConfigProvider:DatabaseConfigProvider, prote
     }yield(comm.id,comm.title,comm.content,prod.id,prod.name,prod.cost,prod.producer)
     query.result
   }
-  def getByUser(userId:Int): Future[Seq[Comment]] = db.run{
+  def getByUser(userId:String): Future[Seq[Comment]] = db.run{
     comments.filter(_.userId === userId).result
   }
-  def create(title:String,content:String,prodId:Int,userId:Int):Future[Comment] = db.run{
+  def create(title:String,content:String,prodId:Int,userId:String):Future[Comment] = db.run{
     (comments.map(c=>(c.title,c.content,c.productId,c.userId))
       returning comments.map(_.id)
       into{case((title,content,prodId,userId),id)=>Comment(id,title,content,prodId,userId)})+=(title,content,prodId,userId)

@@ -10,6 +10,11 @@ import java.util.UUID
 class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvider, userRoleDAO: UserRoleDAO)(implicit ec: ExecutionContext) extends UserDAO with DAOSlick  {
   import profile.api._
 
+  override def list(): Future[Seq[User]] = {
+    db.run(slickUsers.result).map(users=>{
+      users.map(DBUser.toUser)
+    })
+  }
   /**
    * Finds a user by its login info.
    *
@@ -31,7 +36,7 @@ class UserDAOImpl @Inject()(protected val dbConfigProvider: DatabaseConfigProvid
    *
    */
   def find(userID: UUID) = {
-    val query = slickUsers.filter(_.id === userID)
+    val query = slickUsers.filter(_.id === userID.toString)
 
     db.run(query.result.headOption).map { resultOption =>
       resultOption.map(DBUser.toUser)

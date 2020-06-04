@@ -11,6 +11,9 @@ GET     /count                      controllers.CountController.count
 GET     /message                    controllers.AsyncController.message
 
 GET     /controllerpanel                    controllers.HomeController.getModelPanel
+# Autoryzacja
+GET     /authenticate/:provider             controllers.SocialAuthController.authenticate(provider:String)
+GET     /singOut                            controllers.ApplicationController.signOut
 # koszyk
 GET     /baskets                            controllers.BasketController.getAllBaskets
 GET     /baskets/:id                        controllers.BasketController.getBasketByID(id:Int)
@@ -69,13 +72,13 @@ GET     /updatedeliver/:deliverId           controllers.DeliveryController.updat
 POST    /updatedeliverhandle                controllers.DeliveryController.updateDeliverHandle
 GET     /deletedeliver/:deliverId           controllers.DeliveryController.deleteDelivery(deliverId:Int)
 #Zestawy urzytkownikow
-GET     /users                                  controllers.UserController.getUsers
-GET     /userbaskets/:id                        controllers.UserController.getUsersBasket(id:Int)
-GET     /user/:id                               controllers.UserController.getUserById(id:Int)
-GET     /createuser                             controllers.UserController.createUser
-GET     /updateuser/:UserId                     controllers.UserController.updateUser(UserId:Int)
-POST    /updateuserhandle                       controllers.UserController.updateUserHandle
-GET     /deleteuser/:UserId                     controllers.UserController.deleteUser(UserId:Int)
+#GET     /users                                  controllers.UserController.getUsers
+#GET     /userbaskets/:id                        controllers.UserController.getUsersBasket(id:Int)
+#GET     /user/:id                               controllers.UserController.getUserById(id:Int)
+#GET     /createuser                             controllers.UserController.createUser
+#GET     /updateuser/:UserId                     controllers.UserController.updateUser(UserId:Int)
+#POST    /updateuserhandle                       controllers.UserController.updateUserHandle
+#GET     /deleteuser/:UserId                     controllers.UserController.deleteUser(UserId:Int)
 #Rodzaje platnosci
 GET     /paymentmethods                         controllers.PaymentMethodsController.getPaymentMethods
 GET     /paymentmethods/:id                     controllers.PaymentMethodsController.getPaymentMethodByID(id:Int)
@@ -110,7 +113,7 @@ GET     /commentsjson                       controllers.CommentController.getCom
 GET     /commentsjson/:id                   controllers.CommentController.getCommentByIdJson(id:Int)
 GET     /commentbyprod/:id                  controllers.CommentController.getCommentsByProductID(id:Int)
 GET     /commentwithprodinfo/:prodId        controllers.CommentController.getCommentWithProductDescJson(prodId:Int)
-GET     /commentbyuser/:id                  controllers.CommentController.getCommentByUserID(id:Int)
+GET     /commentbyuser/:id                  controllers.CommentController.getCommentByUserID(id:String)
 POST    /commentcreatejson                  controllers.CommentController.createCommentByJson
 POST    /updatecommentjson/:id              controllers.CommentController.updateCommentByJson(id:Int)
 DELETE  /deletecommentjson/:id              controllers.CommentController.deleteCommentByJson(id:Int)
@@ -133,7 +136,7 @@ GET     /ordersjson                         controllers.OrderController.getOrder
 GET     /ordersjson/:id                     controllers.OrderController.getOrderByIdJson(id:Int)
 GET     /orderbyuseridjson/:id              controllers.OrderController.getOrderByUserIdJson(id:Int)
 GET     /orderbydelividjson/:id             controllers.OrderController.getOrderByDeliverIdJson(id:Int)
-GET     /orderbyuserpayment/:userid/:payid  controllers.OrderController.getOrderByUseraPaymentJson(userid:Int,payid:Int)
+GET     /orderbyuserpayment/:userid/:payid  controllers.OrderController.getOrderByUseraPaymentJson(userid:String,payid:Int)
 POST    /ordercreatejson                    controllers.OrderController.createOrderJson
 POST    /updateorderjson/:id                controllers.OrderController.updateOrderJson(id:Int)
 DELETE  /deleteorderjson/:id                controllers.OrderController.deleteOrderJson(id:Int)
@@ -160,14 +163,14 @@ POST    /subcategorycreatejson              controllers.SubCategoryController.cr
 POST    /updatesubcategoryjson/:id          controllers.SubCategoryController.updateSubCategoryByJson(id:Int)
 DELETE  /deletesubcategoryjson/:id          controllers.SubCategoryController.deleteSubCategoryByJson(id:Int)
 # Users
-POST    /authuser                           controllers.UserController.authUserJson
-POST    /userexists                         controllers.UserController.checkUserIfExists
-GET     /usersjson                          controllers.UserController.getUsersJson
-GET     /usersjson/:id                      controllers.UserController.getUsersByIdJson(id:Int)
-GET     /userbylogin/:login                 controllers.UserController.getUsersByLoginNameJson(login:String)
-POST    /usercreatejson                     controllers.UserController.createUserByJson
-POST    /updateuserjson/:id                 controllers.UserController.updateUserByJson(id:Int)
-DELETE  /deleteuserjson/:id                 controllers.UserController.deleteUserByJson(id:Int)
+#POST    /authuser                           controllers.UserController.authUserJson
+#POST    /userexists                         controllers.UserController.checkUserIfExists
+#GET     /usersjson                          controllers.UserController.getUsersJson
+#GET     /usersjson/:id                      controllers.UserController.getUsersByIdJson(id:Int)
+#GET     /userbylogin/:login                 controllers.UserController.getUsersByLoginNameJson(login:String)
+#POST    /usercreatejson                     controllers.UserController.createUserByJson
+#POST    /updateuserjson/:id                 controllers.UserController.updateUserByJson(id:Int)
+#DELETE  /deleteuserjson/:id                 controllers.UserController.deleteUserByJson(id:Int)
 #Helper
 POST    /addproductsbasket                  controllers.ProductBasketController.addProductToBasket
 GET     /getproductsbybasket/:id            controllers.ProductBasketController.getProdctsByBasketId(id :Int)

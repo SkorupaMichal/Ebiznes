@@ -12,12 +12,12 @@ import slick.jdbc.H2Profile.api._
 
 import scala.util.{Failure, Success}
 
-case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: Int, paymentId: Int, basketId: Int)
+case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int)
 
-case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, userId: Int, paymentId: Int, basketId: Int)
+case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int)
 
 @Singleton
-class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: UserRepository,
+class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: daos.UserDAOImpl,
                                 deliverRepo: DeliveryRepository, paymentRepo: PaymentRepository,
                                 basketRepo: BasketRepository)(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
   /*Order controller*/
@@ -26,7 +26,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
       "date" -> nonEmptyText,
       "cost" -> number,
       "deliverId" -> number,
-      "userId" -> number,
+      "userId" -> nonEmptyText,
       "paymentId" -> number,
       "basketId" -> number
     )(CreateOrderForm.apply)(CreateOrderForm.unapply)
@@ -37,7 +37,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
       "date" -> nonEmptyText,
       "cost" -> number,
       "deliverId" -> number,
-      "userId" -> number,
+      "userId" -> nonEmptyText,
       "paymentId" -> number,
       "basketId" -> number
     )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
@@ -176,7 +176,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     orders.map(b => Ok(Json.toJson(b)))
   }
 
-  def getOrderByUseraPaymentJson(userId: Int, paymentId: Int) = Action.async { implicit request =>
+  def getOrderByUseraPaymentJson(userId: String, paymentId: Int) = Action.async { implicit request =>
     val orderbyuserpayment = orderRepo.getByUserPayment(userId, paymentId)
     Await.result(orderbyuserpayment, duration.Duration.Inf)
     orderbyuserpayment.map(b => Ok(Json.toJson(b)))
@@ -188,11 +188,11 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     orders.map(b => Ok(Json.toJson(b)))
   }
 
-  def getOrderFromReqest(request: MessagesRequest[JsValue]): (String, Int, Int, Int, Int, Int) = {
+  def getOrderFromReqest(request: MessagesRequest[JsValue]): (String, Int, Int, String, Int, Int) = {
     var date = ""
     var cost = -1
     var deliverId = -1
-    var userId = -1
+    var userId = ""
     var paymentId = -1
     var basketId = -1
     (request.body \ "date").asOpt[String].map { ur =>
@@ -204,7 +204,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     (request.body \ "deliverId").asOpt[Int].map { del =>
       deliverId = del
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "userId").asOpt[Int].map { user =>
+    (request.body \ "userId").asOpt[String].map { user =>
       userId = user
     }.getOrElse(BadRequest("Blad"))
     (request.body \ "paymentId").asOpt[Int].map { pay =>

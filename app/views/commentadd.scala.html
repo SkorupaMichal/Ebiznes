@@ -16,7 +16,7 @@
     </select>
     <select name="userId" id="userId">
     @for(user <- users){
-        <option value="@user.id">@user.login</option>
+        <option value="@user.id">@user.firstName</option>
     }
     </select>
     <div class="buttons">

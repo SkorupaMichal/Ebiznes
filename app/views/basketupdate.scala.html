@@ -10,9 +10,9 @@
     <select id="user_id" name="user_id">
     @for(user <- users){
         @if(user.id.toString==basket("userId").value.getOrElse(0)) {
-            <option value="@user.id" selected>@user.login</option>
+            <option value="@user.id" selected>@user.firstName</option>
         }else{
-            <option value="@user.id">@user.login</option>
+            <option value="@user.id">@user.firstName</option>
         }
     }
     </select>

@@ -22,9 +22,9 @@
     <select name="userId" id="userId">
     @for(user <- users){
         @if(user.id.toString==comment("userId").value.getOrElse(0)) {
-            <option value="@user.id" selected>@user.login</option>
+            <option value="@user.id" selected>@user.firstName</option>
         }else{
-            <option value="@user.id">@user.login</option>
+            <option value="@user.id">@user.firstName</option>
         }
 
     }

@@ -11,12 +11,12 @@ import play.api.libs.functional.syntax._
 import scala.concurrent.{Await, ExecutionContext, Future,duration}
 import scala.util.{Failure, Success}
 
-case class CreateCommentForm(title:String,content:String,productId:Int,userId:Int)
-case class UpdateCommentForm(id:Int,title:String,content:String,productId:Int,userId:Int)
+case class CreateCommentForm(title:String,content:String,productId:Int,userId:String)
+case class UpdateCommentForm(id:Int,title:String,content:String,productId:Int,userId:String)
 
 @Singleton
 class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRepository,dd:MessagesControllerComponents,
-                                   productRepository:ProductRepository,userRepo:UserRepository)(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
+                                   productRepository:ProductRepository,userRepo:daos.UserDAOImpl)(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
   /*Comment to product controller*/
 
   val commentForm: Form[CreateCommentForm] = Form{
@@ -24,7 +24,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
       "title" ->nonEmptyText,
       "content"->nonEmptyText,
       "productId"->number,
-      "userId" ->number
+      "userId" ->nonEmptyText
     )(CreateCommentForm.apply)(CreateCommentForm.unapply)
   }
   val updateCommentForm: Form[UpdateCommentForm] = Form{
@@ -33,7 +33,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
       "title" ->nonEmptyText,
       "content"->nonEmptyText,
       "productId"->number,
-      "userId" ->number
+      "userId" ->nonEmptyText
     )(UpdateCommentForm.apply)(UpdateCommentForm.unapply)
   }
   var users: Seq[User] = Seq[User]()
@@ -152,16 +152,16 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     Await.result(commentwithproductInfo,duration.Duration.Inf)
     commentwithproductInfo.map(b=>Ok(Json.toJson(b)))
   }
-  def getCommentByUserID(userID:Int) = Action.async{implicit request =>
+  def getCommentByUserID(userID:String) = Action.async{implicit request =>
     val commentbyuser = commentRepo.getByUser(userID)
     Await.result(commentbyuser,duration.Duration.Inf)
     commentbyuser.map(cbu=>Ok(Json.toJson(cbu)))
   }
-  def getCommentFromRequestJson(request:MessagesRequest[JsValue]):(String,String,Int,Int) = {
+  def getCommentFromRequestJson(request:MessagesRequest[JsValue]):(String,String,Int,String) = {
     var title = ""
     var content = ""
     var productId = 0
-    var userId = 0
+    var userId = ""
     (request.body \ "title").asOpt[String].map{ t=>
       title = t
     }.getOrElse(BadRequest(BadJSON))
@@ -171,7 +171,7 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     (request.body \ "product_id").asOpt[Int].map{prodid=>
       productId = prodid
     }.getOrElse(BadRequest(BadJSON))
-    (request.body \ "user_id").asOpt[Int].map{usid=>
+    (request.body \ "user_id").asOpt[String].map{usid=>
       userId = usid
     }.getOrElse(BadRequest(BadJSON))
 

@@ -17,41 +17,34 @@ create table Product(
     FOREIGN  KEY (subcategory_id) REFERENCES  Subcategory(id) ON DELETE CASCADE
 );
 CREATE TABLE Role(
-    id INTEGER PRIMARY AUTOINCREMENT,
-    name TEXT NOT NULL,
-)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
 CREATE TABLE User(
-    id INTEGER  PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL PRIMARY KEY ,
     firstName TEXT,
     lastName TEXT,
-    email TEXT NOT NULL,
---    password TEXT NOT NULL,
+    email TEXT,
     avatar_url TEXT,
     role_id INTEGER NOT NULL,
-    FOREIGN (role_id) REFERENCES Role(id)
+    FOREIGN KEY (role_id) REFERENCES Role(id)
 );
 CREATE TABLE LoginInfo(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    provider_id TEXT NOT NULL,
-    provider_key TEXT NOT NULL
+    provider_id TEXT,
+    provider_key TEXT
 );
 CREATE TABLE UserLoginInfo(
-    user_id INTEGER NOT NULL,
+    user_id TEXT NOT NULL,
     login_info_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id),
-);
-CREATE TABLE PasswordInfo(
-    hasher TEXT NOT NULL,
-    password TEXT NOT NULL,
-    salt TEXT,
-    login_info_id INTEGER NOT NULL,
     FOREIGN KEY (login_info_id) REFERENCES LoginInfo(id)
 );
+
 CREATE TABLE OAuth2Info(
-    id INTEGER NOT NULL PRIMARY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     access_token TEXT NOT NULL,
-    toke_type TEXT NOT,
+    toke_type TEXT,
     expires_in INTEGER,
     refresh_token TEXT,
     login_info_id INTEGER NOT NULL,
@@ -60,7 +53,7 @@ CREATE TABLE OAuth2Info(
 CREATE TABLE Basket(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
     description TEXT DEFAULT "",
-    user_id     INTEGER NOT NULL,
+    user_id     VARCHAR NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
 );
 
@@ -77,7 +70,7 @@ CREATE TABLE Comment(
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     product_id INTEGER NOT NULL,
-    user_id    INTEGER NOT NULL,
+    user_id    VARCHAR NOT NULL,
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id)    REFERENCES User(id)
 );
@@ -102,7 +95,7 @@ CREATE TABLE Orders(
     date TEXT DATE,
     cost INTEGER NOT NULL,
     deliver_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
+    user_id VARCHAR NOT NULL,
     payment_id INTEGER NOT NULL,
     basket_id  INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
@@ -125,8 +118,6 @@ CREATE TABLE Payment(
   description TEXT
 );
 
-
-
 CREATE TABLE Subcategory(
     id INTEGER  PRIMARY KEY AUTOINCREMENT ,
     name TEXT NOT NULL,
@@ -148,7 +139,6 @@ DROP TABLE Payment;
 DROP TABLE User;
 DROP TABLE LoginInfo;
 DROP TABLE UserLoginInfo;
-DROP TABLE PasswordInfo;
 DROP TABLE OAuth2Info;
 DROP TABLE Subcategory;
 DROP TABLE ProductBasket;

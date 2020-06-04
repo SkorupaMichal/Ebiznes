@@ -1,4 +1,4 @@
-@(orders: Seq[(Int,String,Int,String,String,String)])
+@(orders: Seq[(Int,String,Int,String,String)])
 
 @for(order <- orders){
     <div class="oneall">
@@ -15,9 +15,7 @@
             <div>
             Sposob platnosci: @order._5
             </div>
-            <div>
-            Uzytkownik: @order._6
-            </div>
+
         </div>
         <div class="buttons">
             <a class="first" href="@controllers.routes.OrderController.updateOrder(order._1)">Edytuj</a>

@@ -22,9 +22,7 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
     def deliverId = column[Int]("deliver_id")
     def deliverFk = foreignKey("deliver_fk",deliverId,
       delivers)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
-    def userId = column[Int]("user_id")
-    def userFk = foreignKey("user_fk",userId,
-      users)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
+    def userId = column[String]("user_id")
     def paymentId = column[Int]("payment_id")
     def paymentFk = foreignKey("payment_fk",paymentId,
       payments)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
@@ -33,12 +31,10 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
       baskets)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
     def * = (id,date,cost,deliverId,userId,paymentId,basketId)<>((Order.apply _).tupled,Order.unapply)
   }
-  import uR.UserTableDef
   import dR.DeliveryTableDef
   import pR.PaymentTableDef
   import bR.BasketTableDef
   val orders = TableQuery[OrderTableDef]
-  val users  = TableQuery[UserTableDef]
   val delivers = TableQuery[DeliveryTableDef]
   val payments = TableQuery[PaymentTableDef]
   val baskets = TableQuery[BasketTableDef]
@@ -54,23 +50,22 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
   def getByDeliverId(deliverID:Int):Future[Seq[Order]] = db.run{
     orders.filter(_.deliverId === deliverID).result
   }
-  def getByUserPayment(userId:Int,paymentId:Int): Future[Seq[Order]] = db.run{
+  def getByUserPayment(userId:String,paymentId:Int): Future[Seq[Order]] = db.run{
     orders.filter( m =>m.userId === userId && m.paymentId === paymentId).result
   }
-  def createJoin():Future[Seq[(Int,String,Int,String,String,String)]] = db.run{
+  def createJoin():Future[Seq[(Int, String, Int, String, String)]] = db.run{
     /// Info o kurierze platnosci uzytkowniku i cena
-    val sequence = orders join delivers join payments join users on{
-      case(((order,deliver),payment),user) =>
+    val sequence = orders join delivers join payments  on{
+      case(((order,deliver),payment)) =>
         order.deliverId === deliver.id &&
-        order.paymentId === payment.id &&
-        order.userId === user.id
+        order.paymentId === payment.id
     };
     def query = for{
-      (((order,deliver),payment),user) <- sequence
-    }yield (order.id,order.date,order.cost,deliver.name,payment.name,user.login)
+      (((order,deliver),payment)) <- sequence
+    }yield (order.id,order.date,order.cost,deliver.name,payment.name)
     query.result
   }
-  def create(date:String,cost:Int,deliverid:Int,userid:Int,
+  def create(date:String,cost:Int,deliverid:Int,userid:String,
              paymentid:Int,basketid:Int):Future[Order] = db.run{
     (orders.map(c=>(c.date,c.cost,c.deliverId,c.userId,c.paymentId,c.basketId))
       returning orders.map(_.id)

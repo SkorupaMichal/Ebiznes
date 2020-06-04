@@ -9,22 +9,27 @@ import slick.jdbc.SQLiteProfile.api._
 
 @Singleton
 class UserRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit executionContext: ExecutionContext){
+  /*
   val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig._
   import profile.api._
 
   class UserTableDef(tag:Tag) extends Table[User](tag,"user"){
-    def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
-    def login = column[String]("login",O.Unique)
+    /*User(id:String, firstName:Option[String], lastName:Option[String], email:Option[String],  avatarUrl:Option[String], role:String = "user")*/
+    def id = column[String]("id",O.PrimaryKey,O.AutoInc)
+    def firstName = column[String]("firstName")
+    def lastName = column[String]("lastName")
     def email = column[String]("email")
-    def password = column[String]("password")
-    def * = (id,login,email,password)<>((User.apply _).tupled,User.unapply)
+    def avatarUrl = column[String]("firstName")
+    def role = column[String]("firstName")
+    def * = (id,firstName,lastName,email,avatarUrl)<>((User.apply _).tupled,User.unapply)
   }
 
   val users = TableQuery[UserTableDef]
   def list(): Future[Seq[User]] = db.run{
     users.result
   }
+  /*
   def getById(id:Int):Future[Option[User]] = db.run{
     users.filter(_.id===id).result.headOption
   }
@@ -45,5 +50,5 @@ class UserRepository @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit
   def update(userId:Int,newUser:User):Future[Unit] = {
     val updatedUser = newUser.copy(userId)
     db.run(users.filter(_.id===userId).update(updatedUser).map(_=>()))
-  }
+  }*/*/
 }

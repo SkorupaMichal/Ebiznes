@@ -9,24 +9,24 @@ import play.api.libs.json.{JsValue, Json}
 import scala.util.{Failure, Success}
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 
-case class CreateBasketForm(description:String,userId:Int)
-case class UpdateBasketForm(id:Int,description:String,userId:Int)
+case class CreateBasketForm(description:String,userId:String)
+case class UpdateBasketForm(id:Int,description:String,userId:String)
 
 @Singleton
 class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,repo:BasketRepository,
-                                 userRepo:UserRepository)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
-  /*Basket controller*//*
+                                 userRepo:daos.UserDAOImpl)(implicit ec:ExecutionContext) extends MessagesAbstractController(dd){
+  /*Basket controller*/
   val basketForm: Form[CreateBasketForm] = Form{
     mapping(
       "description"->nonEmptyText,
-      "userId" -> number
+      "userId" -> nonEmptyText
     )(CreateBasketForm.apply)(CreateBasketForm.unapply)
   }
   val updateBasketForm: Form[UpdateBasketForm] = Form{
     mapping(
       "id" -> number,
       "description" -> nonEmptyText,
-      "userId" -> number
+      "userId" -> nonEmptyText
     )(UpdateBasketForm.apply)(UpdateBasketForm.unapply)
   }
   var users:Seq[User] = Seq[User]()
@@ -114,19 +114,19 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Await.result(baskets,duration.Duration.Inf)
     baskets.map(b=>Ok(Json.toJson(b)))
   }
-  def getBasketByUserId(userID:Int): Action[AnyContent] = Action.async{ implicit request =>
+  def getBasketByUserId(userID:String): Action[AnyContent] = Action.async{ implicit request =>
     val userbasket = repo.getByUserId(userID)
     Await.result(userbasket,duration.Duration.Inf)
     userbasket.map(b=>Ok(Json.toJson(b)))
   }
 
-  def getReqestJson(request:MessagesRequest[JsValue]):(String,Int) = {
+  def getReqestJson(request:MessagesRequest[JsValue]):(String,String) = {
     var descrption = ""
-    var userID = 0
+    var userID = ""
       (request.body \ "description").asOpt[String].map{ desc=>
         descrption = desc
       }.getOrElse(BadRequest("Oho zly json"))
-      (request.body \ "user_id").asOpt[Int].map{usid=>
+      (request.body \ "user_id").asOpt[String].map{usid=>
         userID = usid
       }.getOrElse(BadRequest("Zla skladnia"))
 
@@ -142,7 +142,7 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     Await.result(repo.delete(basketId),duration.Duration.Inf)
     Ok("")
   }
-  def deleteBasketByUserIdJson(userId:Int) = Action{request=>
+  def deleteBasketByUserIdJson(userId:String) = Action{request=>
     Await.result(repo.deleteBasketByUser(userId),duration.Duration.Inf)
     Ok("")
   }
@@ -151,5 +151,4 @@ class BasketController @Inject() (cc:ControllerComponents,dd:MessagesControllerC
     repo.update(basketId,Basket(basketId,updateBasket._1,updateBasket._2))
     Ok("")
   }
-*/
 }

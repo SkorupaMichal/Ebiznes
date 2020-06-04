@@ -18,12 +18,14 @@ import com.mohiva.play.silhouette.password.{BCryptPasswordHasher, BCryptSha256Pa
 import com.mohiva.play.silhouette.persistence.daos.DelegableAuthInfoDAO
 import com.mohiva.play.silhouette.persistence.repositories.DelegableAuthInfoRepository
 import com.typesafe.config.Config
-import models.daos._
+import models.daos.{OAuth2InfoDAO, UserDAO, UserDAOImpl}
 import models.services.{UserService, UserServiceImpl}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import net.ceedubs.ficus.readers.ValueReader
 import net.codingwell.scalaguice.ScalaModule
+import net.ceedubs.ficus.readers.EnumerationReader._
+
 import play.api.Configuration
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.libs.ws.WSClient
@@ -71,7 +73,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
   }
 
 
-
   @Provides
   def provideOAuth2InfoDAO(dbConfig: DatabaseConfigProvider): DelegableAuthInfoDAO[OAuth2Info] = {
     new OAuth2InfoDAO(dbConfig)
@@ -108,12 +109,12 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    *
    */
   @Provides
-  def provideSocialProviderRegistry(gitHubProvider: GitHubProvider,
+  def provideSocialProviderRegistry(facebookProvider: FacebookProvider,
                                     googleProvider: GoogleProvider): SocialProviderRegistry = {
 
     SocialProviderRegistry(Seq(
       googleProvider,
-      gitHubProvider,
+      facebookProvider,
     ))
   }
 
@@ -171,11 +172,9 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    *
    */
   @Provides
-  def provideAuthInfoRepository(passwordInfoDAO: DelegableAuthInfoDAO[PasswordInfo],
-                                oauth1InfoDAO: DelegableAuthInfoDAO[OAuth1Info],
-                                oauth2InfoDAO: DelegableAuthInfoDAO[OAuth2Info]): AuthInfoRepository = {
+  def provideAuthInfoRepository(oauth2InfoDAO: DelegableAuthInfoDAO[OAuth2Info]): AuthInfoRepository = {
 
-    new DelegableAuthInfoRepository(passwordInfoDAO, oauth1InfoDAO, oauth2InfoDAO)
+    new DelegableAuthInfoRepository(oauth2InfoDAO)
   }
 
   /**
@@ -233,18 +232,6 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     PasswordHasherRegistry(new BCryptSha256PasswordHasher(), Seq(new BCryptPasswordHasher()))
   }
 
-  /**
-   * Provides the credentials provider.
-   *
-   */
-  @Provides
-  def provideCredentialsProvider(authInfoRepository: AuthInfoRepository,
-                                 passwordHasherRegistry: PasswordHasherRegistry): CredentialsProvider = {
-
-    new CredentialsProvider(authInfoRepository, passwordHasherRegistry)
-  }
-
-
 
   /**
    * Provides the Google provider.
@@ -257,15 +244,23 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
 
     new GoogleProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.google"))
   }
+
   /**
-   * Provides the GitHub provider.
+   * Provides the Facebook provider.
    *
+   * @param httpLayer          The HTTP layer implementation.
+   * @param socialStateHandler The social state handler implementation.
+   * @param configuration      The Play configuration.
+   * @return The Facebook provider.
    */
   @Provides
-  def provideGitHubProvider(httpLayer: HTTPLayer,
-                            socialStateHandler: SocialStateHandler,
-                            configuration: Configuration): GitHubProvider = {
-    new GitHubProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.github"))
+  def provideFacebookProvider(
+                               httpLayer: HTTPLayer,
+                               socialStateHandler: SocialStateHandler,
+                               configuration: Configuration): FacebookProvider = {
+
+    new FacebookProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.facebook"))
   }
+
 
 }

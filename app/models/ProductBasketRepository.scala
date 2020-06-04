@@ -38,7 +38,7 @@ class ProductBasketRepository @Inject() (dbConfigProvider:DatabaseConfigProvider
   def getById(productbasketId:Int): Future[Option[ProductBasket]] = db.run{
     productbasket.filter(_.id === productbasketId).result.headOption
   }
-  def getFullListOfProductsByUser(userID:Int) = db.run{
+  def getFullListOfProductsByUser(userID:String) = db.run{
     val bb = baskets.filter(_.userId === userID)
     val sequence = productbasket join products join baskets on {
       case((cbp,products),bb) =>

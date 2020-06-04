@@ -8,6 +8,8 @@ import scala.concurrent.Future
  * Give access to the user object.
  */
 trait UserDAO {
+
+  def list(): Future[Seq[User]]
   /**
    * Updates user role
    *
