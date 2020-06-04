@@ -27,3 +27,4 @@ target/
 .worksheet
 app/controllers/StatisticsController.scala
 .scannerwork/
+.env

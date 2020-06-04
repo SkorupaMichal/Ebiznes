@@ -110,11 +110,13 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
    */
   @Provides
   def provideSocialProviderRegistry(facebookProvider: FacebookProvider,
-                                    googleProvider: GoogleProvider): SocialProviderRegistry = {
+                                    googleProvider: GoogleProvider,
+                                    gitHubProvider: GitHubProvider): SocialProviderRegistry = {
 
     SocialProviderRegistry(Seq(
       googleProvider,
       facebookProvider,
+      gitHubProvider
     ))
   }
 
@@ -260,6 +262,12 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
                                configuration: Configuration): FacebookProvider = {
 
     new FacebookProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.facebook"))
+  }
+  @Provides
+  def provideGitHubProvider(httpLayer: HTTPLayer,
+                            socialStateHandler: SocialStateHandler,
+                            configuration: Configuration): GitHubProvider = {
+    new GitHubProvider(httpLayer, socialStateHandler, configuration.underlying.as[OAuth2Settings]("silhouette.github"))
   }
 
 

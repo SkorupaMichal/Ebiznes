@@ -1,7 +1,6 @@
 -- !Ups
 INSERT INTO Category (name,description) values ("Samochody","dd"),("AGD","dd"),("RTV","dd");
-INSERT INTO Role (name) values ("user"),("admin");
-
+INSERT INTO role (id, name) VALUES (1, 'user'), (2, 'admin');
 INSERT INTO Deliver (name,cost,description) values ("Kurier UPS",20,"Kurier najszybciej"),
                                               ("Kurier DPD",10,"Troche szybciej niz UPS"),
                                               ("Poczta polska",5,"Czas oczekiwania 2 tyg");
