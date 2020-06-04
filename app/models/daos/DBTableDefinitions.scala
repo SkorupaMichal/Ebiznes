@@ -3,6 +3,7 @@ package models.daos
 import slick.jdbc.JdbcProfile
 import models.{User, UserRoles}
 import com.mohiva.play.silhouette.api.LoginInfo
+import slick.lifted.ProvenShape.proveShapeOf
 
 trait DBTableDefinitions {
   protected val profile: JdbcProfile
@@ -32,7 +33,7 @@ trait DBTableDefinitions {
     def fromUser(u: User): DBUser = DBUser(u.id, u.firstName, u.lastName, u.email, u.avatarUrl, u.role.id)
   }
 
-  class Users(tag: Tag) extends Table[DBUser](tag, "user") {
+  class Users(tag: Tag) extends Table[DBUser](tag, "User") {
     def id = column[String]("id", O.PrimaryKey)
 
     def firstName = column[Option[String]]("firstName")
@@ -56,7 +57,7 @@ trait DBTableDefinitions {
     def toLoginInfo(dbLoginInfo: DBLoginInfo) = LoginInfo(dbLoginInfo.providerID, dbLoginInfo.providerKey)
   }
 
-  class LoginInfos(tag: Tag) extends Table[DBLoginInfo](tag, "logininfo") {
+  class LoginInfos(tag: Tag) extends Table[DBLoginInfo](tag, "LoginInfo") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
     def providerID = column[String]("provider_id")
@@ -67,7 +68,7 @@ trait DBTableDefinitions {
   }
 
   case class DBUserLoginInfo(userID: String, loginInfoId: Long)
-  class UserLoginInfos(tag: Tag) extends Table[DBUserLoginInfo](tag, Some("auth"), "userlogininfo") {
+  class UserLoginInfos(tag: Tag) extends Table[DBUserLoginInfo](tag, Some("auth"), "UserLoginInfo") {
     def userID = column[String]("user_id")
     def loginInfoId = column[Long]("login_info_id")
     def * = (userID, loginInfoId) <> (DBUserLoginInfo.tupled, DBUserLoginInfo.unapply)
@@ -75,7 +76,7 @@ trait DBTableDefinitions {
 
   case class DBOAuth2Info(id: Option[Long], accessToken: String, tokenType: Option[String], expiresIn: Option[Int], refreshToken: Option[String], loginInfoId: Long)
 
-  class OAuth2Infos(tag: Tag) extends Table[DBOAuth2Info](tag, Some("auth"), "oauth2info") {
+  class OAuth2Infos(tag: Tag) extends Table[DBOAuth2Info](tag, Some("auth"), "OAuth2Info") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def accessToken = column[String]("access_token")
     def tokenType = column[Option[String]]("token_type")

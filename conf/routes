@@ -12,7 +12,7 @@ GET     /message                    controllers.AsyncController.message
 
 GET     /controllerpanel                    controllers.HomeController.getModelPanel
 # Autoryzacja
-GET     /authenticate/:provider             controllers.SocialAuthController.authenticate(provider:String)
+GET     /authenticate/:provider             controllers.SocialAuthController.authenticate(provider)
 GET     /singOut                            controllers.ApplicationController.signOut
 # koszyk
 GET     /baskets                            controllers.BasketController.getAllBaskets

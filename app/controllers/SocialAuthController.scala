@@ -1,12 +1,12 @@
 package controllers
 
-import javax.inject.Inject
-import com.mohiva.play.silhouette.api._
 import com.mohiva.play.silhouette.api.exceptions.ProviderException
+import com.mohiva.play.silhouette.api.{Logger, Silhouette}
 import com.mohiva.play.silhouette.api.repositories.AuthInfoRepository
 import com.mohiva.play.silhouette.api.util.Clock
-import com.mohiva.play.silhouette.impl.providers._
-import models.services._
+import com.mohiva.play.silhouette.impl.providers.{CommonSocialProfileBuilder, SocialProvider, SocialProviderRegistry}
+import javax.inject.Inject
+import models.services.{AccountBound, AuthenticateService, EmailIsBeingUsed, NoEmailProvided, UserService}
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, ControllerComponents, Request}
@@ -50,7 +50,7 @@ class SocialAuthController @Inject()(components: ControllerComponents,
             }
           } yield result
         }
-      case _ => Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider $provider"))
+      case _ => Future.failed(new ProviderException("Cannot authenticate with unexpected social provider $provider"))
     }).recover {
       case e: ProviderException =>
         logger.error("Unexpected provider error", e)
