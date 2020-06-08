@@ -18,13 +18,9 @@ class BasketRepository @Inject()(dbConfigProvider: DatabaseConfigProvider,
     def id = column[Int]("id",O.PrimaryKey,O.AutoInc)
     def description = column[String]("description",O.Default(""))
     def userId = column[String]("user_id")
-    //def userFk = foreignKey("user_fk",userId,
-    //  users)(_.id,onUpdate = ForeignKeyAction.Restrict,onDelete = ForeignKeyAction.Cascade)
     def * = (id,description,userId) <> (( Basket.apply _ ).tupled, Basket.unapply)
   }
-  //import uR.UserTableDef
   val baskets = TableQuery[BasketTableDef]
-  //val users   = TableQuery[UserTableDef]
   def list(): Future[Seq[Basket]] = db.run{
     baskets.result
   }

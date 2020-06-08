@@ -1,4 +1,5 @@
 @(comments: Seq[Comment])
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
 
 @for(comment <- comments){
     <div class="oneall">
@@ -19,53 +20,3 @@
 <div class="onebutton">
     <a class="add" href="@controllers.routes.CommentController.createComment()">Dodaj komentarz</a>
 </div>
-<style>
-        .oneall{
-            margin-top: 3rem;
-        }
-        .onebutton{
-            width: 50%;
-            margin-left: auto;
-            margin-right: auto;
-            display: flex;
-            justify-content: center;
-        }
-        .add{
-            color: black;
-            text-decoration: none;
-            background-color: lightgreen;
-            border: 1px solid red;
-            padding: .5rem;
-            margin-top: 2rem;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .forbaskets{
-            background-color: whitesmoke;
-            border: 2px solid lightcoral;
-            width: 50%;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
-            padding: .5rem;
-
-        }
-        .buttons{
-            width: 50%;
-            display: flex;
-            justify-content: center;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 1rem;
-        }
-        .buttons > a{
-            color: black;
-            text-decoration: none;
-            background-color: lightblue;
-            border: 1px solid red;
-            padding: .5rem;
-        }
-        .second{
-            margin-left: .4rem;
-        }
-</style>
