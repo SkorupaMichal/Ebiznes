@@ -99,6 +99,7 @@ GET 	/deletesubcategory/:categoryId 		controllers.SubCategoryController.deleteSu
 #Basket
 GET     /basketsjson                        controllers.BasketController.getAllBasketsJSON
 GET     /basketjson/:id                     controllers.BasketController.getBasketByID(id:Int)
++nocsrf
 POST    /createbasketjson                   controllers.BasketController.createBasketJson
 POST    /updatebasketjson/:id               controllers.BasketController.updateBasketJson(id:Int)
 DELETE  /deletebasketjson/:id               controllers.BasketController.deleteBasketJson(id:Int)
@@ -114,6 +115,7 @@ GET     /commentsjson/:id                   controllers.CommentController.getCom
 GET     /commentbyprod/:id                  controllers.CommentController.getCommentsByProductID(id:Int)
 GET     /commentwithprodinfo/:prodId        controllers.CommentController.getCommentWithProductDescJson(prodId:Int)
 GET     /commentbyuser/:id                  controllers.CommentController.getCommentByUserID(id:String)
++nocsrf
 POST    /commentcreatejson                  controllers.CommentController.createCommentByJson
 POST    /updatecommentjson/:id              controllers.CommentController.updateCommentByJson(id:Int)
 DELETE  /deletecommentjson/:id              controllers.CommentController.deleteCommentByJson(id:Int)
@@ -171,6 +173,12 @@ DELETE  /deletesubcategoryjson/:id          controllers.SubCategoryController.de
 #POST    /usercreatejson                     controllers.UserController.createUserByJson
 #POST    /updateuserjson/:id                 controllers.UserController.updateUserByJson(id:Int)
 #DELETE  /deleteuserjson/:id                 controllers.UserController.deleteUserByJson(id:Int)
+# Address
+GET      /addresses                         controllers.AddressController.getAllAddressesJson
+GET      /address/:id                       controllers.AddressController.getAddressByIdJson(id:Int)
+POST     /createaddress                     controllers.AddressController.createAddressJson
+POST     /updateaddress/:id                 controllers.AddressController.updateAddressJson(id:Int)
+DELETE   /deleteaddress/:id                 controllers.AddressController.deleteAddressJson(id:Int)
 #Helper
 POST    /addproductsbasket                  controllers.ProductBasketController.addProductToBasket
 GET     /getproductsbybasket/:id            controllers.ProductBasketController.getProdctsByBasketId(id :Int)

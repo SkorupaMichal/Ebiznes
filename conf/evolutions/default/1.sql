@@ -93,7 +93,12 @@ CREATE TABLE Image(
     product_id INTEGER NOT NULL ,
     FOREIGN KEY (product_id) REFERENCES Product(id) ON DELETE CASCADE
 );
-
+CREATE TABLE Address(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    city VARCHAR NOT NULL,
+    street VARCHAR NOT NULL,
+    zip_code VARCHAR NOT NULL
+);
 CREATE TABLE Orders(
     id INTEGER PRIMARY KEY AUTOINCREMENT ,
     date TEXT DATE,
@@ -102,10 +107,12 @@ CREATE TABLE Orders(
     user_id VARCHAR NOT NULL,
     payment_id INTEGER NOT NULL,
     basket_id  INTEGER NOT NULL,
+    address_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (payment_id) REFERENCES Deliver(id),
     FOREIGN KEY (deliver_id) REFERENCES Payment(id),
-    FOREIGN KEY (basket_id) REFERENCES Basket(id) ON DELETE CASCADE
+    FOREIGN KEY (basket_id) REFERENCES Basket(id) ON DELETE CASCADE,
+    FOREIGN KEY (address_id) REFERENCES Addresses(id)
 );
 
 CREATE TABLE OrderHelper(
@@ -130,6 +137,7 @@ CREATE TABLE Subcategory(
     FOREIGN KEY (category_id) REFERENCES Category(id) ON DELETE CASCADE
 );
 
+
 -- !Downs
 
 DROP TABLE Category;
@@ -138,6 +146,7 @@ DROP TABLE Basket;
 DROP TABLE Comment;
 DROP TABLE Deliver;
 DROP TABLE Image;
+DROP TABLE Address;
 DROP TABLE Orders;
 DROP TABLE Payment;
 DROP TABLE User;

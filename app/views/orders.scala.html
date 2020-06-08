@@ -1,4 +1,4 @@
-@(orders: Seq[(Int,String,Int,String,String)])
+@(orders: Seq[(Int,String,Int,String,String,String,String)])
 
 @for(order <- orders){
     <div class="oneall">
@@ -14,6 +14,12 @@
             </div>
             <div>
             Sposob platnosci: @order._5
+            </div>
+            <div>
+                Miasto: @order._6
+            </div>
+            <div>
+                Ulica: @order._7
             </div>
 
         </div>

@@ -1,5 +1,5 @@
 -- !Ups
-INSERT INTO Category (name,description) values ("Samochody","dd"),("AGD","dd"),("RTV","dd");
+INSERT INTO Category (name,description) values ("Samochody","najlepsze samochody"),("AGD","Dobre agd"),("RTV","Dobre rtv");
 INSERT INTO role (id, name) VALUES (1, 'user'), (2, 'admin');
 INSERT INTO Deliver (name,cost,description) values ("Kurier UPS",20,"Kurier najszybciej"),
                                               ("Kurier DPD",10,"Troche szybciej niz UPS"),
@@ -11,7 +11,7 @@ INSERT INTO Subcategory (name,description,category_id) values ("Dostawczy","Samo
                                                               ("Osobowe", "Samochody dla calej rodziny",1),
                                                               ("Ekspressy do kawy","Zrobi kazdy rodzaj kawy",2),
                                                               ("Telewizory","Telewizory dla kazdego",3);
-INSERT INTO Product (name,cost,count,producer,category_id,subcategory_id) values ("BMW",20,10,"BB",1,2),("Porshe",100,10,"Cayman",1,2),("Remington",100000,10,"E.E.E",2,3),("Samsung Galaxy S10",3000,10,"Samsung",3,4);
+INSERT INTO Product (name,cost,count,producer,category_id,subcategory_id) values ("BMW",20,10,"General Motors",1,2),("Porshe",100,10,"Cayman",1,2),("Remington",100000,10,"E.E.E",2,3),("Samsung Galaxy S10",3000,10,"Samsung",3,4);
 
 -- !Downs
 DELETE  FROM Category;

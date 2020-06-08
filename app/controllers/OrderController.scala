@@ -12,14 +12,14 @@ import slick.jdbc.H2Profile.api._
 
 import scala.util.{Failure, Success}
 
-case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int)
+case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int, addressId: Int)
 
-case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int)
+case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int, addressId: Int)
 
 @Singleton
 class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: daos.UserDAOImpl,
                                 deliverRepo: DeliveryRepository, paymentRepo: PaymentRepository,
-                                basketRepo: BasketRepository)(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
+                                basketRepo: BasketRepository,addressRepo:AddressRepository)(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
   /*Order controller*/
   val orderForm: Form[CreateOrderForm] = Form {
     mapping(
@@ -28,7 +28,8 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
       "deliverId" -> number,
       "userId" -> nonEmptyText,
       "paymentId" -> number,
-      "basketId" -> number
+      "basketId" -> number,
+      "addressId" ->number
     )(CreateOrderForm.apply)(CreateOrderForm.unapply)
   }
   val updateOrderForm: Form[UpdateOrderForm] = Form {
@@ -39,13 +40,15 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
       "deliverId" -> number,
       "userId" -> nonEmptyText,
       "paymentId" -> number,
-      "basketId" -> number
+      "basketId" -> number,
+      "addressId" -> number
     )(UpdateOrderForm.apply)(UpdateOrderForm.unapply)
   }
   var payments: Seq[Payment] = Seq[Payment]()
   var delivers: Seq[Delivery] = Seq[Delivery]()
   var baskets: Seq[Basket] = Seq[Basket]()
   var users: Seq[User] = Seq[User]()
+  var addresses:Seq[Address] = Seq[Address]()
 
   def getPaymentsSeq = {
     paymentRepo.list().onComplete {
@@ -74,6 +77,12 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
       case Failure(_) => print("fail")
     }
   }
+  def getAddressSeq = {
+    addressRepo.list().onComplete{
+      case Success(a) => addresses = a
+      case Failure(_) => print("fail")
+    }
+  }
 
   def getOrders = Action.async { implicit request =>
     val q = orderRepo.createJoin()
@@ -93,8 +102,9 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     getPaymentsSeq
     getBasketsSeq
     getDeliversSeq
+    getAddressSeq
     var user = userRepo.list()
-    user.map(u => Ok(views.html.orderadd(orderForm, payments, delivers, baskets, u)))
+    user.map(u => Ok(views.html.orderadd(orderForm, payments, delivers, baskets, u,addresses)))
   }
 
 
@@ -103,15 +113,16 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     getBasketsSeq
     getDeliversSeq
     getUserSeq
+    getAddressSeq
     orderForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.orderadd(errorForm, payments, delivers, baskets, users))
+          BadRequest(views.html.orderadd(errorForm, payments, delivers, baskets, users,addresses))
         )
       },
       order => {
         orderRepo.create(order.date, order.cost, order.deliverId,
-          order.userId, order.paymentId, order.basketId).map { _ =>
+          order.userId, order.paymentId, order.basketId,order.addressId).map { _ =>
           Redirect(routes.OrderController.getOrders()).flashing("success" -> "product.created")
         }
       }
@@ -123,11 +134,12 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     getBasketsSeq
     getDeliversSeq
     getUserSeq
+    getAddressSeq
     val order = orderRepo.getById(orderId)
     order.map(b => {
       val bForm = updateOrderForm.fill(UpdateOrderForm(b.head.id, b.head.date, b.head.cost, b.head.deliverId,
-        b.head.userId, b.head.paymentId, b.head.basketId))
-      Ok(views.html.orderupdate(bForm, payments, delivers, baskets, users))
+        b.head.userId, b.head.paymentId, b.head.basketId,b.head.addressId))
+      Ok(views.html.orderupdate(bForm, payments, delivers, baskets, users,addresses))
 
     })
   }
@@ -137,15 +149,16 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     getBasketsSeq
     getDeliversSeq
     getUserSeq
+    getAddressSeq
     updateOrderForm.bindFromRequest.fold(
       errorForm => {
         Future.successful(
-          BadRequest(views.html.orderupdate(errorForm, payments, delivers, baskets, users))
+          BadRequest(views.html.orderupdate(errorForm, payments, delivers, baskets, users,addresses))
         )
       },
       order => {
         orderRepo.update(order.id, Order(order.id, order.date,
-          order.cost, order.deliverId, order.userId, order.paymentId, order.basketId)).map {
+          order.cost, order.deliverId, order.userId, order.paymentId, order.basketId,order.addressId)).map {
           _ => Redirect(routes.OrderController.updateOrder(order.id)).flashing("success" -> "basket update")
         }
       }
@@ -188,13 +201,14 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     orders.map(b => Ok(Json.toJson(b)))
   }
 
-  def getOrderFromReqest(request: MessagesRequest[JsValue]): (String, Int, Int, String, Int, Int) = {
+  def getOrderFromReqest(request: MessagesRequest[JsValue]): (String, Int, Int, String, Int, Int, Int) = {
     var date = ""
     var cost = -1
     var deliverId = -1
     var userId = ""
     var paymentId = -1
     var basketId = -1
+    var addressId = -1
     (request.body \ "date").asOpt[String].map { ur =>
       date = ur
     }.getOrElse(BadRequest("Blad"))
@@ -213,19 +227,23 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     (request.body \ "basketId").asOpt[Int].map { basket =>
       basketId = basket
     }.getOrElse(BadRequest("Blad"))
-    (date, cost, deliverId, userId, paymentId, basketId)
+
+    (request.body \ "addressId").asOpt[Int].map { address =>
+      addressId = address
+    }.getOrElse(BadRequest("Blad"))
+    (date, cost, deliverId, userId, paymentId, basketId, addressId)
   }
 
   def createOrderJson = Action(parse.json) { implicit request =>
     /*,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int*/
     val order = getOrderFromReqest(request)
-    orderRepo.create(order._1, order._2, order._3, order._4, order._5, order._6)
+    orderRepo.create(order._1, order._2, order._3, order._4, order._5, order._6,order._7)
     Ok("")
   }
 
   def updateOrderJson(orderId: Int) = Action(parse.json) { implicit request =>
     val order = getOrderFromReqest(request)
-    orderRepo.update(orderId, Order(orderId, order._1, order._2, order._3, order._4, order._5, order._6))
+    orderRepo.update(orderId, Order(orderId, order._1, order._2, order._3, order._4, order._5, order._6,order._7))
     Ok("")
   }
 

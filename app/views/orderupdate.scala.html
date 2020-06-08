@@ -1,5 +1,5 @@
 @(order: Form[UpdateOrderForm],payments:Seq[Payment],delivers: Seq[Delivery],baskets:Seq[Basket],
-        users:Seq[User])(implicit request: MessagesRequestHeader,flash:Flash)
+        users:Seq[User],addresses:Seq[Address])(implicit request: MessagesRequestHeader,flash:Flash)
 @import helper._
 @flash.get("success").getOrElse("")
 <a href="@routes.OrderController.getOrders()">Powrót</a>
@@ -46,6 +46,16 @@
             <option value="@user.id" selected>@user.firstName</option>
         }else{
             <option value="@user.id">@user.firstName</option>
+        }
+
+    }
+    </select>
+    <select name="addressId" id="addressId">
+    @for(address <- addresses){
+        @if(address.id.toString==order("addressId").value.getOrElse(0)) {
+            <option value="@address.id" selected>@address.id</option>
+        }else{
+            <option value="@address.id">@address.id</option>
         }
 
     }

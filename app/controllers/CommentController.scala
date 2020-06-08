@@ -1,4 +1,5 @@
 package controllers
+import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
 import models._
 import javax.inject._
 import play.api.mvc._
@@ -7,8 +8,9 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
+import utils.auth.DefaultEnv
 
-import scala.concurrent.{Await, ExecutionContext, Future,duration}
+import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
 
 case class CreateCommentForm(title:String,content:String,productId:Int,userId:String)
@@ -16,7 +18,8 @@ case class UpdateCommentForm(id:Int,title:String,content:String,productId:Int,us
 
 @Singleton
 class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRepository,dd:MessagesControllerComponents,
-                                   productRepository:ProductRepository,userRepo:daos.UserDAOImpl)(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
+                                   productRepository:ProductRepository,userRepo:daos.UserDAOImpl,
+                                   silhouette: Silhouette[DefaultEnv])(implicit ex:ExecutionContext)  extends MessagesAbstractController(dd) {
   /*Comment to product controller*/
 
   val commentForm: Form[CreateCommentForm] = Form{
@@ -157,33 +160,46 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     Await.result(commentbyuser,duration.Duration.Inf)
     commentbyuser.map(cbu=>Ok(Json.toJson(cbu)))
   }
-  def getCommentFromRequestJson(request:MessagesRequest[JsValue]):(String,String,Int,String) = {
+  def getCommentFromRequestJson(request:JsValue):(String,String,Int,String) = {
     var title = ""
     var content = ""
     var productId = 0
     var userId = ""
-    (request.body \ "title").asOpt[String].map{ t=>
+    (request \ "title").asOpt[String].map{ t=>
       title = t
     }.getOrElse(BadRequest(BadJSON))
-    (request.body \ "content").asOpt[String].map{cont=>
+    (request \ "content").asOpt[String].map{cont=>
       content = cont
     }.getOrElse(BadRequest(BadJSON))
-    (request.body \ "product_id").asOpt[Int].map{prodid=>
+    (request \ "product_id").asOpt[Int].map{prodid=>
       productId = prodid
     }.getOrElse(BadRequest(BadJSON))
-    (request.body \ "user_id").asOpt[String].map{usid=>
+    (request \ "user_id").asOpt[String].map{usid=>
       userId = usid
     }.getOrElse(BadRequest(BadJSON))
 
     (title,content,productId,userId)
   }
-  def createCommentByJson = Action(parse.json){implicit request=>
-    val comment = getCommentFromRequestJson(request)
-    commentRepo.create(comment._1,comment._2,comment._3,comment._4)
-    Ok("")
+  def createCommentByJson = Action.async{implicit request:Request[AnyContent]=>
+    silhouette.UserAwareRequestHandler { userAwareRequest =>
+      Future.successful(HandlerResult(Ok, userAwareRequest.identity))
+    }(request).flatMap {
+      case HandlerResult(r,Some(user))=>{
+        request.body.asJson match {
+          case Some(json) =>{
+            var comment = getCommentFromRequestJson(json)
+            commentRepo.create(comment._1,comment._2,comment._3,user.id).map(com=>Ok(Json.toJson(com)))
+          }
+          case None => Future.successful(InternalServerError("Not json"))
+        }
+      }
+      case HandlerResult(result,None)=>{
+        Future.successful(InternalServerError("Not token"))
+      }
+    }
   }
   def updateCommentByJson(commentId:Int) =Action(parse.json) { implicit request =>
-    val comment = getCommentFromRequestJson(request)
+    val comment = getCommentFromRequestJson(request.body)
     commentRepo.update(commentId, Comment(commentId, comment._1,comment._2,comment._3,comment._4))
     Ok("")
   }
