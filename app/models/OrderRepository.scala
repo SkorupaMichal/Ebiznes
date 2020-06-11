@@ -52,6 +52,19 @@ class OrderRepository @Inject()(dbConfigProvider:DatabaseConfigProvider,protecte
   def getByUserId(userId:Int):Future[Seq[Order]] = db.run{
     orders.filter(_.deliverId === userId).result
   }
+  def getByUserFullInfo(userId:String):Future[Seq[(Int, String, Int, String, String,String,String)]] = db.run{
+    val orderByUser = orders.filter(_.userId === userId)
+    val sequence = orderByUser join delivers join payments join addresses on{
+      case(((order,deliver),payment),address) =>
+        order.deliverId === deliver.id &&
+          order.paymentId === payment.id &&
+          order.addressId === address.id
+    }
+    def query = for{
+      ((((order,deliver),payment),address)) <- sequence
+    }yield (order.id,order.date,order.cost,deliver.name,payment.name,address.city,address.street)
+    query.result
+  }
   def getByDeliverId(deliverID:Int):Future[Seq[Order]] = db.run{
     orders.filter(_.deliverId === deliverID).result
   }

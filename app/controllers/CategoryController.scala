@@ -117,7 +117,7 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
     (name,description)
   }
   def createCategoryByJson = silhouette.SecuredAction(HasRole(UserRoles.Admin)).async(parse.json){implicit request: SecuredRequest[DefaultEnv, JsValue]=>
-    
+
     request.body.validate[Category] match {
       case JsSuccess(json, _) => repo.create(json.name,json.description).map(_=>Ok("Category Createg"))
       case _ => Future.successful(InternalServerError("Bad json"))

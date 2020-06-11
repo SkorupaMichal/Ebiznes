@@ -6,11 +6,12 @@ import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.{JsValue, Json}
-
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import slick.jdbc.H2Profile.api._
-
 import scala.util.{Failure, Success}
+import utils.auth.DefaultEnv
+import com.mohiva.play.silhouette.api.{HandlerResult, Silhouette}
+
 
 case class CreateOrderForm(date: String, cost: Int, deliverId: Int, userId: String, paymentId: Int, basketId: Int, addressId: Int)
 
@@ -19,7 +20,8 @@ case class UpdateOrderForm(id: Int, date: String, cost: Int, deliverId: Int, use
 @Singleton
 class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderRepository, dd: MessagesControllerComponents, userRepo: daos.UserDAOImpl,
                                 deliverRepo: DeliveryRepository, paymentRepo: PaymentRepository,
-                                basketRepo: BasketRepository,addressRepo:AddressRepository)(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
+                                basketRepo: BasketRepository,addressRepo:AddressRepository,
+                                silhouette: Silhouette[DefaultEnv])(implicit ex: ExecutionContext) extends MessagesAbstractController(dd) {
   /*Order controller*/
   val orderForm: Form[CreateOrderForm] = Form {
     mapping(
@@ -201,7 +203,7 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     orders.map(b => Ok(Json.toJson(b)))
   }
 
-  def getOrderFromReqest(request: MessagesRequest[JsValue]): (String, Int, Int, String, Int, Int, Int) = {
+  def getOrderFromReqest(request: JsValue): (String, Int, Int, String, Int, Int, Int) = {
     var date = ""
     var cost = -1
     var deliverId = -1
@@ -209,40 +211,65 @@ class OrderController @Inject()(cc: ControllerComponents, orderRepo: OrderReposi
     var paymentId = -1
     var basketId = -1
     var addressId = -1
-    (request.body \ "date").asOpt[String].map { ur =>
+    (request \ "date").asOpt[String].map { ur =>
       date = ur
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "cost").asOpt[Int].map { cos =>
+    (request \ "cost").asOpt[Int].map { cos =>
       cost = cos
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "deliverId").asOpt[Int].map { del =>
+    (request \ "deliverId").asOpt[Int].map { del =>
       deliverId = del
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "userId").asOpt[String].map { user =>
+    (request \ "userId").asOpt[String].map { user =>
       userId = user
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "paymentId").asOpt[Int].map { pay =>
+    (request \ "paymentId").asOpt[Int].map { pay =>
       paymentId = pay
     }.getOrElse(BadRequest("Blad"))
-    (request.body \ "basketId").asOpt[Int].map { basket =>
+    (request \ "basketId").asOpt[Int].map { basket =>
       basketId = basket
     }.getOrElse(BadRequest("Blad"))
 
-    (request.body \ "addressId").asOpt[Int].map { address =>
+    (request \ "addressId").asOpt[Int].map { address =>
       addressId = address
     }.getOrElse(BadRequest("Blad"))
     (date, cost, deliverId, userId, paymentId, basketId, addressId)
   }
-
-  def createOrderJson = Action(parse.json) { implicit request =>
+  def getOrdersInformationByUserJson = Action.async{ implicit request:Request[AnyContent] =>
+    silhouette.UserAwareRequestHandler{userAwareRequest =>
+      Future.successful(HandlerResult(Ok, userAwareRequest.identity))
+    }(request).flatMap{
+      case HandlerResult(r,Some(user))=>{
+        val orders = orderRepo.getByUserFullInfo(user.id)
+        orders.map(order=>Ok(Json.toJson(order)))
+      }
+      case HandlerResult(result,None)=>{
+        Future.successful(InternalServerError("Not token"))
+      }
+    }
+  }
+  def createOrderJson = Action.async{ implicit request:Request[AnyContent] =>
     /*,date:String,cost:Int,deliver_id:Int,user_id:Int,payment_id:Int,basket_id:Int*/
-    val order = getOrderFromReqest(request)
-    orderRepo.create(order._1, order._2, order._3, order._4, order._5, order._6,order._7)
-    Ok("")
+    silhouette.UserAwareRequestHandler{userAwareRequest =>
+      Future.successful(HandlerResult(Ok, userAwareRequest.identity))
+    }(request).flatMap{
+      case HandlerResult(r,Some(user))=>{
+        request.body.asJson match {
+          case Some(json)=>{
+            val order = getOrderFromReqest(json)
+            orderRepo.create(order._1, order._2, order._3, user.id, order._5, order._6,order._7).map(order=>Ok(Json.toJson(order)))
+          }
+          case None =>Future.successful(InternalServerError("Not json"))
+        }
+      }
+      case HandlerResult(result,None)=>{
+        Future.successful(InternalServerError("Not token"))
+      }
+    }
   }
 
   def updateOrderJson(orderId: Int) = Action(parse.json) { implicit request =>
-    val order = getOrderFromReqest(request)
+    val order = getOrderFromReqest(request.body)
     orderRepo.update(orderId, Order(orderId, order._1, order._2, order._3, order._4, order._5, order._6,order._7))
     Ok("")
   }

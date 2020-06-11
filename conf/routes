@@ -139,6 +139,7 @@ GET     /ordersjson/:id                     controllers.OrderController.getOrder
 GET     /orderbyuseridjson/:id              controllers.OrderController.getOrderByUserIdJson(id:Int)
 GET     /orderbydelividjson/:id             controllers.OrderController.getOrderByDeliverIdJson(id:Int)
 GET     /orderbyuserpayment/:userid/:payid  controllers.OrderController.getOrderByUseraPaymentJson(userid:String,payid:Int)
+GET     /orderbyuser                        controllers.OrderController.getOrdersInformationByUserJson
 POST    /ordercreatejson                    controllers.OrderController.createOrderJson
 POST    /updateorderjson/:id                controllers.OrderController.updateOrderJson(id:Int)
 DELETE  /deleteorderjson/:id                controllers.OrderController.deleteOrderJson(id:Int)
