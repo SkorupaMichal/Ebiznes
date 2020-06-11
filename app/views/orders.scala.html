@@ -1,4 +1,5 @@
 @(orders: Seq[(Int,String,Int,String,String,String,String)])
+<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
 
 @for(order <- orders){
     <div class="oneall">

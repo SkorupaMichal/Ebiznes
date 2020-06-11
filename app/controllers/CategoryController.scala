@@ -1,21 +1,22 @@
 package controllers
+import com.mohiva.play.silhouette.api.Silhouette
 import models._
 import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{JsValue, Json}
-
+import play.api.libs.json.{JsValue,JsSuccess, Json}
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
 import scala.concurrent._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
-
+import utils.auth._
 case class CreateCategoryForm(name:String,description:String)
 case class UpdateCategoryForm(id:Int,name:String,description:String)
 
 @Singleton
 class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesControllerComponents,repo:CategoryRepository,subcatrepo:SubCategoryRepository,
-                                   prodRepo:ProductRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+                                   prodRepo:ProductRepository,silhouette:Silhouette[DefaultEnv])(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
 
   /*Category controller*/
   val categoryForm: Form[CreateCategoryForm] = Form{
@@ -115,10 +116,12 @@ class CategoryController @Inject()(cc:ControllerComponents,dd:MessagesController
 
     (name,description)
   }
-  def createCategoryByJson = Action(parse.json){implicit request=>
-    val categoryFromJson = getCategoryFromRequestJson(request)
-    repo.create(categoryFromJson._1,categoryFromJson._2)
-    Ok("")
+  def createCategoryByJson = silhouette.SecuredAction(HasRole(UserRoles.Admin)).async(parse.json){implicit request: SecuredRequest[DefaultEnv, JsValue]=>
+    //val categoryFromJson = getCategoryFromRequestJson(request)
+    request.body.validate[Category] match {
+      case JsSuccess(json, _) => repo.create(json.name,json.description).map(_=>Ok("Category Createg"))
+      case _ => Future.successful(InternalServerError("Bad json"))
+    }
   }
   def updateCategoryByJson(categoryId:Int) = Action(parse.json){implicit request=>
     val categoryFromJson = getCategoryFromRequestJson(request)

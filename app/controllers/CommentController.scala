@@ -174,9 +174,6 @@ class CommentController @Inject() (cc:ControllerComponents,commentRepo:CommentRe
     (request \ "product_id").asOpt[Int].map{prodid=>
       productId = prodid
     }.getOrElse(BadRequest(BadJSON))
-    (request \ "user_id").asOpt[String].map{usid=>
-      userId = usid
-    }.getOrElse(BadRequest(BadJSON))
 
     (title,content,productId,userId)
   }

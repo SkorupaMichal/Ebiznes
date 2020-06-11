@@ -4,7 +4,10 @@ import javax.inject._
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsSuccess, JsValue, Json}
+import com.mohiva.play.silhouette.api.actions.SecuredRequest
+import com.mohiva.play.silhouette.api.Silhouette
+import utils.auth.{HasRole,DefaultEnv}
 
 import scala.concurrent.{Await, ExecutionContext, Future, duration}
 import scala.util.{Failure, Success}
@@ -16,7 +19,8 @@ case class AddProductToBasketForm(basketId:Int);
 class ProductController @Inject() (cc:ControllerComponents,dd:MessagesControllerComponents,
                                    subcatRepo:SubCategoryRepository,productRepo:ProductRepository,
                                    commentRepo:CommentRepository,catRepo:CategoryRepository,
-                                   basketRepo:BasketRepository,prodbasketRepo:ProductBasketRepository)(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
+                                   basketRepo:BasketRepository,prodbasketRepo:ProductBasketRepository,
+                                   silhouette:Silhouette[DefaultEnv])(implicit ex:ExecutionContext) extends MessagesAbstractController(dd) {
   /*Product controller*/
   val productForm: Form[CreateProductForm] = Form{
     mapping(
@@ -205,11 +209,13 @@ class ProductController @Inject() (cc:ControllerComponents,dd:MessagesController
     }
     (name,cost,count,producer,cateogryId,subcateogryId)
   }
-  def createProductByJson = Action(parse.json){implicit request=>
+  def createProductByJson = silhouette.SecuredAction(HasRole(UserRoles.Admin)).async(parse.json){implicit request: SecuredRequest[DefaultEnv, JsValue]=>
     /*id:Int,name:String,cost:Int,count:Int,producer:String,category_id:Int,subcategory_id:Int*/
-    val product = getProductFromRequest(request)
-    productRepo.create(product._1,product._2,product._3,product._4,product._5,product._6)
-    Ok("")
+    request.body.validate[Product] match {
+      case JsSuccess(json, _) => productRepo.create(json.name,json.cost,json.count,json.producer,json.categoryId,json.subcategoryId).map(_=>Ok("Product add"))
+      case _ => Future(InternalServerError("Bad json from product"))
+    }
+
   }
   def updateProductByJson(productId:Int) = Action(parse.json){implicit request=>
     val product = getProductFromRequest(request)

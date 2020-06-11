@@ -45,7 +45,8 @@ abstract class AbstractAuthController(silhouette: Silhouette[DefaultEnv],
           "firstName" -> user.firstName,
           "lastName" -> user.lastName,
           "role" -> user.role,
-          "email" -> user.email
+          "email" -> user.email,
+          "expiry+time"-> authenticator.expirationDateTime.getMillis
         )))
       }
     }
